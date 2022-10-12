@@ -26,4 +26,7 @@ CommandTree.add_command(Retro.Petretro(Bot), guild=TOKENS.GUILD) # Adiciona os s
 import commands.interpet as Interpet
 CommandTree.add_command(Interpet.Petinter(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de interpet
 
+import commands.leader as Leadership
+CommandTree.add_command(Leadership.Petliderança(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de lider
+
 Bot.run(TOKENS.SERVER) # Inicia o bot
