@@ -57,7 +57,7 @@ Commands = [Help.Pethelp(Bot), Key.Petkey(Bot),
             Leadership.Petliderança(Bot), Aniversaries.Petaniver(Bot)
             ]
 
-for i in Commands:
-    CommandTree.add_command(i, guild=TOKENS.GUILD) # Adiciona os comandos na arvore
+for command in Commands:
+    CommandTree.add_command(command, guild=TOKENS.GUILD) # Adiciona os comandos na arvore
 
 Bot.run(TOKENS.SERVER) # Inicia o bot
