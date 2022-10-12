@@ -1,10 +1,10 @@
 import os
-from dotenv import load_dotenv
 import discord
 from discord import app_commands
+from utils.env import load_env
 
 # SETUP
-load_dotenv() # Carrega as variaveis de ambiente para serem usada
+load_env() # Carrega as variaveis de ambiente para serem usada
 
 # Salva os Tokens utilizados pelo bot
 class TOKENS:

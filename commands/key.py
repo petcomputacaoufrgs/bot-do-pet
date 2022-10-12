@@ -1,23 +1,25 @@
 import os
 import discord
 from discord import app_commands as apc
+from utils.env import UpdateChannel
 
 class Petkey(apc.Group): # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
     def __init__(self, bot):
         super().__init__()
         self.bot = bot # Referencia para o proprio bot, caso necessario
         self.location = 0 # Id da pessoa que está atualmente com a chave, 0 = com a tia
-        self.KEYCHANNEL = os.getenv("KEY_CHANNEL") # Pega o Id do canal da chave
         self.lastMessageID = 0 # Id da mensagem mais recente do bot para não ser apagada e causar erro
     
     async def sendMsgChave(self, interaction: discord.Interaction):
         """Função para gerar a mensagem de saida, tambem testa se o canal está correto."""
         def check_rules(message):
                 return not (message.id == self.lastMessageID) and (message.pinned == False) # Deleta todas as mensagens que não são a mais recente e não estão pinned
-            
-        if int(interaction.channel.id) != int(self.KEYCHANNEL): # Testa se o canal é o correto para não apagar errado
-            em = discord.Embed(color=0xFF0000) # Gera a mensagem de erro
-            em.add_field(name=f"**Canal Errado!**", value=f"Para comandos relacionados à chave utilize o canal <#{self.KEYCHANNEL}>", inline=False)
+        
+        KEYCHANNEL = os.getenv("KEY_CHANNEL") # Pega o Id do canal da chave
+        
+        if int(interaction.channel.id) != int(KEYCHANNEL): # Testa se o canal é o correto para não apagar errado
+            em = discord.Embed(color=0xFF0000) # Gera a mensagem de erropet
+            em.add_field(name=f"**Canal Errado!**", value=f"Para comandos relacionados à chave utilize o canal <#{KEYCHANNEL}>", inline=False)
             await interaction.response.send_message(embed = em) # Manda a mensagem
         else:
             em = discord.Embed(color=0xFFFFFF) # Gera a mensagem de saida
@@ -48,3 +50,8 @@ class Petkey(apc.Group): # Cria a classe do comando, que herda de Group, utiliza
     async def passei(self, interaction: discord.Interaction, pessoa: str):
         self.location = pessoa.replace("<@","").replace(">","") # Atualiza o id para o id informado na mensagem pela string pessoa, na formatação correta
         await self.sendMsgChave(interaction) 
+        
+    @apc.command(name="setkeychannel",description="Seta o canal da chave.")
+    async def setKeyChannel(self, interaction: discord.Interaction, canal: str):
+        """Função para setar o canal da chave, apenas o dono do servidor pode usar."""
+        await UpdateChannel(interaction, "Chave", "KEY_CHANNEL", canal) # Chama a função de atualização de canal, passando o nome do canal e a variavel de ambiente
