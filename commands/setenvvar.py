@@ -32,3 +32,43 @@ class PetSetEnv(apc.Group):
                 )  # Manda a mensagem de confirmação
         # Envia a mensagem de confirmação
         await interaction.response.send_message(embed=em)
+        
+    @apc.command(name="warnchannel", description="Seta o canal de avisos.")
+    async def setWarnChannel(self, interaction: discord.Interaction, canal: discord.channel.TextChannel):
+        """Função para setar o canal de avisos"""
+        update_env("WARNING_CHANNEL", f"{canal.id}")  # Atualiza o arquivo .env
+        em = discord.Embed(color=0xFF00FF)  # Gera a mensagem de resposta
+        em.add_field(name=f"**Canal da avisos atualizado!**",
+                     value=f"Os avisos gerais agora serão no canal <#{canal.id}>",
+                     inline=False
+                     )  # Manda a mensagem de confirmação
+        # Envia a mensagem de confirmação
+        await interaction.response.send_message(embed=em)
+        
+    @apc.command(name="interpetchannel", description="Seta o canal de avisos do interpet.")
+    async def setWarnChannel(self, interaction: discord.Interaction, canal: discord.channel.TextChannel):
+        """Função para setar o canal do interpet"""
+        update_env("INTERPET_CHANNEL", f"{canal.id}")  # Atualiza o arquivo .env
+        em = discord.Embed(color=0xFF00FF)  # Gera a mensagem de resposta
+        em.add_field(name=f"**Canal de interpet atualizado!**",
+                     value=f"Os avisos de interpet agora serão no canal <#{canal.id}>",
+                     inline=False
+                     )  # Manda a mensagem de confirmação
+        # Envia a mensagem de confirmação
+        await interaction.response.send_message(embed=em)
+        
+    @apc.command(name="petianesid", description="Seta o id do cargo para aviso de petianes.")
+    async def setWarnChannel(self, interaction: discord.Interaction, cargo: discord.Role):
+        """Função para setar o cargo dos petianes"""
+        update_env("PETIANES_ID", f"{cargo.id}")  # Atualiza o arquivo .env
+        em = discord.Embed(color=0xFF00FF)  # Gera a mensagem de resposta
+        em.add_field(name=f"**ID dos petines atualizado!**",
+                     value=f"Os avisos vão pingar <@&{cargo.id}>",
+                     inline=False
+                     )  # Manda a mensagem de confirmação
+        # Envia a mensagem de confirmação
+        await interaction.response.send_message(embed=em)
+    
+    
+    
+    

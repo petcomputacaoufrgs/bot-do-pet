@@ -149,13 +149,13 @@ class Petinter(apc.Group):
     async def remember_interpet(self):
         global interpet_day
         channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL')))
-        await channel.send(f'Atenção, {os.getenv("PETIANES_ID")}!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
+        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID")}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
     @tasks.loop(count=1)
     async def awake_interpet(self):
         global interpet_day
         channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL')))
-        await channel.send(f'Atenção, {os.getenv("PETIANES_ID")}!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
+        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID")}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
         
     @tasks.loop(count=1)
     async def update_interpet_day(self):
