@@ -1,0 +1,99 @@
+{
+    "help": 
+    {   
+        "title": "**Bem-vinde ao Bot do PET!**",
+        "url": "https://github.com/neitaans/bot-do-pet",
+        "description": "Aqui está a lista com todos os comandos disponíveis.\n\nUse `pet.help <comando>` para ter mais informações sobre cada uso.\nNão se esqueça do prefixo `pet.` antes de usar um deles!",
+        "color": "0xFFFFFF",
+        "commands":[
+            {
+                "name": "**Xingue o Matheus:**",
+                "value": "*xingar_matheus*\n*add_xingamento*\n*rem_xingamento*\n*xingamentos*",
+                "inline": true
+            },
+            {
+                "name": "**Demonstre seu carinho:**",
+                "value": "*elogiar*\n*add_elogio*\n*rem_elogio*\n*elogios*\n*hug*",
+                "inline": true
+            },
+            {
+                "name": "**Retrospectiva:**",
+                "value": "*retro*\n*retro_manual*\n*retro_ferias*",
+                "inline": true
+            },
+            {
+                "name": "⠀",
+                "value": "⠀",
+                "inline": false
+            },
+            {
+                "name": "**Interpet:**",
+                "value": "*interpet*\n*interpet_ferias*\n*add_interpet*\n*rem_interpet*\n*interpet_datas*",
+                "inline": true
+            },
+            {
+                "name": "**Liderança:**",
+                "value": "*lideres*",
+                "inline": true
+            },
+            {
+                "name": "**Avisos:**",
+                "value": "*aviso*\n*aviso_atual*",
+                "inline": true
+            },
+            {
+                "name": "⠀",
+                "value": "⠀",
+                "inline": false
+            },
+            {
+                "name": "**Aniversário:**",
+                "value": "*aniversario*",
+                "inline": true
+            },
+            {
+                "name": "**Geração de texto:**",
+                "value": "*nome (Shakespeare),*\n*frase (Shakespeare),*",
+                "inline": true
+            },
+            {
+                "name": "**Chave da salinha:**",
+                "value": "*peguei*\n*devolvi*\n*passei*\n*chave*\n*clear*",
+                "inline": true
+            },
+            {
+                "name": "⠀",
+                "value": "⠀",
+                "inline": false
+            }
+        ]
+    },
+    "commands": [
+        {
+            "command": "xingar_matheus",
+            "title":"**Comando: xingar o Matheus**",
+            "description":"Não é necessário gastar sua saliva xingando o Matheus, o bot faz isso por você.",
+            "color":"0xFF6347",
+            "example":[
+                {
+                    "name":"**Exemplo de uso:**",
+                    "value":"```pet.xingar_matheus```",
+                    "inline": false
+                }
+            ]
+        },
+        {
+            "command": "add_xingamento",
+            "title":"**Comando: adicionar xingamento**",
+            "description":"Adicione uma nova forma de ofender o Matheus!",
+            "color": "0xFF6347",
+            "example":[
+                {
+                    "name":"**Exemplo de uso:**",
+                    "value":"```pet.add_xingamento <xingamento>```",
+                    "inline": false
+                }
+            ]
+        }
+    ]
+}
