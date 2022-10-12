@@ -1,4 +1,3 @@
-import commands.test as Test
 import os
 import discord
 from discord import app_commands
