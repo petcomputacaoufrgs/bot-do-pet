@@ -10,3 +10,7 @@ idna==3.4
 multidict==6.0.2
 python-dotenv==0.21.0
 yarl==1.8.1
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==1.12.1+cpu
+torchaudio==0.12.1+cpu
+torchvision==0.13.1+cpu

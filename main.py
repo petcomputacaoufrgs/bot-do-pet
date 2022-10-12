@@ -6,6 +6,7 @@ CommandTree.add_command(Help.Pethelp(Bot), guild=TOKENS.GUILD) # Adiciona os sub
 import commands.key as Key
 CommandTree.add_command(Key.Petkey(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de key
 
-import commands.test # Importa os comandos do arquivo de teste
+import commands.text_generator as Shks
+CommandTree.add_command(Shks.Petshakespear(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de shakespeare
 
 Bot.run(TOKENS.SERVER) # Inicia o bot
