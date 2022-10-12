@@ -156,3 +156,7 @@ class Petinter(apc.Group):
     @tasks.loop(count=1)
     async def update_interpet_day(self):
         self.interpet_day = Time.format_date().date()
+        
+    @tasks.loop(count=1)
+    async def startTasks(self):
+            self.is_interpet_eve.start()

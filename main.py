@@ -1,35 +1,63 @@
-import asyncio
-from asyncio import tasks
-from utils.setup import CommandTree, Bot, TOKENS
+import commands.test as Test
+import os
+import discord
+from discord import app_commands
+from utils.env import load_env
+
+# SETUP
+load_env()  # Carrega as variaveis de ambiente para serem usada
+
+# Salva os Tokens utilizados pelo bot
+class TOKENS:
+    # Salva o Id do servidor atual
+    GUILD = discord.Object(id=os.getenv("SERVER_ID"))
+    SERVER = os.getenv("TOKEN")
+
+
+class MyClient(discord.Client):  # Cria o cliente que será usado
+    def __init__(self):
+        # Carrega as permissões atuais do bot
+        super().__init__(intents=discord.Intents.default())
+        # Seta a variavel de sincronizado para falso, usado para não sincronizar mais de uma vez
+        self.synced = False
+        
+    async def on_ready(self):  # Quando o bot estiver pronto e aceitando comando
+        if not self.synced:  # Se a variavel for falso ele atuailiza a lista de comandos
+            await CommandTree.sync(guild=TOKENS.GUILD)
+            self.synced = True
+        
+        for command in Commands:
+            try:
+                command.startTasks.start()  # Adiciona os subcomando de test
+            except:
+                pass
+        
+        print(f"Logado como {self.user}")  # Mensagem de exito!
+
+
+
+Bot = MyClient()  # Cria o cliente
+CommandTree = app_commands.CommandTree(Bot)  # Cria a arvore de comandos
 
 import commands.help as Help
-CommandTree.add_command(Help.Pethelp(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de ajuda
-
 import commands.key as Key
-CommandTree.add_command(Key.Petkey(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de key
-
 import commands.text_generator as Shks
-CommandTree.add_command(Shks.Petshakespear(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de shakespeare
-
 import commands.offenses as Offenses
-CommandTree.add_command(Offenses.Petxingamento(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de offenses
-
 import commands.praises as Praises
-CommandTree.add_command(Praises.Petelogio(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de elogios
-
 import commands.setenvvar as SEV
-CommandTree.add_command(SEV.PetSetEnv(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de setenvvar
-
 import commands.retro as Retro
-CommandTree.add_command(Retro.Petretro(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de retro
-
 import commands.interpet as Interpet
-CommandTree.add_command(Interpet.Petinter(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de interpet
-
 import commands.leader as Leadership
-CommandTree.add_command(Leadership.Petliderança(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de lider
-
 import commands.anniversaries as Aniversaries
-CommandTree.add_command(Aniversaries.Petaniver(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de aniversario
+
+Commands = [Help.Pethelp(Bot), Key.Petkey(Bot), 
+            Shks.Petshakespear(Bot), Offenses.Petxingamento(Bot), 
+            Praises.Petelogio(Bot), SEV.PetSetEnv(Bot), 
+            Retro.Petretro(Bot), Interpet.Petinter(Bot), 
+            Leadership.Petliderança(Bot), Aniversaries.Petaniver(Bot)
+            ]
+
+for i in Commands:
+    CommandTree.add_command(i, guild=TOKENS.GUILD) # Adiciona os comandos na arvore
 
 Bot.run(TOKENS.SERVER) # Inicia o bot

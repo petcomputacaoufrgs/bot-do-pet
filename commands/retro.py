@@ -55,16 +55,15 @@ class Petretro(apc.Group):
                 value="Informe uma data válida."
             )
         else:
-            global flag
-            if flag == 1:
-                flag = 0
+            if self.flag == 1:
+                self.flag = 0
                 await self.turn_off_retrospective.start()
                 await self._set_retrospective(interaction=interaction, dia=dia, mes=mes)
             else:
                 self.retro_day = datetime.date(
                     int(datetime.date.today().year), int(mes), int(dia))
                 self.is_retrospective_eve.start()
-                flag = 1
+                self.flag = 1
                 em.add_field(
                     name="**Retrospectiva**",
                     value=f'Retrospectiva manualmente ajustada para a data {self.retro_day.day:02d}/{self.retro_day.month:02d}.'
@@ -116,3 +115,7 @@ class Petretro(apc.Group):
     @tasks.loop(count=1)
     async def update_retro_day(self):
         self.retro_day += datetime.timedelta(days=14)
+        
+    @tasks.loop(count=1)
+    async def startTasks(self):
+        self.is_retrospective_eve.start()

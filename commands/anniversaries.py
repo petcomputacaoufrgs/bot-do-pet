@@ -48,3 +48,7 @@ class Petaniver(apc.Group):
     async def congratulate(self, birthday_person):
         channel = self.bot.get_channel(int(os.getenv("ANNIVERSARY_CHANNEL")))
         await channel.send(f'Atenção, {os.getenv("PETIANES_ID")}, pois é dia de festa!\nO aniversariante de hoje é {birthday_person}, não se esqueçam de desejar tudo de bom e mais um pouco.')
+
+    @tasks.loop(count=1)
+    async def startTasks(self):
+        self.test_aniversary.start()

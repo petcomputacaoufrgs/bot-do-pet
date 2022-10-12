@@ -72,3 +72,8 @@ class Petliderança(apc.Group):
         leadership = data[f'{datetime.date.today().month}']
         channel = self.bot.get_channel(int(os.getenv("LEADERSHIP_CHANNEL")))
         await channel.send(f'Atenção, {os.getenv("PETIANES_ID")}!\nNesse mês, nosso ditador passa a ser {leadership[0]} e nosso vice, {leadership[1]}.')
+
+    @tasks.loop(count=1)
+    async def startTasks(self):
+        self.is_first_day_of_month.start()
+        
