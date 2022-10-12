@@ -9,4 +9,13 @@ CommandTree.add_command(Key.Petkey(Bot), guild=TOKENS.GUILD) # Adiciona os subco
 import commands.text_generator as Shks
 CommandTree.add_command(Shks.Petshakespear(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de shakespeare
 
+import commands.offenses as Offenses
+CommandTree.add_command(Offenses.Petxingamento(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de offenses
+
+import commands.praises as Praises
+CommandTree.add_command(Praises.Petelogio(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de elogios
+
+import commands.setenvvar as SEV
+CommandTree.add_command(SEV.PetSetEnv(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de setenvvar
+
 Bot.run(TOKENS.SERVER) # Inicia o bot

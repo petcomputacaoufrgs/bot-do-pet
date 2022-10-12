@@ -1,7 +1,6 @@
 import os
 import discord
 from discord import app_commands as apc
-from utils.env import UpdateChannel
 
 class Petkey(apc.Group): # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
     def __init__(self, bot):
@@ -39,19 +38,15 @@ class Petkey(apc.Group): # Cria a classe do comando, que herda de Group, utiliza
     @apc.command(name="peguei",description="Pegar a chave para o usuario atual.")
     async def peguei(self, interaction: discord.Interaction):
         self.location = interaction.user.id # Atualiza o id para o id do usuario que mandou a mensagem
-        await self.sendMsgChave(interaction)
+        await self.sendMsgChave(interaction) # Chama a função para enviar a mensagem
         
     @apc.command(name="devolvi",description="Devolve a chave para a tia.")
     async def devolvi(self, interaction: discord.Interaction):
         self.location = 0 # Atualiza o id para 0 (id da tia)
-        await self.sendMsgChave(interaction)
+        await self.sendMsgChave(interaction) # Chama a função para enviar a mensagem
         
     @apc.command(name="passei",description="Passa a chave para o usuario especificado.")
-    async def passei(self, interaction: discord.Interaction, pessoa: str):
-        self.location = pessoa.replace("<@","").replace(">","") # Atualiza o id para o id informado na mensagem pela string pessoa, na formatação correta
-        await self.sendMsgChave(interaction) 
-        
-    @apc.command(name="setkeychannel",description="Seta o canal da chave.")
-    async def setKeyChannel(self, interaction: discord.Interaction, canal: str):
-        """Função para setar o canal da chave, apenas o dono do servidor pode usar."""
-        await UpdateChannel(interaction, "Chave", "KEY_CHANNEL", canal) # Chama a função de atualização de canal, passando o nome do canal e a variavel de ambiente
+    async def passei(self, interaction: discord.Interaction, usuario: discord.User):
+        usuario.id # Pega o id do usuario
+        self.location = usuario.id #pessoa.replace("<@","").replace(">","") # Atualiza o id para o id informado na mensagem pela string pessoa, na formatação correta
+        await self.sendMsgChave(interaction) # Chama a função para enviar a mensagem
