@@ -5,12 +5,11 @@ import utils.shakespeare as shks
 
 class Petshakespear(apc.Group):
     """Comando para gerar texto com shakespear"""
+    def __init__(self, bot): # Inicializa o comando
+        super().__init__() # Inicializa o comando
+        self.bot = bot # Adiciona o bot
 
-    def __init__(self, bot):
-        super().__init__()
-        self.bot = bot
-
-    @apc.command(name="nome", description="Gera um nome shakespeariano!")
+    @apc.command(name="nome", description="Gera um nome shakespeariano!") # Adiciona o subcomando nome
     async def Nome(self, interaction: discord.Integration, seunome: str):
         loop = True
         NomeGerado = ""
@@ -30,7 +29,7 @@ class Petshakespear(apc.Group):
         except:
             await interaction.followup.send('Lembre-se de não usar caractéres ausentes nos textos originais de Shakespeare, tais quais acentos e "ç".')
     
-    @apc.command(name="frase", description="Gera uma frase shakespeariana!")
+    @apc.command(name="frase", description="Gera uma frase shakespeariana!") # Adiciona o subcomando frase
     async def Frase(self, interaction: discord.Integration, seunome: str):
         message = seunome + ":"
         await interaction.response.defer()
@@ -44,4 +43,10 @@ class Petshakespear(apc.Group):
             )
             await interaction.followup.send(embed=em)
         except:
-            await interaction.followup.send('Lembre-se de não usar caractéres ausentes nos textos originais de Shakespeare, tais quais acentos e "ç".')
+            em = discord.Embed(color=0xFF0000)
+            em.add_field(
+                name=f"**Erro ao gerar frase!**",       
+                value=f"Lembre-se de não usar caractéres ausentes nos textos originais de Shakespeare, tais quais acentos e 'ç'.",
+                inline=False
+            )
+            await interaction.followup.send(embed=em)
