@@ -1,3 +1,5 @@
+import asyncio
+from asyncio import tasks
 from utils.setup import CommandTree, Bot, TOKENS
 
 import commands.help as Help
@@ -17,5 +19,8 @@ CommandTree.add_command(Praises.Petelogio(Bot), guild=TOKENS.GUILD) # Adiciona o
 
 import commands.setenvvar as SEV
 CommandTree.add_command(SEV.PetSetEnv(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de setenvvar
+
+import commands.retro as Retro
+CommandTree.add_command(Retro.Petretro(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de retro
 
 Bot.run(TOKENS.SERVER) # Inicia o bot
