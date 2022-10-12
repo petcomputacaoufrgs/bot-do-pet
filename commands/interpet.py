@@ -7,25 +7,24 @@ from discord.ext import tasks
 from discord import app_commands as apc
 import json
 
-flag = 1
-interpet_day = Time.format_date().date()
-
 class Petinter(apc.Group):
     """Comandos do interpet mensal"""
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
+        self.interpet_day = Time.format_date().date()
+        self.flag = 1
         
     @apc.command(name="interpet", description="Informa o dia do próximo interpet")
     async def interpet(self, interaction: discord.Interaction):
         em = discord.Embed(color=0x9370DB)
-        interpet_day = Time.format_date().date()
-        days_to_interpet = interpet_day - datetime.date.today()
+        self.interpet_day = Time.format_date().date()
+        days_to_interpet = self.interpet_day - datetime.date.today()
         if days_to_interpet.days < 2:
             if days_to_interpet.days == 1:
                 em.add_field(
                     name="**Interpet**",
-                    value=f'Falta {days_to_interpet.days} dia até o próximo interpet, que será no dia {interpet_day.day:02d}/{interpet_day.month:02d}.'
+                    value=f'Falta {days_to_interpet.days} dia até o próximo interpet, que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.'
                 )
             elif days_to_interpet.days == 0:
                 em.add_field(
@@ -40,7 +39,7 @@ class Petinter(apc.Group):
         else:
             em.add_field(
                 name="**Interpet**",
-                value=f'Faltam {days_to_interpet.days} dias até o próximo interpet, que será no dia {interpet_day.day:02d}/{interpet_day.month:02d}.'
+                value=f'Faltam {days_to_interpet.days} dias até o próximo interpet, que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.'
             )
         await interaction.response.send_message(embed=em)
         
@@ -131,33 +130,29 @@ class Petinter(apc.Group):
         
     @tasks.loop(hours=1)
     async def is_interpet_eve(self):
-        global interpet_day
-        interpet_day = Time.format_date().date()
+        self.interpet_day = Time.format_date().date()
         now = datetime.datetime.now(pytz.timezone('Brazil/East'))
-        if interpet_day == datetime.date.today() + datetime.timedelta(days=1):
+        if self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
             if now.hour == 20:
                 self.remember_interpet.start()
-        if interpet_day == datetime.date.today():
+        if self.interpet_day == datetime.date.today():
             if now.hour == 8:
                 self.awake_interpet.start()
-        if interpet_day == datetime.date.today() - datetime.timedelta(days=1):
+        if self.interpet_day == datetime.date.today() - datetime.timedelta(days=1):
             if now.hour == 1:
                 self.update_interpet_day.start()
 
 
     @tasks.loop(count=1)
     async def remember_interpet(self):
-        global interpet_day
         channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL')))
         await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID")}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
     @tasks.loop(count=1)
     async def awake_interpet(self):
-        global interpet_day
         channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL')))
         await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID")}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
         
     @tasks.loop(count=1)
     async def update_interpet_day(self):
-        global interpet_day
-        interpet_day = Time.format_date().date()
+        self.interpet_day = Time.format_date().date()

@@ -6,25 +6,24 @@ import utils.time as Time
 from discord.ext import tasks
 from discord import app_commands as apc
 
-flag = 1
-retro_day = Time.initialize_date(datetime.date(2022, 1, 28), 14)
-
 class Petretro(apc.Group):
     """Comandos relacionados a retrospectiva bisemanal do PET"""
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
         self.responded = False
+        self.flag = 1
+        self.retro_day = Time.initialize_date(datetime.date(2022, 1, 28), 14)
         
     @apc.command(name="retro", description="Informa a data da próxima retrospectiva")
     async def retrospective(self, interaction: discord.Integration):
         em = discord.Embed(color=0xF0E68C)
-        days_to_retro = retro_day - datetime.date.today()
+        days_to_retro = self.retro_day - datetime.date.today()
         if days_to_retro.days < 2:
             if days_to_retro.days == 1:
                 em.add_field(
                         name="**Retrospectiva**",
-                        value=f'Falta {days_to_retro.days} dia até a próxima retrospectiva, que será no dia {retro_day.day:02d}/{retro_day.month:02d}.'
+                    value=f'Falta {days_to_retro.days} dia até a próxima retrospectiva, que será no dia {self.retro_day.day:02d}/{self.retro_day.month:02d}.'
                 )
             elif days_to_retro.days == 0:
                 em.add_field(
@@ -39,7 +38,7 @@ class Petretro(apc.Group):
         else:
             em.add_field(
                 name="**Retrospectiva**",
-                value=f'Faltam {days_to_retro.days} dias até a próxima retrospectiva, que será no dia {retro_day.day:02d}/{retro_day.month:02d}.'
+                value=f'Faltam {days_to_retro.days} dias até a próxima retrospectiva, que será no dia {self.retro_day.day:02d}/{self.retro_day.month:02d}.'
             )
         await interaction.response.send_message(embed=em)
     
@@ -62,14 +61,13 @@ class Petretro(apc.Group):
                 await self.turn_off_retrospective.start()
                 await self._set_retrospective(interaction=interaction, dia=dia, mes=mes)
             else:
-                global retro_day
-                retro_day = datetime.date(
+                self.retro_day = datetime.date(
                     int(datetime.date.today().year), int(mes), int(dia))
                 self.is_retrospective_eve.start()
                 flag = 1
                 em.add_field(
                     name="**Retrospectiva**",
-                    value=f'Retrospectiva manualmente ajustada para a data {retro_day.day:02d}/{retro_day.month:02d}.'
+                    value=f'Retrospectiva manualmente ajustada para a data {self.retro_day.day:02d}/{self.retro_day.month:02d}.'
             	)
             if not self.responded:
                 await interaction.response.send_message(embed=em)
@@ -100,12 +98,11 @@ class Petretro(apc.Group):
     # Task: check if today is retrospective eve
     @tasks.loop(hours=1)
     async def is_retrospective_eve(self):
-        global retro_day
         now = datetime.datetime.now(pytz.timezone('Brazil/East'))
-        if retro_day == datetime.date.today() + datetime.timedelta(days=1):
+        if self.retro_day == datetime.date.today() + datetime.timedelta(days=1):
             if now.hour == 15:
                 self.remember_retrospective.start()
-        if retro_day == datetime.date.today():
+        if self.retro_day == datetime.date.today():
             if now.hour == 23:
                 self.update_retro_day.start()
 
@@ -118,5 +115,4 @@ class Petretro(apc.Group):
     # Task: set the retrospective day to 2 weeks later
     @tasks.loop(count=1)
     async def update_retro_day(self):
-        global retro_day
-        retro_day += datetime.timedelta(days=14)
+        self.retro_day += datetime.timedelta(days=14)

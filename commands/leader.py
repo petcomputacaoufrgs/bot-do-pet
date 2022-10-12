@@ -7,46 +7,34 @@ from discord.ext import tasks
 from discord import app_commands as apc
 import json
 
-leadership = Time.read_file("data/leadership.json")
-months_names = {
-    "1": "Janeiro",
-    "2": "Fevereiro",
-    "3": "Março",
-    "4": "Abril",
-    "5": "Maio",
-    "6": "Junho",
-    "7": "Julho",
-    "8": "Agosto",
-    "9": "Setembro",
-    "10": "Outubro",
-    "11": "Novembro",
-    "12": "Dezembro",
-}
+
+
 
 class Petliderança(apc.Group):
     """Comandos de liderança"""
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
+        self.months_names = { "1": "Janeiro", "2": "Fevereiro","3": "Março","4": "Abril","5": "Maio","6": "Junho","7": "Julho","8": "Agosto","9": "Setembro","10": "Outubro","11": "Novembro","12": "Dezembro",}
+        self.leadership = Time.read_file("data/leadership.json")
         
     @apc.command(name="lideres", description="Mostra os líderes do mês")
     async def month_leadership(self, interaction: discord.Interaction):
-        global leadership
-        leadership = Time.read_file("data/leadership.json")
+        self.leadership = Time.read_file("data/leadership.json")
         current_month = datetime.date.today().month
-        current_leadership = leadership[f'{current_month}']
+        current_leadership = self.leadership[f'{current_month}']
         em = discord.Embed(
             title=f"**Liderança:**",
-            description=f"Neste mês de {months_names[f'{current_month}'].lower()}, o líder é **{current_leadership[0]}** e o vice é **{current_leadership[1]}**.\n\nPara os próximos meses:",
+            description=f"Neste mês de {self.months_names[f'{current_month}'].lower()}, o líder é **{current_leadership[0]}** e o vice é **{current_leadership[1]}**.\n\nPara os próximos meses:",
             color=0xFDFD96
         )
         i = 1
         while (current_month+i) <= 12:
             embed_month = current_month + i
             embed_month = str(embed_month)
-            next_leadership = leadership[embed_month]
+            next_leadership = self.leadership[embed_month]
             em.add_field(
-                name=f"**{months_names[embed_month]}**",
+                name=f"**{self.months_names[embed_month]}**",
                 value=f"__Líder__: {next_leadership[0]}\n__Vice__: {next_leadership[1]}",
                 inline=False
             )
@@ -55,20 +43,18 @@ class Petliderança(apc.Group):
         
     @apc.command(name="adicionar", description="Adiciona uma dupla à liderança")
     async def addLider(self, interaction: discord.Integration, mes: int, lider: str, vice: str):
-        global leadership
-        if f'{mes}' not in leadership:
-            leadership[f'{mes}'] = [lider, vice]
-            json.dump(leadership, open("data/leadership.json", "w"))
+        if f'{mes}' not in self.leadership:
+            self.leadership[f'{mes}'] = [lider, vice]
+            json.dump(self.leadership, open("data/leadership.json", "w"))
             await interaction.response.send_message("Adicionado com sucesso!")
         else:
             await interaction.response.send_message("Mês já existe!")
        
     @apc.command(name="remover", description="Remove uma dupla da liderança")
     async def remLider(self, interaction: discord.Integration, mes: int):
-        global leadership
-        if f'{mes}' in leadership:
-            del leadership[f'{mes}']
-            json.dump(leadership, open("data/leadership.json", "w"))
+        if f'{mes}' in self.leadership:
+            del self.leadership[f'{mes}']
+            json.dump(self.leadership, open("data/leadership.json", "w"))
             await interaction.response.send_message("Removido com sucesso!")
         else:
             await interaction.response.send_message("Mês não existe!")
