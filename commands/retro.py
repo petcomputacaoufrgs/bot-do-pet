@@ -1,11 +1,10 @@
-# Para comandos na raiva do projeto, utilize essa template e simplesmente importe o arquivo no main.py
+import os
+import pytz
 import discord
-from discord import app_commands as apc
+import datetime
 import utils.time as Time
 from discord.ext import tasks
-import pytz
-import os
-import datetime
+from discord import app_commands as apc
 
 flag = 1
 retro_day = Time.initialize_date(datetime.date(2022, 1, 28), 14)

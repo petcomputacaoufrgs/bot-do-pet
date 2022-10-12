@@ -23,4 +23,7 @@ CommandTree.add_command(SEV.PetSetEnv(Bot), guild=TOKENS.GUILD) # Adiciona os su
 import commands.retro as Retro
 CommandTree.add_command(Retro.Petretro(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de retro
 
+import commands.interpet as Interpet
+CommandTree.add_command(Interpet.Petinter(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de interpet
+
 Bot.run(TOKENS.SERVER) # Inicia o bot

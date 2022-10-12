@@ -22,3 +22,9 @@ def format_date():
     if difference <= (actual_date - now):
       actual_date = formated_date
   return actual_date
+
+
+def read_file(file_name):
+  with open(file_name, 'r', encoding='utf-8') as json_file:
+    data = json.load(json_file)
+  return data
