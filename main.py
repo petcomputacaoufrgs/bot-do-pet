@@ -29,4 +29,7 @@ CommandTree.add_command(Interpet.Petinter(Bot), guild=TOKENS.GUILD) # Adiciona o
 import commands.leader as Leadership
 CommandTree.add_command(Leadership.Petliderança(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de lider
 
+import commands.anniversaries as Aniversaries
+CommandTree.add_command(Aniversaries.Petaniver(Bot), guild=TOKENS.GUILD) # Adiciona os subcomando de aniversario
+
 Bot.run(TOKENS.SERVER) # Inicia o bot

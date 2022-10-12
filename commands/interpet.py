@@ -63,19 +63,19 @@ class Petinter(apc.Group):
                 int(ano), int(mes), int(dia)).date()
             today_date = datetime.date.today()
             if (new_date - today_date).days > 0:
-                if f'{dia}/{mes}/{ano}' in date_list:
+                if f'{dia:02d}/{mes:02d}/{ano}' in date_list:
                     em.add_field(
                         name="**Adicionar data de interpet**",
                         value="Essa data já está na lista."
                     )
                 else:
-                    date_list.append(f'{dia}/{mes}/{ano}')
+                    date_list.append(f'{dia:02d}/{mes:02d}/{ano}')
                     dict = {'dates': date_list}
                     with open('data/interpet_dates.json', 'w+', encoding='utf-8') as outfile:
                         json.dump(dict, outfile)
                     em.add_field(
                         name="**Adicionar data de interpet**",
-                        value=f'A data {dia}/{mes}/{ano} foi adicionada com sucesso!'
+                        value=f'A data {dia:02d}/{mes:02d}/{ano} foi adicionada com sucesso!'
                     )
             else:
                 raise
@@ -92,8 +92,8 @@ class Petinter(apc.Group):
         data = Time.read_file('data/interpet_dates.json')
         date_list = data['dates']
         em = discord.Embed(color=0x9370DB)
-        if f'{dia}/{mes}/{ano}' in date_list:
-            date_list.remove(f'{dia}/{mes}/{ano}')
+        if f'{dia:02d}/{mes:02d}/{ano}' in date_list:
+            date_list.remove(f'{dia:02d}/{mes:02d}/{ano}')
             dict = {'dates': date_list}
             with open('data/interpet_dates.json', 'w+', encoding='utf-8') as outfile:
                 json.dump(dict, outfile)
