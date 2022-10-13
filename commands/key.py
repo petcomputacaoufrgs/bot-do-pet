@@ -1,6 +1,9 @@
 import os
 import discord
 from discord import app_commands as apc
+from discord.ext import tasks
+from datetime import datetime, time
+from pytz import timezone
 
 class Petkey(apc.Group): # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
     def __init__(self, bot):
@@ -38,15 +41,26 @@ class Petkey(apc.Group): # Cria a classe do comando, que herda de Group, utiliza
     @apc.command(name="peguei",description="Pegar a chave para o usuario atual.")
     async def peguei(self, interaction: discord.Interaction):
         self.location = interaction.user.id # Atualiza o id para o id do usuario que mandou a mensagem
+        self.avisa.stop()
+        self.avisa.start()
         await self.sendMsgChave(interaction) # Chama a função para enviar a mensagem
         
     @apc.command(name="devolvi",description="Devolve a chave para a tia.")
     async def devolvi(self, interaction: discord.Interaction):
+        self.avisa.stop()
         self.location = 0 # Atualiza o id para 0 (id da tia)
         await self.sendMsgChave(interaction) # Chama a função para enviar a mensagem
         
     @apc.command(name="passei",description="Passa a chave para o usuario especificado.")
     async def passei(self, interaction: discord.Interaction, usuario: discord.User):
         usuario.id # Pega o id do usuario
-        self.location = usuario.id #pessoa.replace("<@","").replace(">","") # Atualiza o id para o id informado na mensagem pela string pessoa, na formatação correta
+        self.avisa.stop()
+        self.avisa.start()
+        self.location = usuario.id # Atualiza o id para o id informado na mensagem pela string pessoa, na formatação correta
         await self.sendMsgChave(interaction) # Chama a função para enviar a mensagem
+        
+    # Loop para avisar da chave esquecida
+    @tasks.loop(time=time(hour=17, minute=54, tzinfo=timezone('America/Sao_Paulo'))) # Por algum motivo, se colocamos timezone ele só roda o comando 6 minutos depois
+    async def avisa(self):
+        channel = self.bot.get_channel(int(os.getenv("KEY_CHANNEL")))
+        await channel.send(f"<@{self.location}> vai levar a chave para casa hoje?") # Manda a mensagem avisando que a chave está com alguem
