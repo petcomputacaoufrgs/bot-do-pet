@@ -47,13 +47,14 @@ import commands.setenvvar as SEV
 import commands.retro as Retro
 import commands.interpet as Interpet
 import commands.leader as Leadership
-import commands.anniversaries as Aniversaries
+import commands.birthday as Birthdays
 
-Commands = [Help.Pethelp(Bot), Key.Petkey(Bot), 
+Commands =  [
+            Help.Pethelp(Bot), Key.Petkey(Bot), 
             Shks.Petshakespear(Bot), Offenses.Petxingamento(Bot), 
             Praises.Petelogio(Bot), SEV.PetSetEnv(Bot), 
             Retro.Petretro(Bot), Interpet.Petinter(Bot), 
-            Leadership.Petliderança(Bot), Aniversaries.Petaniver(Bot)
+            Leadership.Petliderança(Bot), Birthdays.Petaniver(Bot)
             ]
 
 for command in Commands:
