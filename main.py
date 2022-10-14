@@ -2,6 +2,8 @@ import os
 import discord
 from discord import app_commands
 from utils.env import load_env
+from importlib import import_module
+from inspect import getmembers, isclass
 
 # SETUP
 load_env()  # Carrega as variaveis de ambiente para serem usada
@@ -25,39 +27,28 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
             await CommandTree.sync(guild=TOKENS.GUILD)
             self.synced = True
         
-        for command in Commands:
-            try:
-                command.startTasks.start()  # Adiciona os subcomando de test
-            except:
-                pass
+        for command in Commands: # Para cada comando na lista de comandos
+            try: # Tenta registrar o inicializador de tasks
+                command.startTasks.start()  # Inicializa as tasks do comando
+            except: # Caso não tenha inicializador de tasks
+                pass # Passa para o proximo comando
         
         print(f"Logado como {self.user}")  # Mensagem de exito!
 
-
-
-Bot = MyClient()  # Cria o cliente
+Bot = MyClient()  # Cria o cliente que interage com o discord
 CommandTree = app_commands.CommandTree(Bot)  # Cria a arvore de comandos
 
-import commands.help as Help
-import commands.key as Key
-import commands.text_generator as Shks
-import commands.offenses as Offenses
-import commands.praises as Praises
-import commands.setenvvar as SEV
-import commands.retro as Retro
-import commands.interpet as Interpet
-import commands.leader as Leadership
-import commands.birthday as Birthdays
+Commands = []  # Lista de comandos, inicializada vazia
+# Carrega todos os comandos do bot e os adiciona a lista de comandos
+for files in os.listdir("commands"): # Para cada arquivo na pasta commands
+    if files.endswith(".py"): # Se o arquivo terminar com .py
+        module = import_module(f"commands.{files[:-3]}") # Importa o arquivo
+        moduleClass = getmembers(module, isclass) # Pega a classe do arquivo
+        instance = moduleClass[0][1](Bot) # Cria uma instancia da classe
+        Commands.append(instance) # Adiciona a instancia a lista de comandos
 
-Commands =  [
-            Help.Pethelp(Bot), Key.Petkey(Bot), 
-            Shks.Petshakespear(Bot), Offenses.Petxingamento(Bot), 
-            Praises.Petelogio(Bot), SEV.PetSetEnv(Bot), 
-            Retro.Petretro(Bot), Interpet.Petinter(Bot), 
-            Leadership.Petliderança(Bot), Birthdays.Petaniver(Bot)
-            ]
-
-for command in Commands:
-    CommandTree.add_command(command, guild=TOKENS.GUILD) # Adiciona os comandos na arvore
+for command in Commands: # Para cada comando na lista de comandos
+    # Adiciona os comandos na arvore
+    CommandTree.add_command(command, guild=TOKENS.GUILD)
 
 Bot.run(TOKENS.SERVER) # Inicia o bot
