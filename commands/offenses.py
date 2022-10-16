@@ -16,12 +16,12 @@ class Petxingamento(apc.Group):
         self.offense_list = self.data["offenses"]
 
     @apc.command(name="matheus", description="não é necessário gastar sua saliva xingando o Matheus, o bot faz isso por você")
-    async def offend(self, interaction: discord.Integration):
-        num = random.randint(0, len(self.offense_list))
+    async def offend(self, interaction: discord.Interaction):
+        num = random.randint(0, len(self.offense_list)-1)
         await interaction.response.send_message(f"{self.offense_list[num].capitalize()}, <@{os.getenv('MATHEUS_ID')}>")
         
     @apc.command(name="adicionar", description="adicione uma nova forma de ofender o Matheus!")
-    async def add_offense(self, interaction: discord.Integration, xingamento: str):
+    async def add_offense(self, interaction: discord.Interaction, xingamento: str):
         em = discord.Embed()
         if xingamento in self.offense_list:
             em.color = 0xFF0000
@@ -40,7 +40,7 @@ class Petxingamento(apc.Group):
         await interaction.response.send_message(embed=em)
     
     @apc.command(name="remover", description="não gostou de algum xingamento? ele nunca mais será usado")
-    async def rem_offense(self, interaction: discord.Integration, xingameto: str):
+    async def rem_offense(self, interaction: discord.Interaction, xingameto: str):
         em = discord.Embed()
         if xingameto in self.offense_list:
             self.offense_list.remove(xingameto)
@@ -59,7 +59,7 @@ class Petxingamento(apc.Group):
         await interaction.response.send_message(embed=em)
         
     @apc.command(name="listar", description="lista todos os xingamentos disponíveis")
-    async def show_offenses(self, interaction: discord.Integration):
+    async def show_offenses(self, interaction: discord.Interaction):
         em = discord.Embed(color=0xFF6347)
         em.add_field(
             name="**Lista de xingamentos**",

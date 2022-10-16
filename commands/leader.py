@@ -6,7 +6,7 @@ import utils.time as Time
 from discord.ext import tasks
 from discord import app_commands as apc
 import json
-
+from pytz import timezone
 
 
 
@@ -42,7 +42,7 @@ class Petliderança(apc.Group):
         await interaction.response.send_message(embed=em)
         
     @apc.command(name="adicionar", description="Adiciona uma dupla à liderança")
-    async def addLider(self, interaction: discord.Integration, mes: int, lider: str, vice: str):
+    async def addLider(self, interaction: discord.Interaction, mes: int, lider: str, vice: str):
         if f'{mes}' not in self.leadership:
             self.leadership[f'{mes}'] = [lider, vice]
             json.dump(self.leadership, open("data/leadership.json", "w"))
@@ -51,7 +51,7 @@ class Petliderança(apc.Group):
             await interaction.response.send_message("Mês já existe!")
        
     @apc.command(name="remover", description="Remove uma dupla da liderança")
-    async def remLider(self, interaction: discord.Integration, mes: int):
+    async def remLider(self, interaction: discord.Interaction, mes: int):
         if f'{mes}' in self.leadership:
             del self.leadership[f'{mes}']
             json.dump(self.leadership, open("data/leadership.json", "w"))
@@ -59,15 +59,11 @@ class Petliderança(apc.Group):
         else:
             await interaction.response.send_message("Mês não existe!")
         
-    @tasks.loop(hours=1)
-    async def is_first_day_of_month(self):
-        if datetime.date.today().day == 1:
-            now = datetime.datetime.now(pytz.timezone('Brazil/East'))
-            if now.hour == 13:
-                self.disclose_leadership.start()
-                
-    @tasks.loop(count=1)
-    async def disclose_leadership(self):
+    @tasks.loop(time=datetime.time(hour=12, minute=54, tzinfo=timezone('America/Sao_Paulo')))
+    async def leadership_alert(self):
+        if not datetime.date.today().day == 1:
+            return
+        
         data = Time.read_file("data/leadership.json")
         leadership = data[f'{datetime.date.today().month}']
         channel = self.bot.get_channel(int(os.getenv("LEADERSHIP_CHANNEL")))
@@ -75,5 +71,5 @@ class Petliderança(apc.Group):
 
     @tasks.loop(count=1)
     async def startTasks(self):
-        self.is_first_day_of_month.start()
+        self.leadership_alert.start()
         

@@ -1,64 +1,75 @@
 import os
-import pytz
 import discord
-import datetime
 import utils.time as Time
 from discord.ext import tasks
 from discord import app_commands as apc
 import json
+import datetime
+from datetime import time
+from pytz import timezone
 
 class Petinter(apc.Group):
     """Comandos do interpet mensal"""
     def __init__(self, bot):
-        super().__init__()
-        self.bot = bot
-        self.interpet_day = Time.format_date().date()
-        self.flag = 1
+        super().__init__() # Inicializa a classe pai
+        self.bot = bot # Define o bot
+        self.interpet_day = Time.format_date().date() # Pega a data de hoje
+        self.flag = True # Flag para verificar se o interpet já foi feito
         
     @apc.command(name="interpet", description="Informa o dia do próximo interpet")
-    async def interpet(self, interaction: discord.Interaction):
-        em = discord.Embed(color=0x9370DB)
-        self.interpet_day = Time.format_date().date()
-        days_to_interpet = self.interpet_day - datetime.date.today()
-        if days_to_interpet.days < 2:
-            if days_to_interpet.days == 1:
+    async def interpet(self, interaction: discord.Interaction): 
+        em = discord.Embed(color=0x9370DB) # Cria um embed
+        self.interpet_day = Time.format_date().date() # Pega a data de hoje
+        days_to_interpet = self.interpet_day - datetime.date.today() # Calcula a diferença entre a data de hoje e a data do interpet
+        if days_to_interpet.days < 2: # Se a diferença for menor que 2 dias
+            if days_to_interpet.days == 1: # Se a diferença for 1 dia
                 em.add_field(
                     name="**Interpet**",
                     value=f'Falta {days_to_interpet.days} dia até o próximo interpet, que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.'
                 )
-            elif days_to_interpet.days == 0:
+            elif days_to_interpet.days == 0: # Se a diferença for 0 dias
                 em.add_field(
                     name="**Interpet**",
                     value="Hoje é o dia do interpet! Corre pra não perder a reunião."
                 )
             else:
-                em.add_field(
+                em.add_field( # Se a diferença for menor que 0 dias
                     name="**Interpet**",
                     value="Erro na data do interpet"
                 )
         else:
-            em.add_field(
+            em.add_field( # Se a diferença for maior que 2 dias
                 name="**Interpet**",
                 value=f'Faltam {days_to_interpet.days} dias até o próximo interpet, que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.'
             )
-        await interaction.response.send_message(embed=em)
+        await interaction.response.send_message(embed=em) # Envia a mensagem
         
     @apc.command(name="ferias", description="Desliga o aviso de interpet")
-    async def set_interpet_vacation(self, interaction: discord.Interaction):
-        em = discord.Embed(color=0x9370DB)
-        self.turn_off_interpet.start()
-        em.add_field(
+    async def set_interpet_vacation(self, interaction: discord.Interaction): 
+        em = discord.Embed(color=0x9370DB) # Cria um embed
+        self.flag = False # Desliga o aviso de interpet
+        em.add_field( # Adiciona um campo ao embed
             name="**Interpet**",
-            value="Bot entrando de férias das retrospectivas! Sem mais avisos ou afins."
+            value="Bot entrando de férias das retrospectivas! Sem mais avisos ou afins." 
         )
-        await interaction.responde.send_message(embed=em)
+        await interaction.response.send_message(embed=em) # Envia a mensagem
+        
+    @apc.command(name="voltar", description="Liga o aviso de interpet")
+    async def set_interpet_work(self, interaction: discord.Interaction):
+        em = discord.Embed(color=0x9370DB) # Cria um embed
+        self.flag = True # Liga o aviso de interpet
+        em.add_field( # Adiciona um campo ao embed
+            name="**Interpet**",
+            value="Bot saindo das férias das retrospectivas! Voltamos a ter avisos." 
+        )
+        await interaction.response.send_message(embed=em) # Envia a mensagem
         
     @apc.command(name="adicionar", description="Adiciona um novo interpet")
-    async def add_interpet(self, interaction: discord.Integration, dia: int, mes: int, ano: int):
-        data = Time.read_file('data/interpet_dates.json')
-        date_list = data['dates']
-        em = discord.Embed(color=0x9370DB)
-        try:
+    async def add_interpet(self, interaction: discord.Interaction, dia: int, mes: int, ano: int):
+        data = Time.read_file('data/interpet_dates.json') # Lê o arquivo de datas
+        date_list = data['dates'] # Pega a lista de datas
+        em = discord.Embed(color=0x9370DB) # Cria um embed
+        try: # Tenta adicionar a data
             new_date = datetime.datetime(
                 int(ano), int(mes), int(dia)).date()
             today_date = datetime.date.today()
@@ -88,7 +99,7 @@ class Petinter(apc.Group):
         
         # Command: Remover data de interpet
     @apc.command(name="remover", description="Remove uma data de interpet")
-    async def remove_offense(self, interaction: discord.Integration, dia: int, mes: int, ano: int):
+    async def remove_interpet(self, interaction: discord.Interaction, dia: int, mes: int, ano: int):
         data = Time.read_file('data/interpet_dates.json')
         date_list = data['dates']
         em = discord.Embed(color=0x9370DB)
@@ -128,35 +139,27 @@ class Petinter(apc.Group):
         )
         await interaction.response.send_message(embed=em)
         
-    @tasks.loop(hours=1)
-    async def is_interpet_eve(self):
-        self.interpet_day = Time.format_date().date()
-        now = datetime.datetime.now(pytz.timezone('Brazil/East'))
-        if self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
-            if now.hour == 20:
-                self.remember_interpet.start()
-        if self.interpet_day == datetime.date.today():
-            if now.hour == 8:
-                self.awake_interpet.start()
-        if self.interpet_day == datetime.date.today() - datetime.timedelta(days=1):
-            if now.hour == 1:
-                self.update_interpet_day.start()
-
-
-    @tasks.loop(count=1)
+    @tasks.loop(time=time(hour=19, minute=54, tzinfo=timezone('America/Sao_Paulo')))
     async def remember_interpet(self):
+        self.interpet_day = Time.format_date().date() # Pega a data atual
+        # Se o aviso de interpet estiver desligado ou não for dia de interpet, não faz nada
+        if not self.flag or not self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
+            return 
+        
         channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL')))
         await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID")}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
-    @tasks.loop(count=1)
+    @tasks.loop(time=time(hour=7, minute=54, tzinfo=timezone('America/Sao_Paulo')))
     async def awake_interpet(self):
+        self.interpet_day = Time.format_date().date()  # Pega a data atual
+        # Se o aviso de interpet estiver desligado ou não for dia de interpet, não faz nada
+        if not self.flag or not self.interpet_day == datetime.date.today():
+            return
+        
         channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL')))
         await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID")}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
         
     @tasks.loop(count=1)
-    async def update_interpet_day(self):
-        self.interpet_day = Time.format_date().date()
-        
-    @tasks.loop(count=1)
-    async def startTasks(self):
-            self.is_interpet_eve.start()
+    async def startTasks(self): # Inicia as tasks
+        self.remember_interpet.start() # Inicia a task de lembrar do interpet
+        self.awake_interpet.start() # Inicia a task de acordar para o interpet

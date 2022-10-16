@@ -10,7 +10,7 @@ class Petshakespear(apc.Group):
         self.bot = bot # Adiciona o bot
 
     @apc.command(name="nome", description="Gera um nome shakespeariano!") # Adiciona o subcomando nome
-    async def Nome(self, interaction: discord.Integration, seunome: str):
+    async def Nome(self, interaction: discord.Interaction, seunome: str):
         loop = True
         NomeGerado = ""
         await interaction.response.defer()
@@ -30,7 +30,7 @@ class Petshakespear(apc.Group):
             await interaction.followup.send('Lembre-se de não usar caractéres ausentes nos textos originais de Shakespeare, tais quais acentos e "ç".')
     
     @apc.command(name="frase", description="Gera uma frase shakespeariana!") # Adiciona o subcomando frase
-    async def Frase(self, interaction: discord.Integration, seunome: str):
+    async def Frase(self, interaction: discord.Interaction, seunome: str):
         message = seunome + ":"
         await interaction.response.defer()
         try:

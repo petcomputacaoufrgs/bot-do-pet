@@ -11,7 +11,7 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
             self.data = json.loads(f.read()) # Carrega o arquivo de ajuda para a memoria
         
     @apc.command(name="help", description="Mostra todos os commandos do BotPET")
-    async def help(self, interaction: discord.Integration):
+    async def help(self, interaction: discord.Interaction):
         helpData = self.data["help"] # Pega os dados de ajuda geral
         # Gera a mensagem de ajuda
         em=discord.Embed(title = helpData["title"], url = helpData["url"], description = helpData["description"], color = eval(helpData["color"]))
@@ -21,7 +21,7 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
         await interaction.response.send_message(embed = em) # Envia a mensagem de ajuda
         
     @apc.command(name="comando", description="Mostra os detalhes de um comando")
-    async def comando(self, interaction: discord.Integration, comando: str):
+    async def comando(self, interaction: discord.Interaction, comando: str):
         commandsData = self.data["commands"] # Pega os dados de comandos
         found = False # Variavel para verificar se o comando foi encontrado
         for command in commandsData: # Para cada comando na lista de comandos

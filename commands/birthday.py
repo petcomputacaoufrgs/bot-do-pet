@@ -11,83 +11,83 @@ class Petaniver(apc.Group):
     """Comandos dos aniversarios do pet"""
 
     def __init__(self, bot):
-        super().__init__()
-        self.bot = bot
-        self.data = Time.read_file("data/birthdays.json")
+        super().__init__() # Inicializa a classe pai
+        self.bot = bot # Define o bot
+        self.data = Time.read_file("data/birthdays.json") # Carrega o arquivo de aniversarios
 
     @apc.command(name="aniversario", description="Informa o dia do próximo aniversário")
     async def nextbirthday(self, interaction: discord.Interaction):
-        loop = True
-        today = datetime.date.today()
-        while loop:
-            today += datetime.timedelta(days=1)
-            for date in self.data.keys():
-                if date == today.strftime("%d/%m"):
-                    birthday_people = self.data[date]
-                    loop = False
-                    break
+        loop = True 
+        today = datetime.date.today() # Pega a data de hoje
+        while loop: # Loop para encontrar o proximo aniversario
+            today += datetime.timedelta(days=1) # Adiciona um dia a data de hoje
+            for date in self.data.keys(): # Itera sobre as datas
+                if date == today.strftime("%d/%m"): # Se a data for igual a data de hoje
+                    birthday_people = self.data[date] # Pega a lista de pessoas que fazem aniversario nesse dia
+                    loop = False # Para o loop
+                    break # Quebra o loop
         
-        birthday_person = self.birthday_string(birthday_people)
-        startofMsg = "O próximo aniversariante é"
-        if len(birthday_people) != 1:
-            startofMsg = "Os próximos aniversariantes são"
+        birthday_person = self.birthday_string(birthday_people) # Transforma a lista de pessoas em uma string
+        startofMsg = "O próximo aniversariante é"  # Define a primeira parte da mensagem
+        if len(birthday_people) != 1: # Se tiver mais de uma pessoa fazendo aniversario
+            startofMsg = "Os próximos aniversariantes são" # Muda a mensagem inicial
         
-        em = discord.Embed(color=0xFF8AD2)
-        em.add_field(
+        em = discord.Embed(color=0xFF8AD2) # Cria um embed
+        em.add_field( # Adiciona um campo ao embed
             name=f"**Aniversário**",
             value=f"{startofMsg} {birthday_person}, no dia {today.strftime('%d/%m')}.",
             inline=False
         )
-        await interaction.response.send_message(embed=em)
+        await interaction.response.send_message(embed=em) # Envia a mensagem
         
     @apc.command(name="adicionar", description="Adiciona um aniversariante em uma data!")
-    async def add_ani(self, interaction: discord.Integration, nome: str, dia: int, mes: int):
-        if dia > 31 or dia < 1 or mes > 12 or mes < 1:
-            await interaction.response.send_message("Data inválida")
-            return
-        if f'{dia:02d}/{mes:02d}' in self.data.keys():
-            self.data[f"{dia:02d}/{mes:02d}"].append(nome)
-        else:
-            self.data[f"{dia:02d}/{mes:02d}"] = [nome]
-        json.dump(self.data, open("data/birthdays.json", "w"))
-        await interaction.response.send_message(f"Aniversariante {nome} adicionado com sucesso!")
+    async def add_ani(self, interaction: discord.Interaction, nome: str, dia: int, mes: int):
+        if dia > 31 or dia < 1 or mes > 12 or mes < 1: # Verifica se a data é valida
+            await interaction.response.send_message("Data inválida") # Envia a mensagem
+            return # Sai da função
+        if f'{dia:02d}/{mes:02d}' in self.data.keys(): # Verifica se a data já existe
+            self.data[f"{dia:02d}/{mes:02d}"].append(nome) # Adiciona o nome a lista de nomes
+        else: # Se não existir
+            self.data[f"{dia:02d}/{mes:02d}"] = [nome] # Cria a data com o nome
+        json.dump(self.data, open("data/birthdays.json", "w")) # Salva o arquivo
+        await interaction.response.send_message(f"Aniversariante {nome} adicionado com sucesso!") # Envia a mensagem
         
-    @apc.command(name="remover", description="Remove um aniversariante")
-    async def rem_ani(self, interaction: discord.Integration, nome: str):
-        for date in self.data.keys():
-            if nome in self.data[date]:
-                self.data[date].remove(nome)
-                if self.data[date] == []:
-                    self.data.pop(date)
-                json.dump(self.data, open("data/birthdays.json", "w"))
-                await interaction.response.send_message(f"Aniversariante {nome} removido com sucesso!")
-                return
-        await interaction.response.send_message(f"Aniversariante {nome} não encontrado!")
+    @apc.command(name="remover", description="Remove um aniversariante") # Comando para remover um aniversariante
+    async def rem_ani(self, interaction: discord.Interaction, nome: str): # Função para remover um aniversariante
+        for date in self.data.keys(): # Itera sobre as datas
+            if nome in self.data[date]: # Se o nome estiver na lista de nomes
+                self.data[date].remove(nome) # Remove o nome da lista
+                if self.data[date] == []: # Se a lista ficar vazia
+                    self.data.pop(date) # Remove a data
+                json.dump(self.data, open("data/birthdays.json", "w")) # Salva o arquivo
+                await interaction.response.send_message(f"Aniversariante {nome} removido com sucesso!") # Envia a mensagem
+                return # Sai da função
+        await interaction.response.send_message(f"Aniversariante {nome} não encontrado!") # Envia a mensagem
         
     @tasks.loop(time=datetime.time(hour=7, minute=54, tzinfo=pytz.timezone("America/Sao_Paulo")))
     async def test_birthday(self):
-        today = datetime.date.today().strftime("%d/%m")
-        if not today in self.data.keys():
-            return
+        today = datetime.date.today().strftime("%d/%m") # Pega a data de hoje
+        if not today in self.data.keys(): # Se não tiver aniversario hoje
+            return # Sai da função
         
-        birthday_people = self.data[today]    
-        birthday_person = self.birthday_string(birthday_people)
-        startofMsg = "O aniversariante de hoje é"
-        if len(birthday_people) != 1:
-            startofMsg = "Os aniversariantes de hoje são"
+        birthday_people = self.data[today]    # Pega a lista de pessoas que fazem aniversario hoje 
+        birthday_person = self.birthday_string(birthday_people) # Transforma a lista de pessoas em uma string
+        startofMsg = "O aniversariante de hoje é"  # Define a primeira parte da mensagem
+        if len(birthday_people) != 1: # Se tiver mais de uma pessoa fazendo aniversario
+            startofMsg = "Os aniversariantes de hoje são" # Muda a mensagem inicial
         
-        channel = self.bot.get_channel(int(os.getenv("ANNIVERSARY_CHANNEL")))
+        channel = self.bot.get_channel(int(os.getenv("ANNIVERSARY_CHANNEL"))) # Pega o canal de aniversarios
         await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID")}>, pois é dia de festa!\n{startofMsg} {birthday_person}, não se esqueçam de desejar tudo de bom e mais um pouco.')
         
     def birthday_string(self, data):
-        birthday_string = ""
-        if len(data) != 1:
-            for names in data:
-                if names != data[-1]:
-                    birthday_string += f"{names}, e "
-        birthday_string += f"{data[-1]}"
-        return birthday_string
+        birthday_string = "" # Inicializa a string
+        if len(data) != 1: # Se tiver mais de uma pessoa
+            for names in data: # Itera sobre as pessoas
+                if names != data[-1]: # Se não for a ultima pessoa
+                    birthday_string += f"{names}, e " # Adiciona a pessoa e uma virgula
+        birthday_string += f"{data[-1]}" # Adiciona a ultima pessoa
+        return birthday_string # Retorna a string
         
     @tasks.loop(count=1)
-    async def startTasks(self):
-        self.test_birthday.start()     
+    async def startTasks(self): # Função para iniciar as tasks
+        self.test_birthday.start()   # Inicia a task de aniversario  

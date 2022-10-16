@@ -11,7 +11,7 @@ class PetSetEnv(apc.Group):
         self.bot = bot
 
     @apc.command(name="offensesid", description="Seta o id do matheus para os xingamentos")
-    async def setMatheusId(self, interaction: discord.Integration, matheus_id: discord.User):
+    async def setMatheusId(self, interaction: discord.Interaction, matheus_id: discord.User):
         os.environ["MATHEUS_ID"] = f"{matheus_id.id}"
         update_env("MATHEUS_ID", f"{matheus_id.id}")
         em = discord.Embed(color=0xFF00FF)  # Gera a mensagem de resposta
