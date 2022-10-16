@@ -18,7 +18,9 @@ class TOKENS:
 class MyClient(discord.Client):  # Cria o cliente que será usado
     def __init__(self):
         # Carrega as permissões atuais do bot
-        super().__init__(intents=discord.Intents.default())
+        intents = discord.Intents.default()
+        intents.members = True # Permite que o bot veja os membros do servidor
+        super().__init__(intents=intents)
         # Seta a variavel de sincronizado para falso, usado para não sincronizar mais de uma vez
         self.synced = False
         
