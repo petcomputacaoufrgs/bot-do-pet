@@ -13,7 +13,7 @@ class Petaniver(apc.Group):
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
-        self.data = Time.read_file("data/anniversaries.json")
+        self.data = Time.read_file("data/birthdays.json")
 
     @apc.command(name="aniversario", description="Informa o dia do próximo aniversário")
     async def nextbirthday(self, interaction: discord.Interaction):
@@ -49,7 +49,7 @@ class Petaniver(apc.Group):
             self.data[f"{dia:02d}/{mes:02d}"].append(nome)
         else:
             self.data[f"{dia:02d}/{mes:02d}"] = [nome]
-        json.dump(self.data, open("data/anniversaries.json", "w"))
+        json.dump(self.data, open("data/birthdays.json", "w"))
         await interaction.response.send_message(f"Aniversariante {nome} adicionado com sucesso!")
         
     @apc.command(name="remover", description="Remove um aniversariante")
@@ -59,7 +59,7 @@ class Petaniver(apc.Group):
                 self.data[date].remove(nome)
                 if self.data[date] == []:
                     self.data.pop(date)
-                json.dump(self.data, open("data/anniversaries.json", "w"))
+                json.dump(self.data, open("data/birthdays.json", "w"))
                 await interaction.response.send_message(f"Aniversariante {nome} removido com sucesso!")
                 return
         await interaction.response.send_message(f"Aniversariante {nome} não encontrado!")

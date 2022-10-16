@@ -21,7 +21,7 @@ class Petkey(apc.Group): # Cria a classe do comando, que herda de Group, utiliza
         
         if int(interaction.channel.id) != int(KEYCHANNEL): # Testa se o canal é o correto para não apagar errado
             em = discord.Embed(color=0xFF0000) # Gera a mensagem de erropet
-            em.add_field(name=f"**Canal Errado!**", value=f"Para comandos relacionados à chave utilize o canal <#{KEYCHANNEL}>", inline=False)
+            em.add_field(name=f"**Canal Errado!**", value=f"Local da chave atualizado, mas para comandos relacionados à chave utilize o canal <#{KEYCHANNEL}>", inline=False)
             await interaction.response.send_message(embed = em) # Manda a mensagem
         else:
             em = discord.Embed(color=0xFFFFFF) # Gera a mensagem de saida
@@ -41,26 +41,26 @@ class Petkey(apc.Group): # Cria a classe do comando, que herda de Group, utiliza
     @apc.command(name="peguei",description="Pegar a chave para o usuario atual.")
     async def peguei(self, interaction: discord.Interaction):
         self.location = interaction.user.id # Atualiza o id para o id do usuario que mandou a mensagem
-        self.avisa.stop()
-        self.avisa.start()
         await self.sendMsgChave(interaction) # Chama a função para enviar a mensagem
         
     @apc.command(name="devolvi",description="Devolve a chave para a tia.")
     async def devolvi(self, interaction: discord.Interaction):
-        self.avisa.stop()
         self.location = 0 # Atualiza o id para 0 (id da tia)
         await self.sendMsgChave(interaction) # Chama a função para enviar a mensagem
         
     @apc.command(name="passei",description="Passa a chave para o usuario especificado.")
     async def passei(self, interaction: discord.Interaction, usuario: discord.User):
         usuario.id # Pega o id do usuario
-        self.avisa.stop()
-        self.avisa.start()
         self.location = usuario.id # Atualiza o id para o id informado na mensagem pela string pessoa, na formatação correta
         await self.sendMsgChave(interaction) # Chama a função para enviar a mensagem
         
     # Loop para avisar da chave esquecida
     @tasks.loop(time=time(hour=17, minute=54, tzinfo=timezone('America/Sao_Paulo'))) # Por algum motivo, se colocamos timezone ele só roda o comando 6 minutos depois
     async def avisa(self):
-        channel = self.bot.get_channel(int(os.getenv("KEY_CHANNEL")))
-        await channel.send(f"<@{self.location}> vai levar a chave para casa hoje?") # Manda a mensagem avisando que a chave está com alguem
+        if self.location != 0:
+            channel = self.bot.get_channel(int(os.getenv("KEY_CHANNEL")))
+            await channel.send(f"<@{self.location}> vai levar a chave para casa hoje?") # Manda a mensagem avisando que a chave está com alguem
+    
+    @tasks.loop(count=1)
+    async def startTasks(self):
+        self.avisa.start() # Inicia o loop de avisar da chave esquecida
