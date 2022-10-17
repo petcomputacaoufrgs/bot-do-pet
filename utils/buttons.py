@@ -16,8 +16,9 @@ class KeyMenu(discord.ui.View):
         server = self.bot.get_guild(int(os.getenv("SERVER_ID", 0)))
         users.clear()
         for user in server.members:
-            users.append(discord.SelectOption(
-                label=f"{user.display_name}", value=user.id, description=f"{user.name}#{user.discriminator}"))
+            if user.get_role(int(os.getenv("PETIANES_ID", 0))) is not None:
+                users.append(discord.SelectOption(
+                    label=f"{user.display_name}", value=user.id, description=f"{user.name}#{user.discriminator}"))
 
     def MsgChave(self) -> discord.Embed:
         em = discord.Embed(color=0xFFFFFF)  # Gera a mensagem de saida
