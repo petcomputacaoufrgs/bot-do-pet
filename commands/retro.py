@@ -2,7 +2,6 @@ import os
 import pytz
 import discord
 import datetime
-import utils.time as Time
 from discord.ext import tasks
 from discord import app_commands as apc
 
@@ -12,7 +11,7 @@ class Petretro(apc.Group):
         super().__init__()
         self.bot = bot
         self.flag = True
-        self.retro_day = Time.initialize_date(datetime.date(2022, 1, 28), 14)
+        self.retro_day = self.initialize_date(datetime.date(2022, 1, 28), 14)
         
     @apc.command(name="retro", description="Informa a data da próxima retrospectiva")
     async def retrospective(self, interaction: discord.Interaction):
@@ -92,3 +91,9 @@ class Petretro(apc.Group):
     async def startTasks(self):
         self.remember_retrospective.start()
         self.update_retro_day.start()
+        
+    def initialize_date(self, current_day, interval):
+        today = datetime.date.today()
+        while current_day < today:
+            current_day += datetime.timedelta(days=interval)
+        return current_day

@@ -1,5 +1,4 @@
 import os
-import discord
 
 def load_env():
     """Função para carregar as variaveis de ambiente"""

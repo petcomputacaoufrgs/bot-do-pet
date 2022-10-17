@@ -2,7 +2,7 @@ import os
 import discord
 from discord import app_commands as apc
 from discord.ext import tasks
-from datetime import datetime, time
+from datetime import time
 from pytz import timezone
 
 class Petkey(apc.Group): # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos

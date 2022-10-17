@@ -2,7 +2,6 @@ import os
 import pytz
 import discord
 import datetime
-import utils.time as Time
 from discord.ext import tasks
 from discord import app_commands as apc
 import json
@@ -13,7 +12,7 @@ class Petaniver(apc.Group):
     def __init__(self, bot):
         super().__init__() # Inicializa a classe pai
         self.bot = bot # Define o bot
-        self.data = Time.read_file("data/birthdays.json") # Carrega o arquivo de aniversarios
+        self.data = self.readBirthdaysFile() # Carrega o arquivo de aniversarios
 
     @apc.command(name="aniversario", description="Informa o dia do próximo aniversário")
     async def nextbirthday(self, interaction: discord.Interaction):
@@ -91,3 +90,8 @@ class Petaniver(apc.Group):
     @tasks.loop(count=1)
     async def startTasks(self): # Função para iniciar as tasks
         self.test_birthday.start()   # Inicia a task de aniversario  
+        
+    def readBirthdaysFile(self):
+        with open("data/birthdays.json", 'r', encoding='utf-8') as json_file:
+            data = json.load(json_file)
+        return data

@@ -1,8 +1,6 @@
 import os
-import pytz
 import discord
 import datetime
-import utils.time as Time
 from discord.ext import tasks
 from discord import app_commands as apc
 import json
@@ -16,11 +14,11 @@ class Petliderança(apc.Group):
         super().__init__()
         self.bot = bot
         self.months_names = { "1": "Janeiro", "2": "Fevereiro","3": "Março","4": "Abril","5": "Maio","6": "Junho","7": "Julho","8": "Agosto","9": "Setembro","10": "Outubro","11": "Novembro","12": "Dezembro",}
-        self.leadership = Time.read_file("data/leadership.json")
+        self.leadership = self.readLeaderFile()
         
     @apc.command(name="lideres", description="Mostra os líderes do mês")
     async def month_leadership(self, interaction: discord.Interaction):
-        self.leadership = Time.read_file("data/leadership.json")
+        self.leadership = self.readLeaderFile()
         current_month = datetime.date.today().month
         current_leadership = self.leadership[f'{current_month}']
         em = discord.Embed(
@@ -64,7 +62,7 @@ class Petliderança(apc.Group):
         if not datetime.date.today().day == 1:
             return
         
-        data = Time.read_file("data/leadership.json")
+        data = self.readLeaderFile()
         leadership = data[f'{datetime.date.today().month}']
         channel = self.bot.get_channel(int(os.getenv("LEADERSHIP_CHANNEL")))
         await channel.send(f'Atenção, {os.getenv("PETIANES_ID")}!\nNesse mês, nosso ditador passa a ser {leadership[0]} e nosso vice, {leadership[1]}.')
@@ -72,4 +70,9 @@ class Petliderança(apc.Group):
     @tasks.loop(count=1)
     async def startTasks(self):
         self.leadership_alert.start()
+        
+    def readLeaderFile(self):
+        with open("data/leadership.json", 'r', encoding='utf-8') as json_file:
+            data = json.load(json_file)
+        return data
         
