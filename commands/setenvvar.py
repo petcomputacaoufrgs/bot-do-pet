@@ -21,6 +21,18 @@ class PetSetEnv(apc.Group):
         # Envia a mensagem de confirmação
         await interaction.response.send_message(embed=em)
         
+    @apc.command(name="keychannel", description="Seta o canal da chave.")
+    async def setKeyChannel(self, interaction: discord.Interaction, canal: discord.channel.TextChannel):
+        """Função para setar o canal da chave, apenas o dono do servidor pode usar."""
+        update_env("KEY_CHANNEL", f"{canal.id}")  # Atualiza o arquivo .env
+        em = discord.Embed(color=0xFF00FF)  # Gera a mensagem de resposta
+        em.add_field(name=f"**Canal da Chave atualizado!**",
+                value=f"Para os comandos da chave utilize agora o canal <#{canal.id}>", 
+                inline=False
+                )  # Manda a mensagem de confirmação
+        # Envia a mensagem de confirmação
+        await interaction.response.send_message(embed=em)
+        
     @apc.command(name="warnchannel", description="Seta o canal de avisos.")
     async def setWarnChannel(self, interaction: discord.Interaction, canal: discord.channel.TextChannel):
         """Função para setar o canal de avisos"""
