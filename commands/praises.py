@@ -67,3 +67,7 @@ class Petelogio(apc.Group):
             value="\n".join(self.praise_list)
         )
         await interaction.response.send_message(embed=em)
+        
+    @apc.command(name="hug", description="demonstre seu carinho por alguém")
+    async def show_praises(self, interaction: discord.Interaction, pessoa: discord.User):
+        await interaction.response.send_message(f"<@{interaction.user.id}> abraçou beeeeem forte <@{pessoa.id}> <3")
