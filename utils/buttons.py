@@ -1,12 +1,14 @@
 import discord
 import os
+from utils.env import update_env
 
 users = []
 
 class KeyMenu(discord.ui.View):
     def __init__(self, bot: discord.Client):
         super().__init__(timeout=None)
-        self.location = 0  # Id da pessoa que está atualmente com a chave, 0 = com a tia
+        # Id da pessoa que está atualmente com a chave, 0 = com a tia
+        self.location = int(os.getenv("LAST_KEY"))
         self.bot = bot  # Referencia para o proprio bot, caso necessario
         self.updateUsers()
 
@@ -26,22 +28,31 @@ class KeyMenu(discord.ui.View):
         em.add_field(name=f"**Cadê a chave?**", value=local, inline=False)
         # Manda a mensagem
         return em
+
+    async def output(self, message: discord.Message) -> None:
+        em = self.MsgChave()  # Gera a mensagem de saida
+        await message.edit(embed=em)  # Manda a mensagem
+        
+    def UpdateKey(self, id: int) -> None:
+        self.location = id
+        update_env("LAST_KEY", str(id))
         
     @discord.ui.button(label="Peguei", style=discord.ButtonStyle.green, custom_id="peguei")
-    async def peguei(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.location = interaction.user.id  # Muda o id da pessoa que está com a chave
+    async def peguei(self, interaction: discord.Interaction, button: discord.ui.Button = None):
+        # Muda o id da pessoa que está com a chave
+        self.UpdateKey(interaction.user.id)
         em = self.MsgChave()  # Gera a mensagem de saida
         await interaction.response.edit_message(embed=em)  # Manda a mensagem
     
     @discord.ui.select(placeholder="Passei", options=users, custom_id="passei")
     async def passei(self, interaction: discord.Interaction, select: discord.ui.Select):
         # Muda o id da pessoa que está com a chave
-        self.location = select.values[0]
+        self.UpdateKey(select.values[0])
         em = self.MsgChave()  # Gera a mensagem de saida
         await interaction.response.edit_message(embed=em)  # Manda a mensagem
 
     @discord.ui.button(label="Devolvi", style=discord.ButtonStyle.red, custom_id="devolvi")
-    async def devolvi(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.location = 0
+    async def devolvi(self, interaction: discord.Interaction, button: discord.ui.Button = None):
+        self.UpdateKey(0)
         em = self.MsgChave()  # Gera a mensagem de saida
-        await interaction.response.edit_message(embed=em)
+        await interaction.response.edit_message(embed=em)  # Manda a mensagem

@@ -15,6 +15,16 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
         # ID da mensagem que contem a chave
         self.keyMessageID = int(os.getenv("KEY_MESSAGE"))
 
+    async def MessageExists(self) -> discord.Message | None:
+        channel = self.bot.get_channel(int(os.getenv("KEY_CHANNEL")))  # Pega o canal da chave
+        try:
+            # Pega a mensagem da chave
+            message = await channel.fetch_message(self.keyMessageID)
+        except:
+            return None # Se não encontrar a mensagem, retorna
+        
+        return message
+
     def check_rules(self, message):
         # Deleta todas as mensagens que não são a mais recente e não estão pinned
         return not (message.id == self.keyMessageID) and (message.pinned == False)
@@ -32,7 +42,7 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
     @apc.command(name="chave", description="Gera a menssagem para o bot criar os botões")
     async def createKey(self, interaction: discord.Interaction):
         # Verifica se o comando foi executado no canal correto
-        if interaction.channel_id != os.getenv("KEY_CHANNEL"):
+        if interaction.channel_id != int(os.getenv("KEY_CHANNEL")):
             await interaction.response.send_message("Você precisa estar no canal da chave para executar esse comando!", ephemeral=True)
             return  # Sai da função
 
@@ -44,23 +54,53 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
         except:
             pass  # Se não conseguir editar a mensagem, ignora o erro
 
-        channel = self.bot.get_channel(
-            interaction.channel_id)  # Pega o canal da chave
+        channel = self.bot.get_channel(interaction.channel_id)  # Pega o canal da chave
         # Pega o ID da ultima mensagem enviada
         self.keyMessageID = channel.last_message_id
         update_env("KEY_MESSAGE", f"{self.keyMessageID}")  # Atualiza o .env
         self.key.restart()  # Inicia o loop de atualização da mensagem da chave
 
+    @apc.command(name="peguei", description="Pega a chave pra ti")
+    async def peguei(self, interaction: discord.Interaction):
+        message = await self.MessageExists()
+        if message is None:
+            await interaction.response.send_message("A chave ainda não foi gerada!", ephemeral=True)
+            return
+            
+        self.view.UpdateKey(interaction.user.id) # Marca que o usuário pegou a chave
+        await self.view.output(message)  # Atualiza a mensagem da chave
+        await interaction.response.send_message("A chave atualizada!", ephemeral=True)
+        
+    @apc.command(name="passei", description="Passa a chave pra alguem ai.")
+    async def passei(self, interaction: discord.Interaction, usuario: discord.User):
+        message = await self.MessageExists()
+        if message is None:
+            await interaction.response.send_message("A chave ainda não foi gerada!", ephemeral=True)
+            return
+            
+        # Marca que o usuário pegou a chave
+        self.view.UpdateKey(usuario.id)
+        await self.view.output(message)  # Atualiza a mensagem da chave
+        await interaction.response.send_message("A chave atualizada!", ephemeral=True)
+
+    @apc.command(name="devolvi", description="Devolve a chave para a tia.")
+    async def devolvi(self, interaction: discord.Interaction):
+        message = await self.MessageExists()
+        if message is None:
+            await interaction.response.send_message("A chave ainda não foi gerada!", ephemeral=True)
+            return
+        
+        # Marca que o usuário pegou a chave
+        self.view.UpdateKey(0)
+        await self.view.output(message)  # Atualiza a mensagem da chave
+        await interaction.response.send_message("A chave atualizada!", ephemeral=True)
+
     # Loop que roda apenas uma vez quando o programa inicia
     @tasks.loop(count=1)
     async def key(self):
-        channel = self.bot.get_channel(
-            int(os.getenv("KEY_CHANNEL")))  # Pega o canal da chave
-        try:
-            # Pega a mensagem da chave
-            message = await channel.fetch_message(self.keyMessageID)
-        except:
-            return  # Se não encontrar a mensagem, retorna
+        message = await self.MessageExists()
+        if message is None:
+            return
 
         self.view = btn.KeyMenu(self.bot)  # Cria a view
         em = self.view.MsgChave()  # Cria a embed
