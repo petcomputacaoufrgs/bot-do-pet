@@ -11,8 +11,8 @@ load_env()  # Carrega as variaveis de ambiente para serem usada
 # Salva os Tokens utilizados pelo bot
 class TOKENS:
     # Salva o Id do servidor atual
-    GUILD = discord.Object(id=os.getenv("SERVER_ID"))
-    SERVER = os.getenv("TOKEN")
+    GUILD = discord.Object(id=os.getenv("SERVER_ID", 0))
+    SERVER = os.getenv("TOKEN", 0)
 
 
 class MyClient(discord.Client):  # Cria o cliente que será usado

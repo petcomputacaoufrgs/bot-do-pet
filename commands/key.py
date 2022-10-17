@@ -13,10 +13,10 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
         super().__init__()
         self.bot = bot  # Referencia para o proprio bot, caso necessario
         # ID da mensagem que contem a chave
-        self.keyMessageID = int(os.getenv("KEY_MESSAGE"))
+        self.keyMessageID = int(os.getenv("KEY_MESSAGE", 0))
 
     async def MessageExists(self) -> discord.Message | None:
-        channel = self.bot.get_channel(int(os.getenv("KEY_CHANNEL")))  # Pega o canal da chave
+        channel = self.bot.get_channel(int(os.getenv("KEY_CHANNEL", 0)))  # Pega o canal da chave
         try:
             # Pega a mensagem da chave
             message = await channel.fetch_message(self.keyMessageID)
@@ -35,21 +35,21 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
         # Responde ao comando
         await interaction.response.send_message("Limpando o chat da chave...")
         channel = self.bot.get_channel(
-            int(os.getenv("KEY_CHANNEL")))  # Pega o canal da chave
+            int(os.getenv("KEY_CHANNEL", 0)))  # Pega o canal da chave
         await channel.purge(check=self.check_rules)  # Limpa o canal
 
     # Cria o comando /petkey chave
     @apc.command(name="chave", description="Gera a menssagem para o bot criar os botões")
     async def createKey(self, interaction: discord.Interaction):
         # Verifica se o comando foi executado no canal correto
-        if interaction.channel_id != int(os.getenv("KEY_CHANNEL")):
+        if interaction.channel_id != int(os.getenv("KEY_CHANNEL", 0)):
             await interaction.response.send_message("Você precisa estar no canal da chave para executar esse comando!", ephemeral=True)
             return  # Sai da função
 
         # Responde ao comando
         await interaction.response.send_message("Gerando a mensagem da chave...")
         try:
-            await self.bot.get_channel(int(os.getenv("KEY_CHANNEL"))).get_partial_message(self.keyMessageID).edit(content="Mensagem atualizada!", embed=None, view=None)
+            await self.bot.get_channel(int(os.getenv("KEY_CHANNEL", 0))).get_partial_message(self.keyMessageID).edit(content="Mensagem atualizada!", embed=None, view=None)
             await self.view.stop()  # Para a task de atualização da chave
         except:
             pass  # Se não conseguir editar a mensagem, ignora o erro
@@ -115,7 +115,7 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
     async def avisa(self):
         if self.view.location != 0:  # Se a chave não estiver na tia
             channel = self.bot.get_channel(
-                int(os.getenv("KEY_CHANNEL")))  # Pega o canal da chave
+                int(os.getenv("KEY_CHANNEL", 0)))  # Pega o canal da chave
             # Manda a mensagem avisando que a chave está com alguem
             await channel.send(f"<@{self.view.location }> vai levar a chave para casa hoje?", delete_after=60*60*4)
 

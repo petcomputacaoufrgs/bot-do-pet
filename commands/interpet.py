@@ -145,8 +145,8 @@ class Petinter(apc.Group):
         if not self.flag or not self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
             return 
         
-        channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL')))
-        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID")}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
+        channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
+        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
     @tasks.loop(time=time(hour=7, minute=54, tzinfo=timezone('America/Sao_Paulo')))
     async def awake_interpet(self):
@@ -155,8 +155,8 @@ class Petinter(apc.Group):
         if not self.flag or not self.interpet_day == datetime.date.today():
             return
         
-        channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL')))
-        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID")}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
+        channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
+        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
         
     @tasks.loop(count=1)
     async def startTasks(self): # Inicia as tasks

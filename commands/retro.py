@@ -78,8 +78,8 @@ class Petretro(apc.Group):
         if not self.flag or not self.retro_day == datetime.date.today() + datetime.timedelta(days=1):
             return
         
-        channel = self.bot.get_channel(int(os.getenv("WARNING_CHANNEL")))
-        await channel.send(f'Atenção, {os.getenv("PETIANES_ID")}!\nLembrando que amanhã é dia de retrospectiva, já aproveitem pra escrever o textos de vocês.')
+        channel = self.bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
+        await channel.send(f'Atenção, {os.getenv("PETIANES_ID", 0)}!\nLembrando que amanhã é dia de retrospectiva, já aproveitem pra escrever o textos de vocês.')
 
     # Task: set the retrospective day to 2 weeks later
     @tasks.loop(time=datetime.time(hour=22, minute=54, tzinfo=pytz.timezone('America/Sao_Paulo')))

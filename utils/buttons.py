@@ -8,12 +8,12 @@ class KeyMenu(discord.ui.View):
     def __init__(self, bot: discord.Client):
         super().__init__(timeout=None)
         # Id da pessoa que está atualmente com a chave, 0 = com a tia
-        self.location = int(os.getenv("LAST_KEY"))
+        self.location = int(os.getenv("LAST_KEY", 0))
         self.bot = bot  # Referencia para o proprio bot, caso necessario
         self.updateUsers()
 
     def updateUsers(self):
-        server = self.bot.get_guild(int(os.getenv("SERVER_ID")))
+        server = self.bot.get_guild(int(os.getenv("SERVER_ID", 0)))
         users.clear()
         for user in server.members:
             users.append(discord.SelectOption(
