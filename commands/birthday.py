@@ -75,7 +75,7 @@ class Petaniver(apc.Group):
         if len(birthday_people) != 1: # Se tiver mais de uma pessoa fazendo aniversario
             startofMsg = "Os aniversariantes de hoje são" # Muda a mensagem inicial
         
-        channel = self.bot.get_channel(int(os.getenv("ANNIVERSARY_CHANNEL", 0))) # Pega o canal de aniversarios
+        channel = self.bot.get_channel(int(os.getenv("BIRTHDAY_CHANNEL", 0))) # Pega o canal de aniversarios
         await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>, pois é dia de festa!\n{startofMsg} {birthday_person}, não se esqueçam de desejar tudo de bom e mais um pouco.')
         
     def birthday_string(self, data):

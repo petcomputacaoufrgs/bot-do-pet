@@ -81,10 +81,10 @@ class PetSetEnv(apc.Group):
         # Envia a mensagem de confirmação
         await interaction.response.send_message(embed=em)
         
-    @apc.command(name="anniversarychannel", description="Seta o canal de avisos de aniversários.")
+    @apc.command(name="birthdaychannel", description="Seta o canal de avisos de aniversários.")
     async def setAniverChannel(self, interaction: discord.Interaction, canal: discord.channel.TextChannel):
         """Função para setar o canal de aniversarios"""
-        update_env("ANNIVERSARY_CHANNEL", f"{canal.id}")  # Atualiza o arquivo .env
+        update_env("BIRTHDAY_CHANNEL", f"{canal.id}")  # Atualiza o arquivo .env
         em = discord.Embed(color=0xFF00FF)  # Gera a mensagem de resposta
         em.add_field(name=f"**Canal de aniversários atualizado!**",
                      value=f"Os avisos de Aniversarios agora serão no canal <#{canal.id}>",
