@@ -58,7 +58,10 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
         # Pega o ID da ultima mensagem enviada
         self.keyMessageID = channel.last_message_id
         update_env("KEY_MESSAGE", f"{self.keyMessageID}")  # Atualiza o .env
-        self.key.restart()  # Inicia o loop de atualização da mensagem da chave
+        try:
+            self.key.start()  # Inicia a task de atualização da chave
+        except:
+            self.key.restart()  # Inicia o loop de atualização da mensagem da chave
 
     @apc.command(name="peguei", description="Pega a chave pra ti")
     async def peguei(self, interaction: discord.Interaction):
