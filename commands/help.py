@@ -1,6 +1,7 @@
 import json
 import discord
 from discord import app_commands as apc
+import os
 
 class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
     """HELP COMMANDS"""
@@ -18,6 +19,11 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
         for i in helpData["commands"]: # Para cada comando na lista de comandos
             em.add_field(name = i["name"], value = i["value"], inline = i["inline"]) # Adiciona o comando na mensagem
         em.set_thumbnail( url = "https://cdn.discordapp.com/attachments/938858934259822685/945718556732039219/LogoPET_oficial.png") # Adiciona a imagem do PET
+        em.add_field(
+            name="**Tem alguma outra sugestão para o bot?**",
+            value=f'Escreva pra gente no chat <#{os.getenv("BOT_RECOMMENDATIONS_CHANNEL", 0)}>! Toda ajuda é sempre bem-vinda 🥰',
+            inline=False
+        )
         await interaction.response.send_message(embed = em) # Envia a mensagem de ajuda
         
     @apc.command(name="comando", description="Mostra os detalhes de um comando")

@@ -58,7 +58,7 @@
             },
             {
                 "name": "**Mudar o ID de Canais:\n`/pet-set-env <opção>`**",
-                "value": "*keychannel*\n*petianesid*\n*offensesid*\n*birthdaychannel*\n*interpetchannel*\n*leadershipchannel*\n*warnchannel*",
+                "value": "*keychannel*\n*petianesid*\n*offensesid*\n*birthdaychannel*\n*interpetchannel*\n*leadershipchannel*\n*warnchannel*\n*recommendchannel*",
                 "inline": true
             },
             {
@@ -559,6 +559,19 @@
                 {
                     "name": "**Exemplo de uso:**",
                     "value": "```/pet-set-env warnchannel <#canal>```",
+                    "inline": false
+                }
+            ]
+        },
+        {
+            "command": "pet-set-env recommendchannel",
+            "title": "**Comando: set enviroment recommendchannel**",
+            "description": "Use para ajustar a variavel de ambiente do canal de recomendações do bot",
+            "color": "0x000000",
+            "example": [
+                {
+                    "name": "**Exemplo de uso:**",
+                    "value": "```/pet-set-env recommendchannel <#canal>```",
                     "inline": false
                 }
             ]

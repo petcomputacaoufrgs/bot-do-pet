@@ -93,6 +93,15 @@ class PetSetEnv(apc.Group):
         # Envia a mensagem de confirmação
         await interaction.response.send_message(embed=em)
     
-    
-    
-    
+    @apc.command(name="recommendchannel", description="Seta o canal de recomendações do bot.")
+    async def setRecomChannel(self, interaction: discord.Interaction, canal: discord.channel.TextChannel):
+        """Função para setar o canal de recomendações do bot"""
+        update_env("BOT_RECOMMENDATIONS_CHANNEL", f"{canal.id}")  # Atualiza o arquivo .env
+        em = discord.Embed(color=0xFF00FF)  # Gera a mensagem de resposta
+        em.add_field(name=f"**Canal de recomendações do bot atualizado!**",
+                     value=f"O canal de recomendações do bot agora é <#{canal.id}>",
+                     inline=False
+                     )  # Manda a mensagem de confirmação
+        # Envia a mensagem de confirmação
+        await interaction.response.send_message(embed=em)
+        
