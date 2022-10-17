@@ -12,7 +12,7 @@ class KeyMenu(discord.ui.View):
         self.bot = bot  # Referencia para o proprio bot, caso necessario
         self.updateUsers()
 
-    def updateUsers(self):
+    def updateUsers(self) -> None:
         server = self.bot.get_guild(int(os.getenv("SERVER_ID", 0)))
         users.clear()
         for user in server.members:
@@ -38,7 +38,7 @@ class KeyMenu(discord.ui.View):
         update_env("LAST_KEY", str(id))
         
     @discord.ui.button(label="Peguei", style=discord.ButtonStyle.green, custom_id="peguei")
-    async def peguei(self, interaction: discord.Interaction, button: discord.ui.Button = None):
+    async def peguei(self, interaction: discord.Interaction, button: discord.ui.Button):
         # Muda o id da pessoa que está com a chave
         self.UpdateKey(interaction.user.id)
         em = self.MsgChave()  # Gera a mensagem de saida
@@ -52,7 +52,7 @@ class KeyMenu(discord.ui.View):
         await interaction.response.edit_message(embed=em)  # Manda a mensagem
 
     @discord.ui.button(label="Devolvi", style=discord.ButtonStyle.red, custom_id="devolvi")
-    async def devolvi(self, interaction: discord.Interaction, button: discord.ui.Button = None):
+    async def devolvi(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.UpdateKey(0)
         em = self.MsgChave()  # Gera a mensagem de saida
         await interaction.response.edit_message(embed=em)  # Manda a mensagem
