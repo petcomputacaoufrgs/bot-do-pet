@@ -20,7 +20,8 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
         # Carrega as permissões atuais do bot
         intents = discord.Intents.default()
         intents.members = True # Permite que o bot veja os membros do servidor
-        super().__init__(intents=intents)
+        activity = discord.Activity(type=discord.ActivityType.watching, name="Use /pet") # Atividade do bot
+        super().__init__(intents=intents, activity=activity) # Inicializa o cliente
         # Seta a variavel de sincronizado para falso, usado para não sincronizar mais de uma vez
         self.synced = False
         
