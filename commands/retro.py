@@ -5,7 +5,7 @@ import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
 
-class Petretro(apc.Group):
+class Retro(apc.Group):
     """Comandos relacionados a retrospectiva bisemanal do PET"""
     def __init__(self, bot):
         super().__init__()

@@ -6,7 +6,7 @@ from discord.ext import tasks
 from discord import app_commands as apc
 import json
 
-class Petaniver(apc.Group):
+class Aniver(apc.Group):
     """Comandos dos aniversarios do pet"""
 
     def __init__(self, bot):

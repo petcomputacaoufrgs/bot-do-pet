@@ -5,7 +5,7 @@ import os
 import json
 from utils.env import update_env
 
-class Petxingamento(apc.Group):
+class Xingamento(apc.Group):
     """Comandos para xingar o matheus"""
     def __init__(self, bot):
         super().__init__()

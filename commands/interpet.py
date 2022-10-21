@@ -7,7 +7,7 @@ import datetime
 from datetime import time
 from pytz import timezone
 
-class Petinter(apc.Group):
+class Inter(apc.Group):
     """Comandos do interpet mensal"""
     def __init__(self, bot):
         super().__init__() # Inicializa a classe pai

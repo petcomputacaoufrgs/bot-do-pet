@@ -8,7 +8,7 @@ from pytz import timezone
 
 
 
-class Petlider(apc.Group):
+class Lider(apc.Group):
     """Comandos de liderança"""
     def __init__(self, bot):
         super().__init__()

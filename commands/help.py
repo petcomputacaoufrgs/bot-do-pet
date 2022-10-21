@@ -3,7 +3,7 @@ import discord
 from discord import app_commands as apc
 import os
 
-class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
+class Help(apc.Group): # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
     """HELP COMMANDS"""
     def __init__(self, bot):
         super().__init__()

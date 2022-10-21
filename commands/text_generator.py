@@ -3,8 +3,8 @@ from discord import app_commands as apc
 import utils.shakespeare as shks
 
 
-class Petshakespear(apc.Group):
-    """Comando para gerar texto com shakespear"""
+class Shakespeare(apc.Group):
+    """Comando para gerar texto com Shakespeare"""
     def __init__(self, bot): # Inicializa o comando
         super().__init__() # Inicializa o comando
         self.bot = bot # Adiciona o bot
