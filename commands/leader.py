@@ -65,7 +65,7 @@ class Lider(apc.Group):
         data = self.readLeaderFile()
         leadership = data[f'{datetime.date.today().month}']
         channel = self.bot.get_channel(int(os.getenv("LEADERSHIP_CHANNEL", 0)))
-        await channel.send(f'Atenção, {os.getenv("PETIANES_ID", 0)}!\nNesse mês, nosso ditador passa a ser {leadership[0]} e nosso vice, {leadership[1]}.')
+        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nNesse mês, nosso ditador passa a ser {leadership[0]} e nosso vice, {leadership[1]}.')
 
     @tasks.loop(count=1)
     async def startTasks(self):
