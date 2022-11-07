@@ -7,7 +7,7 @@ import datetime
 from datetime import time
 from pytz import timezone
 
-class Inter(apc.Group):
+class Petinter(apc.Group):
     """Comandos do interpet mensal"""
     def __init__(self, bot):
         super().__init__() # Inicializa a classe pai
@@ -141,22 +141,20 @@ class Inter(apc.Group):
     @tasks.loop(time=time(hour=19, minute=54, tzinfo=timezone('America/Sao_Paulo')))
     async def remember_interpet(self):
         self.interpet_day = self.getNextInterpet().date() # Pega a data atual
-        # Se o aviso de interpet estiver desligado ou não for dia de interpet, não faz nada
-        if not self.flag or not self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
-            return 
+        # Se o aviso de interpet estiver ligado e for dia de interpet
+        if self.flag and self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
+            channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
+            await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
-        channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
-        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
     @tasks.loop(time=time(hour=7, minute=54, tzinfo=timezone('America/Sao_Paulo')))
     async def awake_interpet(self):
         self.interpet_day = self.getNextInterpet().date()  # Pega a data atual
-        # Se o aviso de interpet estiver desligado ou não for dia de interpet, não faz nada
-        if not self.flag or not self.interpet_day == datetime.date.today():
-            return
+        # Se o aviso de interpet estiver ligado e for dia de interpet
+        if self.flag and self.interpet_day == datetime.date.today():
+            channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
+            await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
         
-        channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
-        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
         
     @tasks.loop(count=1)
     async def startTasks(self): # Inicia as tasks

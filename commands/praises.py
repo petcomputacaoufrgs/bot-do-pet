@@ -4,7 +4,7 @@ import random
 import json
 
 
-class Elogio(apc.Group):
+class Petelogio(apc.Group):
     """Comandos para elogiar os petianos"""
 
     def __init__(self, bot):

@@ -5,13 +5,13 @@ import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
 
-class Retro(apc.Group):
+class Petretro(apc.Group):
     """Comandos relacionados a retrospectiva bisemanal do PET"""
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
         self.flag = True
-        self.retro_day = self.initialize_date(datetime.date(2022, 1, 28), 14)
+        self.retro_day = self.initialize_date(datetime.date(2022, 1, 27), 14)
         
     @apc.command(name="retro", description="Informa a data da próxima retrospectiva")
     async def retrospective(self, interaction: discord.Interaction):
@@ -75,12 +75,11 @@ class Retro(apc.Group):
     # Task: send the warning to every petiane
     @tasks.loop(time=datetime.time(hour=14, minute=54, tzinfo=pytz.timezone('America/Sao_Paulo')))
     async def remember_retrospective(self):
-        if not self.flag or not self.retro_day == datetime.date.today() + datetime.timedelta(days=1):
-            return
+        if self.flag and self.retro_day == datetime.date.today():
+            channel = self.bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
+            await channel.send(f'Atenção, {os.getenv("PETIANES_ID", 0)}!\nLembrando que amanhã é dia de retrospectiva, já aproveitem pra escrever o textos de vocês.')
+            self.retro_day += datetime.timedelta(days=14)
         
-        channel = self.bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
-        await channel.send(f'Atenção, {os.getenv("PETIANES_ID", 0)}!\nLembrando que amanhã é dia de retrospectiva, já aproveitem pra escrever o textos de vocês.')
-
     # Task: set the retrospective day to 2 weeks later
     @tasks.loop(time=datetime.time(hour=22, minute=54, tzinfo=pytz.timezone('America/Sao_Paulo')))
     async def update_retro_day(self):
