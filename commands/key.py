@@ -8,7 +8,7 @@ import utils.buttons as btn
 from utils.env import update_env
 
 
-class Key(apc.Group):  # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
+class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
     def __init__(self, bot: discord.Client):
         super().__init__()
         self.bot = bot  # Referencia para o proprio bot, caso necessario

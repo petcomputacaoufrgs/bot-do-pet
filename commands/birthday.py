@@ -6,7 +6,7 @@ from discord.ext import tasks
 from discord import app_commands as apc
 import json
 
-class Aniver(apc.Group):
+class Petaniver(apc.Group):
     """Comandos dos aniversarios do pet"""
 
     def __init__(self, bot):
@@ -66,7 +66,7 @@ class Aniver(apc.Group):
     @tasks.loop(time=datetime.time(hour=7, minute=54, tzinfo=pytz.timezone("America/Sao_Paulo")))
     async def test_birthday(self):
         today = datetime.date.today().strftime("%d/%m") # Pega a data de hoje
-        if not today in self.data.keys(): # Se não tiver aniversario hoje
+        if today not in self.data.keys(): # Se não tiver aniversario hoje
             return # Sai da função
         
         birthday_people = self.data[today]    # Pega a lista de pessoas que fazem aniversario hoje 
