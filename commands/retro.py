@@ -81,7 +81,7 @@ class Petretro(apc.Group):
         friday = today + datetime.timedelta((4-today.weekday()) % 7)
 
         em.add_field(name=f"**Retrospectiva**\n\nA proxima retrospectiva será dia {friday.day:02d}/{friday.month:02d}/{friday.year:02d} às 12h.",
-                     value="**Os Petianes dessa semana são:***\n" + self.getNames(friday, False)
+                     value="**Os Petianes dessa semana são:**\n" + self.getNames(friday, False)
                 )
         await interaction.response.send_message(embed=em)
 
@@ -104,7 +104,7 @@ class Petretro(apc.Group):
         em = discord.Embed(color=0xF0E68C)
         channel = self.bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
         em.add_field(name=f"**Retrospectiva**\n\nAtenção, amanhã é dia de retrospectiva, deixem postado até as 12h para a Erika ler.",
-                     value="**Os Petianes dessa semana são:***\n" +
+                     value="**Os Petianes dessa semana são:**\n" +
                      self.getNames(datetime.date.today(), True)
                      )
         await channel.send(em)
