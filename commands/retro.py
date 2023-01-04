@@ -1,71 +1,94 @@
 import os
+from unicodedata import name
 import pytz
 import discord
 import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
+import json
+
 
 class Petretro(apc.Group):
     """Comandos relacionados a retrospectiva bisemanal do PET"""
+
     def __init__(self, bot):
         super().__init__()
         self.bot = bot
         self.flag = True
-        self.retro_day = self.initialize_date(datetime.date(2022, 1, 27), 14)
+        with open("data/retro.json") as f:  # Abre o arquivo de retro.json
+            # Carrega o arquivo de nomes para a memoria
+            self.petianes: dict = json.loads(f.read())
+            
+    def getNames(self, date: datetime.date, values: bool = False) -> str:
+        with open("data/retro.json") as f:  # Abre o arquivo de retro.json
+            # Carrega o arquivo de nomes para a memoria
+            self.petianes: dict = json.loads(f.read())
+        offset = 0  # offset the list by 0
+        # if the week is even
+        if date.isocalendar()[1] % 2 == 0:
+            offset = 6  # offset the list by 6
+        petText = ""  # text to be sent
+
+        # get the petianes of the week
+        if values:
+            for petiane in list(self.petianes.values())[offset:6+offset]:
+                petText += f'<@{petiane}>\n'
+        else:
+            for petiane in list(self.petianes.keys())[offset:6+offset]:
+                petText += f'{petiane}\n'
+            
+            
+        return petText
+    
+    @apc.command(name="adicionar", description="Adiciona um petiano a lista de retrospectiva")
+    async def adicionar(self, interaction: discord.Interaction, nome: str, id: discord.User):
+        if id.id in self.petianes.values():
+            await interaction.response.send_message("Petiano já está na lista!", ephemeral=True)
+            return
         
+        self.petianes[nome] = id.id
+        # Ordena o dicionario
+        keys = list(self.petianes.keys())
+        keys.sort()
+        sortedPetianes = {i: self.petianes[i] for i in keys}
+        self.petianes = sortedPetianes
+        # Salva o arquivo
+        json.dump(self.petianes, open("data/retro.json", "w"))
+        # Envia a mensagem
+        await interaction.response.send_message(f"{nome} adicionado à lista com sucesso!")
+
+    @apc.command(name="remover", description="Remove um petiano da lista de retrospectiva")
+    async def remover(self, interaction: discord.Interaction, id: discord.User):
+        if id.id not in self.petianes.values():
+            await interaction.response.send_message("Petiane não está na lista!", ephemeral=True)
+            return
+        
+        for key, value in self.petianes.items():
+            if value == id.id:
+                del self.petianes[key]
+                break
+        # Salva o arquivo
+        self.petianes = dict(sorted(self.petianes))
+        json.dump(self.petianes, open("data/retro.json", "w"))
+        # Envia a mensagem
+        await interaction.response.send_message(f"{id.name} removido da lista com sucesso!")
+
     @apc.command(name="retro", description="Informa a data da próxima retrospectiva")
     async def retrospective(self, interaction: discord.Interaction):
         em = discord.Embed(color=0xF0E68C)
-        days_to_retro = self.retro_day - datetime.date.today()
-        if days_to_retro.days < 2:
-            if days_to_retro.days == 1:
-                em.add_field(
-                        name="**Retrospectiva**",
-                    value=f'Falta {days_to_retro.days} dia até a próxima retrospectiva, que será no dia {self.retro_day.day:02d}/{self.retro_day.month:02d}.'
+
+        today = datetime.date.today()
+        friday = today + datetime.timedelta((4-today.weekday()) % 7)
+
+        em.add_field(name=f"**Retrospectiva**\n\nA proxima retrospectiva será dia {friday.day:02d}/{friday.month:02d}/{friday.year:02d} às 12h.",
+                     value="**Os Petianes dessa semana são:***\n" + self.getNames(friday, False)
                 )
-            elif days_to_retro.days == 0:
-                em.add_field(
-                    name="**Retrospectiva**",
-                    value='Hoje é o dia da retrospectiva! Corre que ainda da tempo de escrever.'
-                )
-            else:
-                em.add_field(
-                    name="**Retrospectiva**",
-                    value="Erro na data da retrospectiva"
-                )
-        else:
-            em.add_field(
-                name="**Retrospectiva**",
-                value=f'Faltam {days_to_retro.days} dias até a próxima retrospectiva, que será no dia {self.retro_day.day:02d}/{self.retro_day.month:02d}.'
-            )
         await interaction.response.send_message(embed=em)
-    
-    @apc.command(name="manual", description="Define a data da próxima retrospectiva manualmente")
-    async def set_retrospective(self, interaction: discord.Interaction, dia: int, mes: int):
-        em = discord.Embed(color=0xF0E68C)
-        if int(dia) < 1 or int(dia) > 31 or int(mes) < 1 or int(mes) > 12:
-            em.add_field(
-                name="**Retrospectiva**",
-                value="Informe uma data válida."
-            )
-        elif (datetime.date(int(datetime.date.today().year), int(mes), int(dia)) - datetime.date.today()).days < 0:
-            em.add_field(
-                name="**Retrospectiva**",
-                value="Informe uma data válida."
-            )
-        else:
-            self.retro_day = datetime.date(int(datetime.date.today().year), int(mes), int(dia))
-            self.flag = True
-            em.add_field(
-                name="**Retrospectiva**",
-                value=f'Retrospectiva manualmente ajustada para a data {self.retro_day.day:02d}/{self.retro_day.month:02d}.'
-            )
-        await interaction.response.send_message(embed=em)
-    
+
     @apc.command(name="ferias", description="Desliga os avisos de retrospectiva")
     async def retroFerias(self, interaction: discord.Interaction):
         em = discord.Embed(color=0xF0E68C)
-        self.flag = False   
+        self.flag = False
         em.add_field(
             name="**Retrospectiva**",
             value="Bot entrando de férias das retrospectivas! Sem mais avisos ou afins."
@@ -73,26 +96,19 @@ class Petretro(apc.Group):
         await interaction.response.send_message(embed=em)
 
     # Task: send the warning to every petiane
-    @tasks.loop(time=datetime.time(hour=14, minute=54, tzinfo=pytz.timezone('America/Sao_Paulo')))
+    @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo=pytz.timezone('America/Sao_Paulo')))
     async def remember_retrospective(self):
-        if self.flag and self.retro_day == datetime.date.today():
-            channel = self.bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
-            await channel.send(f'Atenção, {os.getenv("PETIANES_ID", 0)}!\nLembrando que amanhã é dia de retrospectiva, já aproveitem pra escrever o textos de vocês.')
-            self.retro_day += datetime.timedelta(days=14)
-        
-    # Task: set the retrospective day to 2 weeks later
-    @tasks.loop(time=datetime.time(hour=22, minute=54, tzinfo=pytz.timezone('America/Sao_Paulo')))
-    async def update_retro_day(self):
-        if self.retro_day == datetime.date.today():
-            self.retro_day += datetime.timedelta(days=14)
-        
+        if (not self.flag) or datetime.today().weekday() != 3:  # 3 = Thursday
+            return
+
+        em = discord.Embed(color=0xF0E68C)
+        channel = self.bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
+        em.add_field(name=f"**Retrospectiva**\n\nAtenção, amanhã é dia de retrospectiva, deixem postado até as 12h para a Erika ler.",
+                     value="**Os Petianes dessa semana são:***\n" +
+                     self.getNames(datetime.date.today(), True)
+                     )
+        await channel.send(em)
+
     @tasks.loop(count=1)
     async def startTasks(self):
         self.remember_retrospective.start()
-        self.update_retro_day.start()
-        
-    def initialize_date(self, current_day, interval):
-        today = datetime.date.today()
-        while current_day < today:
-            current_day += datetime.timedelta(days=interval)
-        return current_day

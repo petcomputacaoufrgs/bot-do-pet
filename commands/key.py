@@ -114,7 +114,7 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
 
     # Loop para avisar da chave esquecida
     # Por algum motivo, se colocamos timezone ele só roda o comando 6 minutos depois
-    @tasks.loop(time=time(hour=17, minute=54, tzinfo=timezone('America/Sao_Paulo')))
+    @tasks.loop(time=time(hour=18, minute=54, tzinfo=timezone('America/Sao_Paulo')))
     async def avisa(self):
         if self.view.location != 0:  # Se a chave não estiver na tia
             channel = self.bot.get_channel(
