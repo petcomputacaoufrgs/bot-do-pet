@@ -32,10 +32,11 @@ class Petretro(apc.Group):
         # get the petianes of the week
         if values:
             for petiane in list(self.petianes.values())[offset:6+offset]:
-                petText += f'{petiane}\n'
+                petText += f'<@{petiane}>\n'
         else:
             for petiane in list(self.petianes.keys())[offset:6+offset]:
-                petText += f'<@{petiane}>\n'
+                petText += f'{petiane}\n'
+            
             
         return petText
     
@@ -46,8 +47,13 @@ class Petretro(apc.Group):
             return
         
         self.petianes[nome] = id.id
+        # Ordena o dicionario
+        keys = list(self.petianes.keys())
+        keys.sort()
+        sortedPetianes = {i: self.petianes[i] for i in keys}
+        self.petianes = sortedPetianes
         # Salva o arquivo
-        json.dump(self.petianes, open("data/birthdays.json", "w"))
+        json.dump(self.petianes, open("data/retro.json", "w"))
         # Envia a mensagem
         await interaction.response.send_message(f"{nome} adicionado à lista com sucesso!")
 
@@ -62,7 +68,8 @@ class Petretro(apc.Group):
                 del self.petianes[key]
                 break
         # Salva o arquivo
-        json.dump(self.petianes, open("data/birthdays.json", "w"))
+        self.petianes = dict(sorted(self.petianes))
+        json.dump(self.petianes, open("data/retro.json", "w"))
         # Envia a mensagem
         await interaction.response.send_message(f"{id.name} removido da lista com sucesso!")
 
@@ -70,16 +77,11 @@ class Petretro(apc.Group):
     async def retrospective(self, interaction: discord.Interaction):
         em = discord.Embed(color=0xF0E68C)
 
-        today = datetime.datetime.date.today()
-        friday = today + datetime.datetime.timedelta((4-today.weekday()) % 7)
+        today = datetime.date.today()
+        friday = today + datetime.timedelta((4-today.weekday()) % 7)
 
-        em.add_field(name="**Retrospectiva**",
-                     value=f'A proxima retrospectiva será dia {friday.day:02d}/{friday.month:02d}/{friday.year:02d} às 12h.'
-                )
-        em.add_field(
-                    name="Os Petianes dessa semana são",
-                    value=self.getNames(friday, False),
-                    inline=True
+        em.add_field(name=f"**Retrospectiva**\n\nA proxima retrospectiva será dia {friday.day:02d}/{friday.month:02d}/{friday.year:02d} às 12h.",
+                     value="**Os Petianes dessa semana são:***\n" + self.getNames(friday, False)
                 )
         await interaction.response.send_message(embed=em)
 
@@ -96,20 +98,15 @@ class Petretro(apc.Group):
     # Task: send the warning to every petiane
     @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo=pytz.timezone('America/Sao_Paulo')))
     async def remember_retrospective(self):
-        if not self.flag or datetime.datetime.today().weekday() != 3:  # 3 = Thursday
+        if (not self.flag) or datetime.today().weekday() != 3:  # 3 = Thursday
             return
 
         em = discord.Embed(color=0xF0E68C)
         channel = self.bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
-        em.add_field(
-            name="**Retrospectiva**",
-            value=f'Atenção, amanhã é dia de retrospectiva, deixem postado até as 12h para a Erika ler.'
-        )
-        em.add_field(
-            name="Os Petianes dessa semana são",
-            value=self.getNames(datetime.datetime.date.today(), True),
-            inline=True
-        )
+        em.add_field(name=f"**Retrospectiva**\n\nAtenção, amanhã é dia de retrospectiva, deixem postado até as 12h para a Erika ler.",
+                     value="**Os Petianes dessa semana são:***\n" +
+                     self.getNames(datetime.date.today(), True)
+                     )
         await channel.send(em)
 
     @tasks.loop(count=1)
