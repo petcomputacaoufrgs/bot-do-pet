@@ -19,6 +19,10 @@ class Petlider(apc.Group):
     @apc.command(name="lideres", description="Mostra os líderes do mês")
     async def month_leadership(self, interaction: discord.Interaction):
         self.leadership = self.readLeaderFile()
+        await interaction.response.defer()
+        if self.leadership == {}:
+            await interaction.followup.send("Não há líderes cadastrados!")
+            return
         current_month = datetime.date.today().month
         current_leadership = self.leadership[f'{current_month}']
         em = discord.Embed(
@@ -27,9 +31,8 @@ class Petlider(apc.Group):
             color=0xFDFD96
         )
         i = 1
-        while (current_month+i) <= 12:
-            embed_month = current_month + i
-            embed_month = str(embed_month)
+        for leader in self.leadership:
+            embed_month = str(i)
             next_leadership = self.leadership[embed_month]
             em.add_field(
                 name=f"**{self.months_names[embed_month]}**",
@@ -37,7 +40,7 @@ class Petlider(apc.Group):
                 inline=False
             )
             i += 1
-        await interaction.response.send_message(embed=em)
+        await interaction.followup.send(embed=em)
         
     @apc.command(name="adicionar", description="Adiciona uma dupla à liderança")
     async def addLider(self, interaction: discord.Interaction, mes: int, lider: str, vice: str):
@@ -56,6 +59,15 @@ class Petlider(apc.Group):
             await interaction.response.send_message("Removido com sucesso!")
         else:
             await interaction.response.send_message("Mês não existe!")
+            
+    @apc.command(name="clear", description="Limpa todas as duplas da liderança")
+    async def clearLider(self, interaction: discord.Interaction, confirmacao: bool):
+        if not confirmacao:
+            await interaction.response.send_message("Confirmação necessario para executar esse comando!")
+        else:
+            self.leadership = {}
+            json.dump(self.leadership, open("data/leadership.json", "w"))
+            await interaction.response.send_message("Lideres do ano deletados!")
         
     @tasks.loop(time=datetime.time(hour=12, minute=54, tzinfo=timezone('America/Sao_Paulo')))
     async def leadership_alert(self):
@@ -71,7 +83,7 @@ class Petlider(apc.Group):
     async def startTasks(self):
         self.leadership_alert.start()
         
-    def readLeaderFile(self):
+    def readLeaderFile(self) -> dict:
         with open("data/leadership.json", 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
         return data
