@@ -65,7 +65,7 @@ class Petinter(apc.Group):
         
     @apc.command(name="adicionar", description="Adiciona um novo interpet")
     async def add_interpet(self, interaction: discord.Interaction, dia: int, mes: int, ano: int):
-        data = self.readBirthdaysFile() # Lê o arquivo de datas
+        data = self.readInterpetFile() # Lê o arquivo de datas
         date_list = data['dates'] # Pega a lista de datas
         em = discord.Embed(color=0x9370DB) # Cria um embed
         try: # Tenta adicionar a data
@@ -99,7 +99,7 @@ class Petinter(apc.Group):
         # Command: Remover data de interpet
     @apc.command(name="remover", description="Remove uma data de interpet")
     async def remove_interpet(self, interaction: discord.Interaction, dia: int, mes: int, ano: int):
-        data = self.readBirthdaysFile()
+        data = self.readInterpetFile()
         date_list = data['dates']
         em = discord.Embed(color=0x9370DB)
         if f'{dia:02d}/{mes:02d}/{ano}' in date_list:
@@ -120,7 +120,7 @@ class Petinter(apc.Group):
         
     @apc.command(name="datas", description="Mostra as datas de interpet")
     async def show_dates(self, interaction: discord.Interaction):
-        data = self.readBirthdaysFile()
+        data = self.readInterpetFile()
         date_list = data['dates']
         for date in date_list:
             day, month, year = date.split('/')
@@ -177,7 +177,7 @@ class Petinter(apc.Group):
                 actual_date = formated_date
         return actual_date
 
-    def readInterpetFile(self):
+    def readInterpetFile(self) -> dict:
         with open('data/interpet_dates.json', 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
         return data
