@@ -16,15 +16,13 @@ class Petaniver(apc.Group):
 
     @apc.command(name="aniversario", description="Informa o dia do próximo aniversário")
     async def nextbirthday(self, interaction: discord.Interaction):
-        loop = True 
-        today = datetime.date.today() # Pega a data de hoje
-        while loop: # Loop para encontrar o proximo aniversario
-            today += datetime.timedelta(days=1) # Adiciona um dia a data de hoje
-            for date in self.data.keys(): # Itera sobre as datas
-                if date == today.strftime("%d/%m"): # Se a data for igual a data de hoje
-                    birthday_people = self.data[date] # Pega a lista de pessoas que fazem aniversario nesse dia
-                    loop = False # Para o loop
-                    break # Quebra o loop
+        day = datetime.date.today() # Pega a data de hoje
+        while True: # Loop para encontrar o proximo aniversario
+            day += datetime.timedelta(days=1) # Adiciona um dia a data de hoje
+            # Se a data for igual a data de hoje
+            if day.strftime("%d/%m") in self.data.keys():
+                birthday_people = self.data[day.strftime("%d/%m")] # Pega a lista de pessoas que fazem aniversario nesse dia
+                break # Quebra o loop
         
         birthday_person = self.birthday_string(birthday_people) # Transforma a lista de pessoas em uma string
         startofMsg = "O próximo aniversariante é"  # Define a primeira parte da mensagem
@@ -34,7 +32,7 @@ class Petaniver(apc.Group):
         em = discord.Embed(color=0xFF8AD2) # Cria um embed
         em.add_field( # Adiciona um campo ao embed
             name=f"**Aniversário**",
-            value=f"{startofMsg} {birthday_person}, no dia {today.strftime('%d/%m')}.",
+            value=f"{startofMsg} {birthday_person}, no dia {day.strftime('%d/%m')}.",
             inline=False
         )
         await interaction.response.send_message(embed=em) # Envia a mensagem
