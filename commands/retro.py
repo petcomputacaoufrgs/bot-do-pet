@@ -1,5 +1,4 @@
 import os
-from unicodedata import name
 import pytz
 import discord
 import datetime
@@ -102,18 +101,14 @@ class Petretro(apc.Group):
         await interaction.response.send_message(embed=em)
 
     # Task: send the warning to every petiane
-    @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo=pytz.timezone('America/Sao_Paulo')))
+    @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo = pytz.timezone('America/Sao_Paulo')))
     async def remember_retrospective(self):
-        if (not self.flag) or datetime.today().weekday() != 3:  # 3 = Thursday
+        if (not self.flag) or datetime.date.today().weekday() != 3:  # 3 = Thursday
             return
-
-        em = discord.Embed(color=0xF0E68C)
         channel = self.bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
-        em.add_field(name=f"**Retrospectiva**\n\nAtenção, amanhã é dia de retrospectiva, deixem postado até as 12h para a Erika ler.",
-                     value="**Os Petianes dessa semana são:**\n" +
-                     self.getNames(datetime.date.today(), True)
-                     )
-        await channel.send(em)
+        petText = f"**Retrospectiva**\n\nAtenção, amanhã é dia de retrospectiva, deixem postado até as 12h para a Erika ler.\n\n**Os Petianes dessa semana são:**\n" + \
+            self.getNames(datetime.date.today(), True)
+        await channel.send(petText)
 
     @tasks.loop(count=1)
     async def startTasks(self):
