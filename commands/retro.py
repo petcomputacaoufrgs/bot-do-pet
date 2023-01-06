@@ -6,6 +6,7 @@ import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
 import json
+from math import ceil
 
 
 class Petretro(apc.Group):
@@ -23,20 +24,25 @@ class Petretro(apc.Group):
         with open("data/retro.json") as f:  # Abre o arquivo de retro.json
             # Carrega o arquivo de nomes para a memoria
             self.petianes: dict = json.loads(f.read())
-        offset = 0  # offset the list by 0
+        
+        length = self.petianes.__len__()
+        petText = ""  # text to be sent
+        if values:
+            textStart = "<@"
+            textEnd = ">\n"
+            test = self.petianes.values()
+        else:
+            textStart = ""
+            textEnd = "\n"
+            test = self.petianes.keys()
         # if the week is even
         if date.isocalendar()[1] % 2 == 0:
-            offset = 6  # offset the list by 6
-        petText = ""  # text to be sent
-
-        # get the petianes of the week
-        if values:
-            for petiane in list(self.petianes.values())[offset:6+offset]:
-                petText += f'<@{petiane}>\n'
+            # get the petianes of the week
+            for petiane in list(test)[ceil(length/2):]:
+                petText += f'{textStart}{petiane}{textEnd}'
         else:
-            for petiane in list(self.petianes.keys())[offset:6+offset]:
-                petText += f'{petiane}\n'
-            
+            for petiane in list(test)[:ceil(length/2)]:
+                petText += f'{textStart}{petiane}{textEnd}'
             
         return petText
     
