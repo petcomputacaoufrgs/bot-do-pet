@@ -24,22 +24,27 @@ class Petlider(apc.Group):
             await interaction.followup.send("Não há líderes cadastrados!")
             return
         current_month = datetime.date.today().month
+        if str(current_month) not in self.leadership.keys():
+            await interaction.followup.send("Não há líderes cadastrados para este mês!")
+            return
+        
         current_leadership = self.leadership[f'{current_month}']
         em = discord.Embed(
             title=f"**Liderança:**",
             description=f"Neste mês de {self.months_names[f'{current_month}'].lower()}, o líder é **{current_leadership[0]}** e o vice é **{current_leadership[1]}**.\n\nPara os próximos meses:",
             color=0xFDFD96
         )
-        i = 1
-        for leader in self.leadership:
-            embed_month = str(i)
-            next_leadership = self.leadership[embed_month]
-            em.add_field(
-                name=f"**{self.months_names[embed_month]}**",
-                value=f"__Líder__: {next_leadership[0]}\n__Vice__: {next_leadership[1]}",
-                inline=False
-            )
-            i += 1
+        while current_month <= 12:
+            embed_month = str(current_month)
+            if embed_month in self.leadership.keys():
+                next_leadership = self.leadership[embed_month]
+                em.add_field(
+                    name=f"**{self.months_names[embed_month]}**",
+                    value=f"__Líder__: {next_leadership[0]}\n__Vice__: {next_leadership[1]}",
+                    inline=False
+                )
+            current_month += 1
+            
         await interaction.followup.send(embed=em)
         
     @apc.command(name="adicionar", description="Adiciona uma dupla à liderança")
