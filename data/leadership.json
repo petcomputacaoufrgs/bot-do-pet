@@ -1,1 +1,26 @@
-{"2": ["Leo", "V\u00edtor"], "3": ["V\u00edtor", "Matheus"], "4": ["Matheus", "Nathan"], "5": ["Nathan", "Henrique"], "6": ["Henrique", "Jos\u00e9"], "7": ["Jos\u00e9", "Luccas"], "8": ["Luccas", "Pedro"], "9": ["Pedro", "Hel\u00f4"], "10": ["Hel\u00f4", "Ian"], "11": ["Ian", "Vitor"], "12": ["Vitor", "Marcos"]}
+{
+    "1": [
+        "Jo\u00e3o Vitor",
+        "Sofia"
+    ],
+    "2": [
+        "Sofia",
+        "Galeano"
+    ],
+    "3": [
+        "Galeano",
+        "Jos\u00e9"
+    ],
+    "4": [
+        "Jos\u00e9",
+        "Henrique"
+    ],
+    "5": [
+        "Henrique",
+        "Jo\u00e3o Vitor"
+    ],
+    "6": [
+        "Jo\u00e3o Vitor",
+        "??"
+    ]
+}
