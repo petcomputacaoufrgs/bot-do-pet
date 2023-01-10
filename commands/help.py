@@ -5,7 +5,7 @@ import os
 
 class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
     """HELP COMMANDS"""
-    def __init__(self, bot):
+    def __init__(self, bot: discord.Client):
         super().__init__()
         self.bot = bot # Referencia para o proprio bot, caso necessario
         self.UpdateHelp() # Atualiza o arquivo de ajuda

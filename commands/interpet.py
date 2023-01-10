@@ -8,8 +8,8 @@ from datetime import time
 from pytz import timezone
 
 class Petinter(apc.Group):
-    """Comandos do interpet mensal"""
-    def __init__(self, bot):
+    """Comandos do interpet menssal"""
+    def __init__(self, bot: discord.Client):
         super().__init__() # Inicializa a classe pai
         self.bot = bot # Define o bot
         self.interpet_day = self.getNextInterpet().date() # Pega a data de hoje

@@ -7,7 +7,7 @@ import json
 class Petelogio(apc.Group):
     """Comandos para elogiar os petianos"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: discord.Client):
         super().__init__()
         self.bot = bot
         with open("data/praises.json") as f:  # Abre o arquivo de ajuda.json

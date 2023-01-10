@@ -10,7 +10,7 @@ from pytz import timezone
 
 class Petlider(apc.Group):
     """Comandos de liderança"""
-    def __init__(self, bot):
+    def __init__(self, bot: discord.Client):
         super().__init__()
         self.bot = bot
         self.months_names = { "1": "Janeiro", "2": "Fevereiro","3": "Março","4": "Abril","5": "Maio","6": "Junho","7": "Julho","8": "Agosto","9": "Setembro","10": "Outubro","11": "Novembro","12": "Dezembro",}

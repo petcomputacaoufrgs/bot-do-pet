@@ -5,7 +5,7 @@ import utils.shakespeare as shks
 
 class Petshakespeare(apc.Group):
     """Comando para gerar texto com Shakespeare"""
-    def __init__(self, bot): # Inicializa o comando
+    def __init__(self, bot: discord.Client):
         super().__init__() # Inicializa o comando
         self.bot = bot # Adiciona o bot
 

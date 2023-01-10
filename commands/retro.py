@@ -11,7 +11,7 @@ from math import ceil
 class Petretro(apc.Group):
     """Comandos relacionados a retrospectiva bisemanal do PET"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: discord.Client):
         super().__init__()
         self.bot = bot
         self.flag = True

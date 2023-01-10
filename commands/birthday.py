@@ -9,7 +9,7 @@ import json
 class Petaniver(apc.Group):
     """Comandos dos aniversarios do pet"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: discord.Client):
         super().__init__() # Inicializa a classe pai
         self.bot = bot # Define o bot
         self.data = self.readBirthdaysFile() # Carrega o arquivo de aniversarios
