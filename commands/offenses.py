@@ -7,7 +7,7 @@ from utils.env import update_env
 
 class Petxingamento(apc.Group):
     """Comandos para xingar o matheus"""
-    def __init__(self, bot):
+    def __init__(self, bot: discord.Client):
         super().__init__()
         self.bot = bot
         with open("data/offenses.json") as f:  # Abre o arquivo de ajuda.json

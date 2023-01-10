@@ -6,7 +6,7 @@ from utils.env import update_env
 class PetSetEnv(apc.Group):
     """Comandos para atualizar os canais e usuario do bot"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: discord.Client):
         super().__init__()
         self.bot = bot
 
