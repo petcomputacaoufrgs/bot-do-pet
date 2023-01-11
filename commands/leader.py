@@ -1,4 +1,3 @@
-import os
 import discord
 import datetime
 from discord.ext import tasks
@@ -81,8 +80,8 @@ class Petlider(apc.Group):
         
         data = readDataFile("leadership")
         leadership = data[f'{datetime.date.today().month}']
-        channel = Bot.get_channel(int(os.getenv("LEADERSHIP_CHANNEL", 0)))
-        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nNesse mês, nosso ditador passa a ser {leadership[0]} e nosso vice, {leadership[1]}.')
+        channel = Bot.get_channel(Bot.ENV["LEADERSHIP_CHANNEL"])
+        await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>!\nNesse mês, nosso ditador passa a ser {leadership[0]} e nosso vice, {leadership[1]}.')
 
     @tasks.loop(count=1)
     async def startTasks(self):

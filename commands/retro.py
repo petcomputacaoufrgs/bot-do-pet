@@ -1,4 +1,3 @@
-import os
 import pytz
 import discord
 import datetime
@@ -102,7 +101,7 @@ class Petretro(apc.Group):
     async def remember_retrospective(self):
         if (not self.flag) or datetime.date.today().weekday() != 3:  # 3 = Thursday
             return
-        channel = Bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
+        channel = Bot.get_channel(Bot.ENV["WARNING_CHANNEL"])
         petText = f"**Retrospectiva**\n\nAtenção, amanhã é dia de retrospectiva, deixem postado até as 12h para a Erika ler.\n\n**Os Petianes dessa semana são:**\n" + \
             self.getNames(datetime.date.today(), True)
         await channel.send(petText)

@@ -1,4 +1,3 @@
-import os
 import discord
 from discord.ext import tasks
 from discord import app_commands as apc
@@ -140,8 +139,8 @@ class Petinter(apc.Group):
         self.interpet_day = self.getNextInterpet().date() # Pega a data atual
         # Se o aviso de interpet estiver ligado e for dia de interpet
         if self.flag and self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
-            channel = Bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
-            await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
+            channel = Bot.get_channel(Bot.ENV['INTERPET_CHANNEL'])
+            await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
         
     @tasks.loop(time=time(hour=7, minute=54, tzinfo=timezone('America/Sao_Paulo')))
@@ -149,8 +148,8 @@ class Petinter(apc.Group):
         self.interpet_day = self.getNextInterpet().date()  # Pega a data atual
         # Se o aviso de interpet estiver ligado e for dia de interpet
         if self.flag and self.interpet_day == datetime.date.today():
-            channel = Bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
-            await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
+            channel = Bot.get_channel(Bot.ENV['INTERPET_CHANNEL'])
+            await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
         
         
     @tasks.loop(count=1)
