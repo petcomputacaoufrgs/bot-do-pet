@@ -14,7 +14,7 @@ class Petretro(apc.Group):
     def __init__(self):
         super().__init__()
         self.flag = True
-        self.petianes = dictJSON("data/retro.json")
+        self.petianes: dictJSON = dictJSON("data/retro.json")
             
     def getNames(self, date: datetime.date, values: bool = False) -> str:
         length = self.petianes.__len__()
@@ -45,11 +45,7 @@ class Petretro(apc.Group):
             return
         
         self.petianes[nome] = id.id
-        
-        # Ordena o dicionario
-        keys = list(self.petianes.keys())
-        keys.sort()
-        self.petianes = dictJSON(self.petianes.path, False, {i: self.petianes[i] for i in keys})
+        self.petianes.sort()
         # Envia a mensagem
         await interaction.response.send_message(f"{nome} adicionado à lista com sucesso!")
 

@@ -83,7 +83,7 @@ class Petinter(apc.Group):
                     )
                 else:
                     self.data[f'{dia:02d}/{mes:02d}/{ano}'] = grupos
-                    self.data = self.sortDates(self.data)
+                    self.data.sort(self.sortDates)
                     em.add_field(
                         name="**Adicionar data de interpet**",
                         value=f'A data {dia:02d}/{mes:02d}/{ano} foi adicionada com sucesso!'
@@ -177,18 +177,6 @@ class Petinter(apc.Group):
         for date in oldDates:
             self.data.pop(date)
         
-    def sortDates(self, data: dictJSON) -> dictJSON:
-        sorted_data = dictJSON(data.path, False)
-        
-        # Ordena o dicionario
-        dates = []
-        for date in data.keys():
-            day, month, year = date.split('/')
-            dates.append(datetime.datetime(int(year), int(month), int(day)))
-            
-        dates.sort()
-        
-        for date in dates:
-            sorted_data[f'{date.day:02d}/{date.month:02d}/{date.year}'] = data[f'{date.day:02d}/{date.month:02d}/{date.year}']
-
-        return sorted_data
+    def sortDates(self, x):
+        day, month, year = x[0].split('/')
+        return datetime.datetime(int(year), int(month), int(day))
