@@ -14,7 +14,6 @@ class Petinter(apc.Group):
         super().__init__() # Inicializa a classe pai
         self.data = dictJSON("data/interpet_dates.json")  # Lê o arquivo de datas
         self.interpet_day = self.getNextInterpet().date() # Pega a data de hoje
-        self.flag = True # Flag para verificar se o interpet já foi feito
         
         
     @apc.command(name="interpet", description="Informa o dia do próximo interpet")
@@ -49,51 +48,25 @@ class Petinter(apc.Group):
             )
         await interaction.response.send_message(embed=em) # Envia a mensagem
         
-    @apc.command(name="ferias", description="Desliga o aviso de interpet")
-    async def set_interpet_vacation(self, interaction: discord.Interaction): 
-        em = discord.Embed(color=0x9370DB) # Cria um embed
-        self.flag = False # Desliga o aviso de interpet
-        em.add_field( # Adiciona um campo ao embed
-            name="**Interpet**",
-            value="Bot entrando de férias das retrospectivas! Sem mais avisos ou afins." 
-        )
-        await interaction.response.send_message(embed=em) # Envia a mensagem
-        
-    @apc.command(name="voltar", description="Liga o aviso de interpet")
-    async def set_interpet_work(self, interaction: discord.Interaction):
-        em = discord.Embed(color=0x9370DB) # Cria um embed
-        self.flag = True # Liga o aviso de interpet
-        em.add_field( # Adiciona um campo ao embed
-            name="**Interpet**",
-            value="Bot saindo das férias das retrospectivas! Voltamos a ter avisos." 
-        )
-        await interaction.response.send_message(embed=em) # Envia a mensagem
         
     @apc.command(name="adicionar", description="Adiciona um novo interpet")
     async def add_interpet(self, interaction: discord.Interaction, dia: int, mes: int, ano: int, grupos: str):
         em = discord.Embed(color=0x9370DB) # Cria um embed
         try: # Tenta adicionar a data
-            new_date = datetime.datetime(
-                int(ano), int(mes), int(dia)).date()
+            new_date = datetime.datetime(int(ano), int(mes), int(dia)).date()
             if (new_date - datetime.date.today()).days > 0:
-                if f'{dia:02d}/{mes:02d}/{ano}' in self.data.keys():
-                    em.add_field(
-                        name="**Adicionar data de interpet**",
-                        value="Essa data já está na lista."
-                    )
-                else:
-                    self.data[f'{dia:02d}/{mes:02d}/{ano}'] = grupos
-                    self.data.sort(self.sortDates)
-                    em.add_field(
-                        name="**Adicionar data de interpet**",
-                        value=f'A data {dia:02d}/{mes:02d}/{ano} foi adicionada com sucesso!'
-                    )
+                self.data[f'{dia:02d}/{mes:02d}/{ano}'] = grupos
+                self.data.sort(self.sortDates)
+                em.add_field(
+                    name="**Adicionar data de interpet**",
+                    value=f'A data {dia:02d}/{mes:02d}/{ano} foi adicionada com sucesso!\nOs grupos do interpet serão: {grupos}.'
+                )
             else:
                 raise
         except:
             em.add_field(
                 name="**Adicionar data de interpet**",
-                value=f'Lembre-se de usar o formato `<dd/mm/aaaa>` e com datas válidas!'
+                value=f'Lembre-se de usar datas válidas!'
             )
         await interaction.response.send_message(embed=em)
         
@@ -133,7 +106,7 @@ class Petinter(apc.Group):
     async def remember_interpet(self):
         self.interpet_day = self.getNextInterpet().date() # Pega a data atual
         # Se o aviso de interpet estiver ligado e for dia de interpet
-        if self.flag and self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
+        if self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
             channel = Bot.get_channel(Bot.ENV['INTERPET_CHANNEL'])
             await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
@@ -142,7 +115,7 @@ class Petinter(apc.Group):
     async def awake_interpet(self):
         self.interpet_day = self.getNextInterpet().date()  # Pega a data atual
         # Se o aviso de interpet estiver ligado e for dia de interpet
-        if self.flag and self.interpet_day == datetime.date.today():
+        if self.interpet_day == datetime.date.today():
             channel = Bot.get_channel(Bot.ENV['INTERPET_CHANNEL'])
             await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
         
