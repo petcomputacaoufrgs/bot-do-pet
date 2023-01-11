@@ -76,10 +76,10 @@ class Petretro(apc.Group):
     @apc.command(name="ferias", description="Desliga os avisos de retrospectiva")
     async def retroFerias(self, interaction: discord.Interaction):
         em = discord.Embed(color=0xF0E68C)
-        self.flag = False
+        self.flag = not self.flag
         em.add_field(
             name="**Retrospectiva**",
-            value="Bot entrando de férias das retrospectivas! Sem mais avisos ou afins."
+            value="Bot voltandas das férias das retrospectivas! Devolta com avisos." if self.flag else "Bot entrando de férias das retrospectivas! Sem mais avisos."
         )
         await interaction.response.send_message(embed=em)
 
