@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands as apc
 import random
-from utils.env import readDataFile, writeDataFile
+from utils.env import dictJSON
 
 from bot import Bot
 
@@ -10,8 +10,7 @@ class Petxingamento(apc.Group):
     """Comandos para xingar o matheus"""
     def __init__(self):
         super().__init__()
-        self.data = readDataFile("offenses")
-        self.offense_list = self.data["offenses"]
+        self.data = dictJSON("data/offenses.json")
 
     @apc.command(name="matheus", description="não é necessário gastar sua saliva xingando o Matheus, o bot faz isso por você")
     async def offend(self, interaction: discord.Interaction):
@@ -21,16 +20,15 @@ class Petxingamento(apc.Group):
     @apc.command(name="adicionar", description="adicione uma nova forma de ofender o Matheus!")
     async def add_offense(self, interaction: discord.Interaction, xingamento: str):
         em = discord.Embed()
-        if xingamento in self.offense_list:
+        if xingamento in self.data["offenses"]:
             em.color = 0xFF0000
             em.add_field(
                 name="**Adicionar xingamento**",
                 value="Esse xingamento já está na lista."
             )
         else:
-            self.offense_list.append(xingamento)
+            self.data["offenses"] += [xingamento]
             em.color = 0xFF6347
-            writeDataFile(self.data, "offenses")
             em.add_field(
                 name="**Adicionar xingamento**",
                 value=f'"{xingamento}" foi adicionado à lista!'
@@ -40,9 +38,8 @@ class Petxingamento(apc.Group):
     @apc.command(name="remover", description="não gostou de algum xingamento? ele nunca mais será usado")
     async def rem_offense(self, interaction: discord.Interaction, xingameto: str):
         em = discord.Embed()
-        if xingameto in self.offense_list:
-            self.offense_list.remove(xingameto)
-            writeDataFile(self.data, "offenses")
+        if xingameto in self.data["offenses"]:
+            self.data["offenses"] -= [xingameto]
             em.color = 0xFF6347
             em.add_field(
                 name="**Remover xingamento**",
@@ -61,7 +58,7 @@ class Petxingamento(apc.Group):
         em = discord.Embed(color=0xFF6347)
         em.add_field(
             name="**Lista de xingamentos**",
-            value="\n".join(self.offense_list)
+            value="\n".join(self.data["offenses"])
         )
         await interaction.response.send_message(embed=em)
         

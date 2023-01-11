@@ -2,7 +2,7 @@ import discord
 import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
-from utils.env import readDataFile, writeDataFile
+from utils.env import dictJSON
 
 from bot import Bot
 
@@ -12,11 +12,10 @@ class Petlider(apc.Group):
     def __init__(self):
         super().__init__()
         self.months_names = { "1": "Janeiro", "2": "Fevereiro","3": "Março","4": "Abril","5": "Maio","6": "Junho","7": "Julho","8": "Agosto","9": "Setembro","10": "Outubro","11": "Novembro","12": "Dezembro",}
-        self.leadership = readDataFile("leadership")
+        self.leadership = dictJSON("data/leadership.json")
         
     @apc.command(name="lideres", description="Mostra os líderes do mês")
     async def month_leadership(self, interaction: discord.Interaction):
-        self.leadership = readDataFile("leadership")
         await interaction.response.defer()
         if self.leadership == {}:
             await interaction.followup.send("Não há líderes cadastrados!")
@@ -49,7 +48,6 @@ class Petlider(apc.Group):
     async def addLider(self, interaction: discord.Interaction, mes: int, lider: str, vice: str):
         if f'{mes}' not in self.leadership:
             self.leadership[f'{mes}'] = [lider, vice]
-            writeDataFile(self.leadership, "leadership")
             await interaction.response.send_message("Adicionado com sucesso!")
         else:
             await interaction.response.send_message("Mês já existe!")
@@ -58,7 +56,6 @@ class Petlider(apc.Group):
     async def remLider(self, interaction: discord.Interaction, mes: int):
         if f'{mes}' in self.leadership:
             del self.leadership[f'{mes}']
-            writeDataFile(self.leadership, "leadership")
             await interaction.response.send_message("Removido com sucesso!")
         else:
             await interaction.response.send_message("Mês não existe!")
@@ -68,8 +65,7 @@ class Petlider(apc.Group):
         if not confirmacao:
             await interaction.response.send_message("Confirmação necessario para executar esse comando!")
         else:
-            self.leadership = {}
-            writeDataFile(self.leadership, "leadership")
+            self.leadership.clear()
             await interaction.response.send_message("Lideres do ano deletados!")
         
     @tasks.loop(time=datetime.time(hour=12, minute=54, tzinfo=Bot.TZ))
@@ -77,8 +73,7 @@ class Petlider(apc.Group):
         if not datetime.date.today().day == 1:
             return
         
-        data = readDataFile("leadership")
-        leadership = data[f'{datetime.date.today().month}']
+        leadership = self.leadership[f'{datetime.date.today().month}']
         channel = Bot.get_channel(Bot.ENV["LEADERSHIP_CHANNEL"])
         await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>!\nNesse mês, nosso ditador passa a ser {leadership[0]} e nosso vice, {leadership[1]}.')
 

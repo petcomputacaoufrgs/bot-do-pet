@@ -4,22 +4,30 @@ from json import load, dump
 from typing import Optional
 
 class dictJSON(dict):
-    def __init__(self, path: str):
+    def __init__(self, path: str, imported: bool = True, **kwargs):
         self.path = path
-        with open(self.path, 'r', encoding='utf-8') as json_file:
-            data = load(json_file)
+        if imported:
+            with open(self.path, 'r', encoding='utf-8') as json_file:
+                data = load(json_file)
+        elif kwargs:
+            data = kwargs
+        else:
+            data = {}
         super().__init__(data)
+        self.__save__()
+    
+    def __save__(self) -> None:
+        with open(self.path, 'w', encoding='utf-8') as json_file:
+            dump(self, json_file)
     
     def __delitem__(self, __key) -> None:
         val = super().__delitem__(__key)
-        with open(self.path, 'w+', encoding='utf-8') as json_file:
-            dump(self, json_file)
+        self.__save__()
         return val
     
     def __setitem__(self, __key, __value) -> None:
         val = super().__setitem__(__key, __value)
-        with open(self.path, 'w+', encoding='utf-8') as json_file:
-            dump(self, json_file)
+        self.__save__()
         return val
 
     def __getitem__(self, __key) -> any:
@@ -28,22 +36,22 @@ class dictJSON(dict):
         except:
             return 0
 
-    def pop(self, __key, __default) -> any:
-        val = super().pop(__key, __default)
-        with open(self.path, 'w+', encoding='utf-8') as json_file:
-            dump(self, json_file)
+    def pop(self, __key, __default = None) -> any:
+        if __default is None:
+            val = super().pop(__key)
+        else:
+            val = super().pop(__key, __default)
+        self.__save__()
         return val
     
     def popitem(self) -> tuple:
         val = super().popitem()
-        with open(self.path, 'w+', encoding='utf-8') as json_file:
-            dump(self, json_file)
+        self.__save__()
         return val
     
     def clear(self) -> None:
         val = super().clear()
-        with open(self.path, 'w+', encoding='utf-8') as json_file:
-            dump(self, json_file)
+        self.__save__()
         return val
     
     def update(self, __m: Optional[dict] = ..., **kwargs) -> None:
@@ -57,20 +65,6 @@ class dictJSON(dict):
             return super().get(__key, __default)
         except:
             return 0
-        
-
-def readDataFile(name: str) -> dict:
-    if not name.endswith(".json"):
-        name = name + ".json"
-    with open("data/" + name, 'r', encoding='utf-8') as json_file:
-        data = load(json_file)
-    return data
-
-def writeDataFile(data: dict, name: str):
-    if not name.endswith(".json"):
-        name = name + ".json"
-    with open("data/" + name, 'w+', encoding='utf-8') as json_file:
-        dump(data, json_file)
 
 def loadModules(path: str):
     for files in os.listdir(path):  # Para cada arquivo na pasta commands
