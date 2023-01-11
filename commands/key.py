@@ -2,7 +2,6 @@ import discord
 from discord import app_commands as apc
 from discord.ext import tasks
 from datetime import time
-from pytz import timezone
 import utils.buttons as btn
 
 from bot import Bot
@@ -112,14 +111,14 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
 
     # Loop para avisar da chave esquecida
     # Por algum motivo, se colocamos timezone ele só roda o comando 6 minutos depois
-    @tasks.loop(time=time(hour=18, minute=54, tzinfo=timezone('America/Sao_Paulo')))
+    @tasks.loop(time=time(hour=18, minute=54, tzinfo=Bot.TZ))
     async def avisa(self):
         if self.view.location != 0:  # Se a chave não estiver na tia
             channel = Bot.get_channel(Bot.ENV["KEY_CHANNEL"])  # Pega o canal da chave
             # Manda a mensagem avisando que a chave está com alguem
             await channel.send(f"<@{self.view.location }> vai levar a chave para casa hoje?", delete_after=60*60*4)
 
-    @tasks.loop(time=time(hour=23, minute=54, tzinfo=timezone('America/Sao_Paulo')))
+    @tasks.loop(time=time(hour=23, minute=54, tzinfo=Bot.TZ))
     async def updateNames(self):  # Loop para atualizar os nomes dos usuarios
         try:  # Tenta atualizar os nomes
             self.view.stop()  # Para a view

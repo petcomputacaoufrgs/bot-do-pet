@@ -2,7 +2,6 @@ import discord
 import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
-from pytz import timezone
 from utils.env import readDataFile, writeDataFile
 
 from bot import Bot
@@ -73,7 +72,7 @@ class Petlider(apc.Group):
             writeDataFile(self.leadership, "leadership")
             await interaction.response.send_message("Lideres do ano deletados!")
         
-    @tasks.loop(time=datetime.time(hour=12, minute=54, tzinfo=timezone('America/Sao_Paulo')))
+    @tasks.loop(time=datetime.time(hour=12, minute=54, tzinfo=Bot.TZ))
     async def leadership_alert(self):
         if not datetime.date.today().day == 1:
             return

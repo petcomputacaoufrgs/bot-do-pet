@@ -1,4 +1,3 @@
-import pytz
 import discord
 import datetime
 from discord.ext import tasks
@@ -97,7 +96,7 @@ class Petretro(apc.Group):
         await interaction.response.send_message(embed=em)
 
     # Task: send the warning to every petiane
-    @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo = pytz.timezone('America/Sao_Paulo')))
+    @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo = Bot.TZ))
     async def remember_retrospective(self):
         if (not self.flag) or datetime.date.today().weekday() != 3:  # 3 = Thursday
             return

@@ -2,7 +2,6 @@ import discord
 from discord.ext import tasks
 from discord import app_commands as apc
 import datetime
-from pytz import timezone
 
 from bot import Bot
 
@@ -22,7 +21,7 @@ class Petclock(apc.Group):
         print(f"Mudança de voz de {member.name}")
 
     # Task: send the warning to every petiane
-    @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo = timezone('America/Sao_Paulo')))
+    @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo = Bot.TZ))
     async def clockify_stats(self):
         if datetime.date.today().weekday() != 4:  # 4 = Friday
             return
