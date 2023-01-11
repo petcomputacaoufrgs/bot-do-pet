@@ -2,7 +2,7 @@ import discord
 import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
-from utils.env import readDataFile, writeDataFile
+from utils.env import dictJSON
 
 from bot import Bot
 
@@ -12,7 +12,7 @@ class Petaniver(apc.Group):
 
     def __init__(self):
         super().__init__() # Inicializa a classe pai
-        self.data = readDataFile("birthdays") # Carrega o arquivo de aniversarios
+        self.data = dictJSON("data/birthdays.json") # Carrega o arquivo de aniversarios
 
     @apc.command(name="aniversario", description="Informa o dia do próximo aniversário")
     async def nextbirthday(self, interaction: discord.Interaction):
@@ -43,10 +43,9 @@ class Petaniver(apc.Group):
             await interaction.response.send_message("Data inválida") # Envia a mensagem
             return # Sai da função
         if f'{dia:02d}/{mes:02d}' in self.data.keys(): # Verifica se a data já existe
-            self.data[f"{dia:02d}/{mes:02d}"].append(nome) # Adiciona o nome a lista de nomes
+            self.data[f"{dia:02d}/{mes:02d}"] +=[nome] # Adiciona o nome a lista de nomes
         else: # Se não existir
             self.data[f"{dia:02d}/{mes:02d}"] = [nome] # Cria a data com o nome
-        writeDataFile(self.data, "birthdays")  # Salva o arquivo
         await interaction.response.send_message(f"Aniversariante {nome} adicionado com sucesso!") # Envia a mensagem
         
     @apc.command(name="remover", description="Remove um aniversariante") # Comando para remover um aniversariante
@@ -56,7 +55,6 @@ class Petaniver(apc.Group):
                 self.data[date].remove(nome) # Remove o nome da lista
                 if self.data[date] == []: # Se a lista ficar vazia
                     self.data.pop(date) # Remove a data
-                writeDataFile(self.data, "birthdays") # Salva o arquivo
                 await interaction.response.send_message(f"Aniversariante {nome} removido com sucesso!") # Envia a mensagem
                 return # Sai da função
         await interaction.response.send_message(f"Aniversariante {nome} não encontrado!") # Envia a mensagem

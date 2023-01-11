@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands as apc
-from utils.env import readDataFile
+from utils.env import dictJSON
 
 from bot import Bot
 
@@ -12,7 +12,7 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
         
     @apc.command(name="help", description="Mostra todos os commandos do BotPET")
     async def help(self, interaction: discord.Interaction):
-        helpData = readDataFile("help")["help"] # Pega os dados de ajuda geral
+        helpData = dictJSON("data/help.json")["help"] # Pega os dados de ajuda geral
         # Gera a mensagem de ajuda
         em=discord.Embed(title = helpData["title"], url = helpData["url"], description = helpData["description"], color = eval(helpData["color"]))
         for i in helpData["commands"]: # Para cada comando na lista de comandos
@@ -27,7 +27,7 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
         
     @apc.command(name="comando", description="Mostra os detalhes de um comando")
     async def comando(self, interaction: discord.Interaction, comando: str):
-        commandsData = readDataFile("help")["commands"] # Pega os dados de comandos
+        commandsData = dictJSON("data/help.json")["commands"] # Pega os dados de comandos
         found = False # Variavel para verificar se o comando foi encontrado
         for command in commandsData: # Para cada comando na lista de comandos
             if command["command"] == comando: # Se o comando for igual ao comando passado

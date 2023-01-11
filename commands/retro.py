@@ -2,7 +2,7 @@ import discord
 import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
-from utils.env import readDataFile, writeDataFile
+from utils.env import dictJSON
 from math import ceil
 
 from bot import Bot
@@ -14,11 +14,9 @@ class Petretro(apc.Group):
     def __init__(self):
         super().__init__()
         self.flag = True
-        self.petianes = readDataFile("retro")
+        self.petianes = dictJSON("data/retro.json")
             
     def getNames(self, date: datetime.date, values: bool = False) -> str:
-        self.petianes = readDataFile("retro")
-        
         length = self.petianes.__len__()
         petText = ""  # text to be sent
         if values:
@@ -47,13 +45,11 @@ class Petretro(apc.Group):
             return
         
         self.petianes[nome] = id.id
+        
         # Ordena o dicionario
         keys = list(self.petianes.keys())
         keys.sort()
-        sortedPetianes = {i: self.petianes[i] for i in keys}
-        self.petianes = sortedPetianes
-        # Salva o arquivo
-        writeDataFile(self.petianes, "retro")
+        self.petianes = dictJSON(self.petianes.path, False, {i: self.petianes[i] for i in keys})
         # Envia a mensagem
         await interaction.response.send_message(f"{nome} adicionado à lista com sucesso!")
 
@@ -67,9 +63,6 @@ class Petretro(apc.Group):
             if value == id.id:
                 del self.petianes[key]
                 break
-        # Salva o arquivo
-        self.petianes = dict(sorted(self.petianes))
-        writeDataFile(self.petianes, "retro")
         # Envia a mensagem
         await interaction.response.send_message(f"{id.name} removido da lista com sucesso!")
 

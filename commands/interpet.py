@@ -3,7 +3,7 @@ from discord.ext import tasks
 from discord import app_commands as apc
 import datetime
 from datetime import time
-from utils.env import readDataFile, writeDataFile
+from utils.env import dictJSON
 
 from bot import Bot
 
@@ -12,13 +12,14 @@ class Petinter(apc.Group):
     """Comandos do interpet menssal"""
     def __init__(self):
         super().__init__() # Inicializa a classe pai
+        self.data = dictJSON("data/interpet_dates.json")  # Lê o arquivo de datas
         self.interpet_day = self.getNextInterpet().date() # Pega a data de hoje
         self.flag = True # Flag para verificar se o interpet já foi feito
+        
         
     @apc.command(name="interpet", description="Informa o dia do próximo interpet")
     async def interpet(self, interaction: discord.Interaction): 
         em = discord.Embed(color=0x9370DB) # Cria um embed
-        data = readDataFile("interpet_dates") # Lê o arquivo de datas
         self.interpet_day = self.getNextInterpet().date() # Pega a data de hoje
         days_to_interpet = self.interpet_day - datetime.date.today() # Calcula a diferença entre a data de hoje e a data do interpet
         if days_to_interpet.days < 2: # Se a diferença for menor que 2 dias
@@ -27,7 +28,7 @@ class Petinter(apc.Group):
                 em.add_field(
                     name="**Interpet**",
                     value=f'Falta {days_to_interpet.days} dia até o próximo interpet, que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.' + \
-                    f" Os grupos do interpet serão: {data[date]}."
+                    f" Os grupos do interpet serão: {self.data[date]}."
                 )
             elif days_to_interpet.days == 0: # Se a diferença for 0 dias
                 em.add_field(
@@ -44,7 +45,7 @@ class Petinter(apc.Group):
             em.add_field( # Se a diferença for maior que 2 dias
                 name="**Interpet**",
                 value=f'Faltam {days_to_interpet.days} dias até o próximo interpet, que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.' + \
-                f" Os grupos do interpet serão: {data[date]}."
+                f" Os grupos do interpet serão: {self.data[date]}."
             )
         await interaction.response.send_message(embed=em) # Envia a mensagem
         
@@ -70,21 +71,19 @@ class Petinter(apc.Group):
         
     @apc.command(name="adicionar", description="Adiciona um novo interpet")
     async def add_interpet(self, interaction: discord.Interaction, dia: int, mes: int, ano: int, grupos: str):
-        data = readDataFile("interpet_dates")  # Lê o arquivo de datas
         em = discord.Embed(color=0x9370DB) # Cria um embed
         try: # Tenta adicionar a data
             new_date = datetime.datetime(
                 int(ano), int(mes), int(dia)).date()
             if (new_date - datetime.date.today()).days > 0:
-                if f'{dia:02d}/{mes:02d}/{ano}' in data.keys():
+                if f'{dia:02d}/{mes:02d}/{ano}' in self.data.keys():
                     em.add_field(
                         name="**Adicionar data de interpet**",
                         value="Essa data já está na lista."
                     )
                 else:
-                    data[f'{dia:02d}/{mes:02d}/{ano}'] = grupos
-                    data = self.sortDates(data)
-                    writeDataFile(data, "interpet_dates")
+                    self.data[f'{dia:02d}/{mes:02d}/{ano}'] = grupos
+                    self.data = self.sortDates(self.data)
                     em.add_field(
                         name="**Adicionar data de interpet**",
                         value=f'A data {dia:02d}/{mes:02d}/{ano} foi adicionada com sucesso!'
@@ -101,11 +100,9 @@ class Petinter(apc.Group):
         # Command: Remover data de interpet
     @apc.command(name="remover", description="Remove uma data de interpet")
     async def remove_interpet(self, interaction: discord.Interaction, dia: int, mes: int, ano: int):
-        data = readDataFile("interpet_dates")
         em = discord.Embed(color=0x9370DB)
-        if f'{dia:02d}/{mes:02d}/{ano}' in data.keys():
-            data.pop(f'{dia:02d}/{mes:02d}/{ano}')
-            writeDataFile(data, "interpet_dates")
+        if f'{dia:02d}/{mes:02d}/{ano}' in self.data.keys():
+            self.data.pop(f'{dia:02d}/{mes:02d}/{ano}')
             em.add_field(
                 name="**Remover data de interpet**",
                 value=f'A data foi removida da lista!'
@@ -120,11 +117,10 @@ class Petinter(apc.Group):
     @apc.command(name="datas", description="Mostra as datas de interpet")
     async def show_dates(self, interaction: discord.Interaction):
         self.clearInterpetDates()
-        data = readDataFile("interpet_dates")
 
         printable_date_list = ''
-        for date in data.keys():
-            printable_date_list += f'**{date}** - {data[date]}\n'
+        for date in self.data.keys():
+            printable_date_list += f'**{date}** - {self.data[date]}\n'
 
         em = discord.Embed(color=0x9370DB)
         em.add_field(
@@ -157,10 +153,9 @@ class Petinter(apc.Group):
         self.awake_interpet.start() # Inicia a task de acordar para o interpet
         
     def getNextInterpet(self):
-        data = readDataFile("interpet_dates")
         now = datetime.datetime.now()
         actual_date = datetime.datetime(2022, 4, 9)
-        for date in data.keys():
+        for date in self.data.keys():
             day, month, year = date.split('/')
             formated_date = datetime.datetime(int(year), int(month), int(day))
             difference = formated_date - now
@@ -171,9 +166,8 @@ class Petinter(apc.Group):
         return actual_date    
         
     def clearInterpetDates(self):
-        data = readDataFile("interpet_dates")
         oldDates = []
-        for date in data.keys():
+        for date in self.data.keys():
             day, month, year = date.split('/')
             difference = datetime.datetime(int(year), int(
                 month), int(day)).date() - datetime.date.today()
@@ -181,12 +175,11 @@ class Petinter(apc.Group):
                 oldDates.append(date)
                 
         for date in oldDates:
-            data.pop(date)
-                
-        writeDataFile(data, "interpet_dates")
+            self.data.pop(date)
         
-    def sortDates(self, data: dict) -> dict:
-        sorted_data = {}
+    def sortDates(self, data: dictJSON) -> dictJSON:
+        sorted_data = dictJSON(data.path, False)
+        
         # Ordena o dicionario
         dates = []
         for date in data.keys():
