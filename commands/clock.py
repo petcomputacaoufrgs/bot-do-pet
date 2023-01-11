@@ -8,11 +8,12 @@ from pytz import timezone
 
 from bot import Bot
 
+@Bot.addCommandGroup
 class Petclock(apc.Group):
     """Comandos do clockify"""
-    def __init__(self, bot: discord.Client):
+    def __init__(self):
         super().__init__() # Inicializa a classe pai
-        self.bot = bot # Define o bot
+
 
     @apc.command(name="start", description="Inicia o clockify")
     async def start(self, interaction: discord.Interaction):

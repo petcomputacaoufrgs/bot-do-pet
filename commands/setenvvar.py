@@ -3,12 +3,14 @@ from discord import app_commands as apc
 import os
 from utils.env import update_env
 
+from bot import Bot
+
+@Bot.addCommandGroup
 class PetSetEnv(apc.Group):
     """Comandos para atualizar os canais e usuario do bot"""
 
-    def __init__(self, bot: discord.Client):
+    def __init__(self):
         super().__init__()
-        self.bot = bot
 
     @apc.command(name="offensesid", description="Seta o id do matheus para os xingamentos")
     async def setMatheusId(self, interaction: discord.Interaction, matheus_id: discord.User):
