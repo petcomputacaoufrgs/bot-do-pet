@@ -2,17 +2,16 @@ import discord
 from discord import app_commands as apc
 import random
 import os
-import json
-from utils.env import update_env
+from utils.env import readDataFile, writeDataFile
 
+from bot import Bot
+
+@Bot.addCommandGroup
 class Petxingamento(apc.Group):
     """Comandos para xingar o matheus"""
-    def __init__(self, bot: discord.Client):
+    def __init__(self):
         super().__init__()
-        self.bot = bot
-        with open("data/offenses.json") as f:  # Abre o arquivo de ajuda.json
-            # Carrega o arquivo de ajuda para a memoria
-            self.data = json.loads(f.read())
+        self.data = readDataFile("offenses")
         self.offense_list = self.data["offenses"]
 
     @apc.command(name="matheus", description="não é necessário gastar sua saliva xingando o Matheus, o bot faz isso por você")
@@ -32,7 +31,7 @@ class Petxingamento(apc.Group):
         else:
             self.offense_list.append(xingamento)
             em.color = 0xFF6347
-            json.dump(self.data, open("data/offenses.json", "w"))
+            writeDataFile(self.data, "offenses")
             em.add_field(
                 name="**Adicionar xingamento**",
                 value=f'"{xingamento}" foi adicionado à lista!'
@@ -44,7 +43,7 @@ class Petxingamento(apc.Group):
         em = discord.Embed()
         if xingameto in self.offense_list:
             self.offense_list.remove(xingameto)
-            json.dump(self.data, open("data/offenses.json", "w"))
+            writeDataFile(self.data, "offenses")
             em.color = 0xFF6347
             em.add_field(
                 name="**Remover xingamento**",

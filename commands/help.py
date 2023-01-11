@@ -1,19 +1,19 @@
-import json
 import discord
 from discord import app_commands as apc
 import os
+from utils.env import readDataFile
 
+from bot import Bot
+
+@Bot.addCommandGroup
 class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
     """HELP COMMANDS"""
-    def __init__(self, bot: discord.Client):
-        super().__init__()
-        self.bot = bot # Referencia para o proprio bot, caso necessario
-        self.UpdateHelp() # Atualiza o arquivo de ajuda
+    def __init__(self):
+        super().__init__() # Inicializa a classe pai
         
     @apc.command(name="help", description="Mostra todos os commandos do BotPET")
     async def help(self, interaction: discord.Interaction):
-        self.UpdateHelp() # Atualiza o arquivo de ajuda
-        helpData = self.data["help"] # Pega os dados de ajuda geral
+        helpData = readDataFile("help")["help"] # Pega os dados de ajuda geral
         # Gera a mensagem de ajuda
         em=discord.Embed(title = helpData["title"], url = helpData["url"], description = helpData["description"], color = eval(helpData["color"]))
         for i in helpData["commands"]: # Para cada comando na lista de comandos
@@ -28,8 +28,7 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
         
     @apc.command(name="comando", description="Mostra os detalhes de um comando")
     async def comando(self, interaction: discord.Interaction, comando: str):
-        self.UpdateHelp() # Atualiza o arquivo de ajuda
-        commandsData = self.data["commands"] # Pega os dados de comandos
+        commandsData = readDataFile("help")["commands"] # Pega os dados de comandos
         found = False # Variavel para verificar se o comando foi encontrado
         for command in commandsData: # Para cada comando na lista de comandos
             if command["command"] == comando: # Se o comando for igual ao comando passado
@@ -42,7 +41,3 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
             await interaction.response.send_message("Comando não encontrado!") # Envia a mensagem de erro
         else:
             await interaction.response.send_message(embed = em) # Envia a mensagem de ajuda
-            
-    def UpdateHelp(self) -> None:
-        with open("data/help.json") as f: # Abre o arquivo de ajuda.json
-            self.data = json.loads(f.read()) # Carrega o arquivo de ajuda para a memoria

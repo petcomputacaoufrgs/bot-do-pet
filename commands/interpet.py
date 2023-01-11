@@ -2,23 +2,25 @@ import os
 import discord
 from discord.ext import tasks
 from discord import app_commands as apc
-import json
 import datetime
 from datetime import time
 from pytz import timezone
+from utils.env import readDataFile, writeDataFile
 
+from bot import Bot
+
+@Bot.addCommandGroup
 class Petinter(apc.Group):
     """Comandos do interpet menssal"""
-    def __init__(self, bot: discord.Client):
+    def __init__(self):
         super().__init__() # Inicializa a classe pai
-        self.bot = bot # Define o bot
         self.interpet_day = self.getNextInterpet().date() # Pega a data de hoje
         self.flag = True # Flag para verificar se o interpet já foi feito
         
     @apc.command(name="interpet", description="Informa o dia do próximo interpet")
     async def interpet(self, interaction: discord.Interaction): 
         em = discord.Embed(color=0x9370DB) # Cria um embed
-        data = self.readInterpetFile() # Lê o arquivo de datas
+        data = readDataFile("interpet_dates") # Lê o arquivo de datas
         self.interpet_day = self.getNextInterpet().date() # Pega a data de hoje
         days_to_interpet = self.interpet_day - datetime.date.today() # Calcula a diferença entre a data de hoje e a data do interpet
         if days_to_interpet.days < 2: # Se a diferença for menor que 2 dias
@@ -70,7 +72,7 @@ class Petinter(apc.Group):
         
     @apc.command(name="adicionar", description="Adiciona um novo interpet")
     async def add_interpet(self, interaction: discord.Interaction, dia: int, mes: int, ano: int, grupos: str):
-        data = self.readInterpetFile() # Lê o arquivo de datas
+        data = readDataFile("interpet_dates")  # Lê o arquivo de datas
         em = discord.Embed(color=0x9370DB) # Cria um embed
         try: # Tenta adicionar a data
             new_date = datetime.datetime(
@@ -84,8 +86,7 @@ class Petinter(apc.Group):
                 else:
                     data[f'{dia:02d}/{mes:02d}/{ano}'] = grupos
                     data = self.sortDates(data)
-                    with open('data/interpet_dates.json', 'w+', encoding='utf-8') as outfile:
-                        json.dump(data, outfile)
+                    writeDataFile(data, "interpet_dates")
                     em.add_field(
                         name="**Adicionar data de interpet**",
                         value=f'A data {dia:02d}/{mes:02d}/{ano} foi adicionada com sucesso!'
@@ -102,12 +103,11 @@ class Petinter(apc.Group):
         # Command: Remover data de interpet
     @apc.command(name="remover", description="Remove uma data de interpet")
     async def remove_interpet(self, interaction: discord.Interaction, dia: int, mes: int, ano: int):
-        data = self.readInterpetFile()
+        data = readDataFile("interpet_dates")
         em = discord.Embed(color=0x9370DB)
         if f'{dia:02d}/{mes:02d}/{ano}' in data.keys():
             data.pop(f'{dia:02d}/{mes:02d}/{ano}')
-            with open('data/interpet_dates.json', 'w+', encoding='utf-8') as outfile:
-                json.dump(data, outfile)
+            writeDataFile(data, "interpet_dates")
             em.add_field(
                 name="**Remover data de interpet**",
                 value=f'A data foi removida da lista!'
@@ -122,7 +122,7 @@ class Petinter(apc.Group):
     @apc.command(name="datas", description="Mostra as datas de interpet")
     async def show_dates(self, interaction: discord.Interaction):
         self.clearInterpetDates()
-        data = self.readInterpetFile()
+        data = readDataFile("interpet_dates")
 
         printable_date_list = ''
         for date in data.keys():
@@ -140,7 +140,7 @@ class Petinter(apc.Group):
         self.interpet_day = self.getNextInterpet().date() # Pega a data atual
         # Se o aviso de interpet estiver ligado e for dia de interpet
         if self.flag and self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
-            channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
+            channel = Bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
             await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
         
@@ -149,7 +149,7 @@ class Petinter(apc.Group):
         self.interpet_day = self.getNextInterpet().date()  # Pega a data atual
         # Se o aviso de interpet estiver ligado e for dia de interpet
         if self.flag and self.interpet_day == datetime.date.today():
-            channel = self.bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
+            channel = Bot.get_channel(int(os.getenv('INTERPET_CHANNEL', 0)))
             await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
         
         
@@ -159,7 +159,7 @@ class Petinter(apc.Group):
         self.awake_interpet.start() # Inicia a task de acordar para o interpet
         
     def getNextInterpet(self):
-        data = self.readInterpetFile()
+        data = readDataFile("interpet_dates")
         now = datetime.datetime.now()
         actual_date = datetime.datetime(2022, 4, 9)
         for date in data.keys():
@@ -170,15 +170,10 @@ class Petinter(apc.Group):
                 actual_date = formated_date
             if difference <= (actual_date - now):
                 actual_date = formated_date
-        return actual_date
-
-    def readInterpetFile(self) -> dict:
-        with open('data/interpet_dates.json', 'r', encoding='utf-8') as json_file:
-            data = json.load(json_file)
-        return data
+        return actual_date    
         
     def clearInterpetDates(self):
-        data = self.readInterpetFile()
+        data = readDataFile("interpet_dates")
         oldDates = []
         for date in data.keys():
             day, month, year = date.split('/')
@@ -190,8 +185,7 @@ class Petinter(apc.Group):
         for date in oldDates:
             data.pop(date)
                 
-        with open('data/interpet_dates.json', 'w+', encoding='utf-8') as outfile:
-                json.dump(data, outfile)
+        writeDataFile(data, "interpet_dates")
         
     def sortDates(self, data: dict) -> dict:
         sorted_data = {}

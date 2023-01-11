@@ -4,25 +4,22 @@ import discord
 import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
-import json
+from utils.env import readDataFile, writeDataFile
 from math import ceil
 
+from bot import Bot
 
+@Bot.addCommandGroup
 class Petretro(apc.Group):
     """Comandos relacionados a retrospectiva bisemanal do PET"""
 
-    def __init__(self, bot: discord.Client):
+    def __init__(self):
         super().__init__()
-        self.bot = bot
         self.flag = True
-        with open("data/retro.json") as f:  # Abre o arquivo de retro.json
-            # Carrega o arquivo de nomes para a memoria
-            self.petianes: dict = json.loads(f.read())
+        self.petianes = readDataFile("retro")
             
     def getNames(self, date: datetime.date, values: bool = False) -> str:
-        with open("data/retro.json") as f:  # Abre o arquivo de retro.json
-            # Carrega o arquivo de nomes para a memoria
-            self.petianes: dict = json.loads(f.read())
+        self.petianes = readDataFile("retro")
         
         length = self.petianes.__len__()
         petText = ""  # text to be sent
@@ -58,7 +55,7 @@ class Petretro(apc.Group):
         sortedPetianes = {i: self.petianes[i] for i in keys}
         self.petianes = sortedPetianes
         # Salva o arquivo
-        json.dump(self.petianes, open("data/retro.json", "w"))
+        writeDataFile(self.petianes, "retro")
         # Envia a mensagem
         await interaction.response.send_message(f"{nome} adicionado à lista com sucesso!")
 
@@ -74,7 +71,7 @@ class Petretro(apc.Group):
                 break
         # Salva o arquivo
         self.petianes = dict(sorted(self.petianes))
-        json.dump(self.petianes, open("data/retro.json", "w"))
+        writeDataFile(self.petianes, "retro")
         # Envia a mensagem
         await interaction.response.send_message(f"{id.name} removido da lista com sucesso!")
 
@@ -105,7 +102,7 @@ class Petretro(apc.Group):
     async def remember_retrospective(self):
         if (not self.flag) or datetime.date.today().weekday() != 3:  # 3 = Thursday
             return
-        channel = self.bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
+        channel = Bot.get_channel(int(os.getenv("WARNING_CHANNEL", 0)))
         petText = f"**Retrospectiva**\n\nAtenção, amanhã é dia de retrospectiva, deixem postado até as 12h para a Erika ler.\n\n**Os Petianes dessa semana são:**\n" + \
             self.getNames(datetime.date.today(), True)
         await channel.send(petText)

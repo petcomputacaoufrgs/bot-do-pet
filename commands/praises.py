@@ -1,18 +1,17 @@
 import discord
 from discord import app_commands as apc
 import random
-import json
+from utils.env import readDataFile, writeDataFile
 
+from bot import Bot
 
+@Bot.addCommandGroup
 class Petelogio(apc.Group):
     """Comandos para elogiar os petianos"""
 
-    def __init__(self, bot: discord.Client):
+    def __init__(self):
         super().__init__()
-        self.bot = bot
-        with open("data/praises.json") as f:  # Abre o arquivo de ajuda.json
-            # Carrega o arquivo de ajuda para a memoria
-            self.data = json.loads(f.read())
+        self.data = readDataFile("praises")
         self.praise_list = self.data["praises"]
 
     @apc.command(name="elogiar", description="elogie alguém que fez um bom trabalho recentemente!")
@@ -32,7 +31,7 @@ class Petelogio(apc.Group):
         else:
             self.praise_list.append(elogio)
             em.color = 0xFF6347
-            json.dump(self.data, open("data/praises.json", "w"))
+            writeDataFile(self.data, "praises")
             em.add_field(
                 name="**Adicionar elogio**",
                 value=f'"{elogio}" foi adicionado à lista!'
@@ -44,7 +43,7 @@ class Petelogio(apc.Group):
         em = discord.Embed()
         if elogio in self.praise_list:
             self.praise_list.remove(elogio)
-            json.dump(self.data, open("data/praises.json", "w"))
+            writeDataFile(self.data, "praises")
             em.color = 0xFF6347
             em.add_field(
                 name="**Remover elogio**",
