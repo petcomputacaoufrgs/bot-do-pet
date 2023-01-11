@@ -8,7 +8,7 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class Petlider(apc.Group):
-    """Comandos de liderança"""
+    """Lideran\u00e7a"""
     def __init__(self):
         super().__init__()
         self.months_names = { "1": "Janeiro", "2": "Fevereiro","3": "Março","4": "Abril","5": "Maio","6": "Junho","7": "Julho","8": "Agosto","9": "Setembro","10": "Outubro","11": "Novembro","12": "Dezembro",}

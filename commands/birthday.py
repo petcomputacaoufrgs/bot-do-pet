@@ -8,7 +8,7 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class Petaniver(apc.Group):
-    """Comandos dos aniversarios do pet"""
+    """Anivers\u00e1rio"""
 
     def __init__(self):
         super().__init__() # Inicializa a classe pai

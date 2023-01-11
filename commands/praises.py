@@ -7,8 +7,7 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class Petelogio(apc.Group):
-    """Comandos para elogiar os petianos"""
-
+    """Demonstre seu carinho"""
     def __init__(self):
         super().__init__()
         self.data = dictJSON("data/praises.json")

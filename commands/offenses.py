@@ -7,15 +7,15 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class Petxingamento(apc.Group):
-    """Comandos para xingar o matheus"""
+    """Xingue o Matheus"""
     def __init__(self):
         super().__init__()
         self.data = dictJSON("data/offenses.json")
 
     @apc.command(name="matheus", description="não é necessário gastar sua saliva xingando o Matheus, o bot faz isso por você")
     async def offend(self, interaction: discord.Interaction):
-        num = random.randint(0, len(self.offense_list)-1)
-        await interaction.response.send_message(f"{self.offense_list[num].capitalize()}, <@{Bot.ENV['MATHEUS_ID']}>")
+        num = random.randint(0, len(self.data["offenses"])-1)
+        await interaction.response.send_message(f"{self.data['offenses'][num].capitalize()}, <@{Bot.ENV['MATHEUS_ID']}>")
         
     @apc.command(name="adicionar", description="adicione uma nova forma de ofender o Matheus!")
     async def add_offense(self, interaction: discord.Interaction, xingamento: str):

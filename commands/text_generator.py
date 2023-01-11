@@ -6,7 +6,7 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class Petshakespeare(apc.Group):
-    """Comando para gerar texto com Shakespeare"""
+    """Gera\u00e7\u00e3o de texto"""
     def __init__(self):
         super().__init__() # Inicializa o comando
 

@@ -9,8 +9,7 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class Petretro(apc.Group):
-    """Comandos relacionados a retrospectiva bisemanal do PET"""
-
+    """Retrospectiva"""
     def __init__(self):
         super().__init__()
         self.flag = True
