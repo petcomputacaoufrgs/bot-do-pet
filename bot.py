@@ -15,12 +15,12 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
         self.synced = False
 
         # Variáveis adicionais
-        self.ENV = dictJSON(".env")  # Carrega as variaveis de ambiente
+        self.ENV: dictJSON = dictJSON(".env")  # Carrega as variaveis de ambiente
         self.TZ = timezone('America/Sao_Paulo')  # Carrega o timezone
         self.classes = [] # Lista de comandos
-        self.tasks = (cls.startTasks for cls in self.classes if hasattr(cls, "startTasks"))
+        self.tasks: callable = (cls.startTasks for cls in self.classes if hasattr(cls, "startTasks"))
         self.voiceListeners: callable = [] # Listener de voz
-        self.CommandTree = app_commands.CommandTree(self)  # Cria a arvore de comandosBot.cC
+        self.CommandTree: app_commands.CommandTree = app_commands.CommandTree(self)  # Cria a arvore de comandosBot.cC
     
     def addVoiceListener(self, func: callable):
         """Adiciona uma função a ser chamada quando houver conexão num canal de voz"""

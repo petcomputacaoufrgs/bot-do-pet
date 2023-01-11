@@ -9,7 +9,7 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class Petinter(apc.Group):
-    """Comandos do interpet menssal"""
+    """Interpet"""
     def __init__(self):
         super().__init__() # Inicializa a classe pai
         self.data = dictJSON("data/interpet_dates.json")  # Lê o arquivo de datas

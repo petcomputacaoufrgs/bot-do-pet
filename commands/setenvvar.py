@@ -5,8 +5,7 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class PetSetEnv(apc.Group):
-    """Comandos para atualizar os canais e usuario do bot"""
-
+    """Mudar o ID de Canais"""
     def __init__(self):
         super().__init__()
 

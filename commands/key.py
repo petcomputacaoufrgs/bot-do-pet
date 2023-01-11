@@ -8,6 +8,7 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utilizado para agrupar os comandos em subgrupos
+    """Chave da salinha"""
     def __init__(self):
         super().__init__()
         # ID da mensagem que contem a chave
