@@ -1,6 +1,6 @@
-from pytz import timezone
 import discord
 from discord import app_commands
+from pytz import timezone
 from utils.env import dictJSON
 
 # SETUP
