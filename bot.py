@@ -1,12 +1,9 @@
 import os
 import discord
 from discord import app_commands
-from utils.env import load_env
-from inspect import getmembers, ismethod
+from utils.env import dictJSON
 
 # SETUP
-load_env()  # Carrega as variaveis de ambiente para serem usada
-
 class MyClient(discord.Client):  # Cria o cliente que será usado
     def __init__(self):
         # Carrega as permissões atuais do bot
@@ -18,16 +15,11 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
         self.synced = False
 
         # Variáveis adicionais
+        self.ENV = dictJSON(".env")  # Carrega as variaveis de ambiente
         self.classes = [] # Lista de comandos
         self.tasks = (cls.startTasks for cls in self.classes if hasattr(cls, "startTasks"))
         self.voiceListeners: callable = [] # Listener de voz
         self.CommandTree = app_commands.CommandTree(self)  # Cria a arvore de comandosBot.cC
-
-    # Salva os Tokens utilizados pelo bot
-    class TOKENS:
-        # Salva o Id do servidor atual
-        GUILD = discord.Object(id=os.getenv("SERVER_ID", 0))
-        SERVER = os.getenv("TOKEN", 0)
     
     def addVoiceListener(self, func: callable):
         """Adiciona uma função a ser chamada quando houver conexão num canal de voz"""
@@ -36,7 +28,8 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
     def addCommandGroup(self, MyClass: callable):
         aClass = MyClass()
         self.classes.append(aClass)
-        Bot.CommandTree.add_command(aClass, guild=Bot.TOKENS.GUILD)
+        self.CommandTree.add_command(
+            aClass, guild=discord.Object(id=self.ENV["SERVER_ID"]))
     
     async def on_voice_state_update(self, member, before, after):    
         """Função chamada pelo cliente discord quando há atualização no estado de voz de um membro"""
@@ -45,7 +38,7 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
 
     async def on_ready(self):  # Quando o bot estiver pronto e aceitando comando
         if not self.synced:  # Se a variavel for falso ele atuailiza a lista de comandos
-            await self.CommandTree.sync(guild=Bot.TOKENS.GUILD)
+            await self.CommandTree.sync(guild=discord.Object(id=self.ENV["SERVER_ID"]))
             self.synced = True
         # Gera uma lista de comandos que tenham inicializador de tasks
         

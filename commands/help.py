@@ -1,6 +1,5 @@
 import discord
 from discord import app_commands as apc
-import os
 from utils.env import readDataFile
 
 from bot import Bot
@@ -21,7 +20,7 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
         em.set_thumbnail( url = "https://cdn.discordapp.com/attachments/938858934259822685/945718556732039219/LogoPET_oficial.png") # Adiciona a imagem do PET
         em.add_field(
             name="**Tem alguma outra sugestão para o bot?**",
-            value=f'Escreva pra gente no chat <#{os.getenv("BOT_RECOMMENDATIONS_CHANNEL", 0)}>! Toda ajuda é sempre bem-vinda 🥰',
+            value=f'Escreva pra gente no chat <#{Bot.ENV["BOT_RECOMMENDATIONS_CHANNEL"]}>! Toda ajuda é sempre bem-vinda 🥰',
             inline=False
         )
         await interaction.response.send_message(embed = em) # Envia a mensagem de ajuda

@@ -1,4 +1,3 @@
-import os
 import pytz
 import discord
 import datetime
@@ -75,8 +74,8 @@ class Petaniver(apc.Group):
         if len(birthday_people) != 1: # Se tiver mais de uma pessoa fazendo aniversario
             startofMsg = "Os aniversariantes de hoje são" # Muda a mensagem inicial
         
-        channel = Bot.get_channel(int(os.getenv("BIRTHDAY_CHANNEL", 0))) # Pega o canal de aniversarios
-        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>, pois é dia de festa!\n{startofMsg} {birthday_person}, não se esqueçam de desejar tudo de bom e mais um pouco.')
+        channel = Bot.get_channel(Bot.ENV["BIRTHDAY_CHANNEL"])  # Pega o canal de aniversarios
+        await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>, pois é dia de festa!\n{startofMsg} {birthday_person}, não se esqueçam de desejar tudo de bom e mais um pouco.')
         
     def birthday_string(self, data):
         birthday_string = "" # Inicializa a string
