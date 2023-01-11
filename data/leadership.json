@@ -1,26 +1,10 @@
 {
     "1": [
-        "Jo\u00e3o Vitor",
-        "Sofia"
+        "DEFAULTPRESIDENT1",
+        "DEFAULTVICE1"
     ],
-    "2": [
-        "Sofia",
-        "Galeano"
-    ],
-    "3": [
-        "Galeano",
-        "Jos\u00e9"
-    ],
-    "4": [
-        "Jos\u00e9",
-        "Henrique"
-    ],
-    "5": [
-        "Henrique",
-        "Jo\u00e3o Vitor"
-    ],
-    "6": [
-        "Jo\u00e3o Vitor",
-        "??"
+    "12": [
+        "DEFAULTPRESIDENT12",
+        "DEFAULTVICE12"
     ]
 }
