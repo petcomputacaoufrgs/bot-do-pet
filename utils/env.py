@@ -1,18 +1,17 @@
+from __future__ import annotations
 import os
 from importlib import import_module
 from json import load, dump
 from typing import Optional
 
 class dictJSON(dict):
-    def __init__(self, path: str, imported: bool = True, **kwargs):
+    def __init__(self, path: str, **kwargs):
         self.path = path
-        if imported:
-            with open(self.path, 'r', encoding='utf-8') as json_file:
-                data = load(json_file)
-        elif kwargs:
+        if kwargs:
             data = kwargs
         else:
-            data = {}
+            with open(self.path, 'r', encoding='utf-8') as json_file:
+                data = load(json_file)
         super().__init__(data)
         self.__save__()
     
@@ -65,6 +64,20 @@ class dictJSON(dict):
             return super().get(__key, __default)
         except:
             return 0
+        
+    def sort(self, key = None) -> None:
+        sorted_list = sorted(self.items(), key=key)
+        super().clear()
+        for key, value in sorted_list:
+            self[key] = value
+        self.__save__()
+        
+    def save(self) -> None:
+        self.__save__()
+    
+    def copy(self) -> dictJSON:
+        val = super().copy()
+        return dictJSON(self.path, **val)
 
 def loadModules(path: str):
     for files in os.listdir(path):  # Para cada arquivo na pasta commands
