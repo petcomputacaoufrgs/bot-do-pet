@@ -18,7 +18,7 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
         self.ENV: dictJSON = dictJSON(".env")  # Carrega as variaveis de ambiente
         self.TZ = timezone('America/Sao_Paulo')  # Carrega o timezone
         self.classes = [] # Lista de comandos
-        self.tasks: callable = (cls.startTasks for cls in self.classes if hasattr(cls, "startTasks"))
+        self.tasks = (cls.startTasks for cls in self.classes if hasattr(cls, "startTasks"))
         self.voiceListeners: callable = [] # Listener de voz
         self.CommandTree: app_commands.CommandTree = app_commands.CommandTree(self)  # Cria a arvore de comandosBot.cC
     
