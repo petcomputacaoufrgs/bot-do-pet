@@ -68,7 +68,7 @@ class Petretro(apc.Group):
         today = datetime.date.today()
         friday = today + datetime.timedelta((4-today.weekday()) % 7)
 
-        em.add_field(name=f"**Retrospectiva**\n\nA proxima retrospectiva será dia {friday.day:02d}/{friday.month:02d}/{friday.year:02d} às 12h.",
+        em.add_field(name=f"**Retrospectiva**\n\nA proxima retrospectiva será dia {friday.day:02d}/{friday.month:02d}/{friday.year:02d}.",
                      value="**Os Petianes dessa semana são:**\n" + self.getNames(friday, False)
                 )
         await interaction.response.send_message(embed=em)
@@ -86,10 +86,10 @@ class Petretro(apc.Group):
     # Task: send the warning to every petiane
     @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo = Bot.TZ))
     async def remember_retrospective(self):
-        if (not self.flag) or datetime.date.today().weekday() != 3:  # 3 = Thursday
+        if (not self.flag) or datetime.date.today().weekday() != 4:  # 3 = Thursday
             return
         channel = Bot.get_channel(Bot.ENV["WARNING_CHANNEL"])
-        petText = f"**Retrospectiva**\n\nAtenção, amanhã é dia de retrospectiva, deixem postado até as 12h para a Erika ler.\n\n**Os Petianes dessa semana são:**\n" + \
+        petText = f"**Retrospectiva**\n\nAtenção, hoje é dia de retrospectiva, deixem postado até segunda para a Erika ler.\n\n**Os Petianes dessa semana são:**\n" + \
             self.getNames(datetime.date.today(), True)
         await channel.send(petText)
 
