@@ -14,6 +14,8 @@ class Navegador:
         self.DRIVER_PATH = r"utils/chromedriver"
         chromeoptions = webdriver.ChromeOptions()
         chromeoptions.add_argument('--headless')
+        chromeoptions.add_argument('--no-sandbox')
+        chromeoptions.add_argument('--disable-dev-shm-usage')
         chromeoptions.add_argument('--silent')
         chromeoptions.add_experimental_option('excludeSwitches', ['enable-logging'])
 
