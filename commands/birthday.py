@@ -1,30 +1,28 @@
-import os
-import pytz
 import discord
 import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
-import json
+from utils.env import dictJSON
 
+from bot import Bot
+
+@Bot.addCommandGroup
 class Petaniver(apc.Group):
-    """Comandos dos aniversarios do pet"""
+    """Anivers\u00e1rio"""
 
-    def __init__(self, bot):
+    def __init__(self):
         super().__init__() # Inicializa a classe pai
-        self.bot = bot # Define o bot
-        self.data = self.readBirthdaysFile() # Carrega o arquivo de aniversarios
+        self.data = dictJSON("data/birthdays.json") # Carrega o arquivo de aniversarios
 
     @apc.command(name="aniversario", description="Informa o dia do próximo aniversário")
     async def nextbirthday(self, interaction: discord.Interaction):
-        loop = True 
-        today = datetime.date.today() # Pega a data de hoje
-        while loop: # Loop para encontrar o proximo aniversario
-            today += datetime.timedelta(days=1) # Adiciona um dia a data de hoje
-            for date in self.data.keys(): # Itera sobre as datas
-                if date == today.strftime("%d/%m"): # Se a data for igual a data de hoje
-                    birthday_people = self.data[date] # Pega a lista de pessoas que fazem aniversario nesse dia
-                    loop = False # Para o loop
-                    break # Quebra o loop
+        day = datetime.date.today() # Pega a data de hoje
+        while True: # Loop para encontrar o proximo aniversario
+            day += datetime.timedelta(days=1) # Adiciona um dia a data de hoje
+            # Se a data for igual a data de hoje
+            if day.strftime("%d/%m") in self.data.keys():
+                birthday_people = self.data[day.strftime("%d/%m")] # Pega a lista de pessoas que fazem aniversario nesse dia
+                break # Quebra o loop
         
         birthday_person = self.birthday_string(birthday_people) # Transforma a lista de pessoas em uma string
         startofMsg = "O próximo aniversariante é"  # Define a primeira parte da mensagem
@@ -34,7 +32,7 @@ class Petaniver(apc.Group):
         em = discord.Embed(color=0xFF8AD2) # Cria um embed
         em.add_field( # Adiciona um campo ao embed
             name=f"**Aniversário**",
-            value=f"{startofMsg} {birthday_person}, no dia {today.strftime('%d/%m')}.",
+            value=f"{startofMsg} {birthday_person}, no dia {day.strftime('%d/%m')}.",
             inline=False
         )
         await interaction.response.send_message(embed=em) # Envia a mensagem
@@ -45,10 +43,9 @@ class Petaniver(apc.Group):
             await interaction.response.send_message("Data inválida") # Envia a mensagem
             return # Sai da função
         if f'{dia:02d}/{mes:02d}' in self.data.keys(): # Verifica se a data já existe
-            self.data[f"{dia:02d}/{mes:02d}"].append(nome) # Adiciona o nome a lista de nomes
+            self.data[f"{dia:02d}/{mes:02d}"] +=[nome] # Adiciona o nome a lista de nomes
         else: # Se não existir
             self.data[f"{dia:02d}/{mes:02d}"] = [nome] # Cria a data com o nome
-        json.dump(self.data, open("data/birthdays.json", "w")) # Salva o arquivo
         await interaction.response.send_message(f"Aniversariante {nome} adicionado com sucesso!") # Envia a mensagem
         
     @apc.command(name="remover", description="Remove um aniversariante") # Comando para remover um aniversariante
@@ -58,12 +55,11 @@ class Petaniver(apc.Group):
                 self.data[date].remove(nome) # Remove o nome da lista
                 if self.data[date] == []: # Se a lista ficar vazia
                     self.data.pop(date) # Remove a data
-                json.dump(self.data, open("data/birthdays.json", "w")) # Salva o arquivo
                 await interaction.response.send_message(f"Aniversariante {nome} removido com sucesso!") # Envia a mensagem
                 return # Sai da função
         await interaction.response.send_message(f"Aniversariante {nome} não encontrado!") # Envia a mensagem
         
-    @tasks.loop(time=datetime.time(hour=7, minute=54, tzinfo=pytz.timezone("America/Sao_Paulo")))
+    @tasks.loop(time=datetime.time(hour=7, minute=54, tzinfo=Bot.TZ))
     async def test_birthday(self):
         today = datetime.date.today().strftime("%d/%m") # Pega a data de hoje
         if today not in self.data.keys(): # Se não tiver aniversario hoje
@@ -75,8 +71,8 @@ class Petaniver(apc.Group):
         if len(birthday_people) != 1: # Se tiver mais de uma pessoa fazendo aniversario
             startofMsg = "Os aniversariantes de hoje são" # Muda a mensagem inicial
         
-        channel = self.bot.get_channel(int(os.getenv("BIRTHDAY_CHANNEL", 0))) # Pega o canal de aniversarios
-        await channel.send(f'Atenção, <@&{os.getenv("PETIANES_ID", 0)}>, pois é dia de festa!\n{startofMsg} {birthday_person}, não se esqueçam de desejar tudo de bom e mais um pouco.')
+        channel = Bot.get_channel(Bot.ENV["BIRTHDAY_CHANNEL"])  # Pega o canal de aniversarios
+        await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>, pois é dia de festa!\n{startofMsg} {birthday_person}, não se esqueçam de desejar tudo de bom e mais um pouco.')
         
     def birthday_string(self, data):
         birthday_string = "" # Inicializa a string
@@ -91,7 +87,3 @@ class Petaniver(apc.Group):
     async def startTasks(self): # Função para iniciar as tasks
         self.test_birthday.start()   # Inicia a task de aniversario  
         
-    def readBirthdaysFile(self):
-        with open("data/birthdays.json", 'r', encoding='utf-8') as json_file:
-            data = json.load(json_file)
-        return data

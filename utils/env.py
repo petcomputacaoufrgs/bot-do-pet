@@ -1,23 +1,85 @@
+from __future__ import annotations
 import os
+from importlib import import_module
+from json import load, dump
+from typing import Optional
 
-def load_env():
-    """Função para carregar as variaveis de ambiente"""
-    if os.path.isfile(".env"): # Verifica se o arquivo .env existe
-        from dotenv import load_dotenv # Importa a função para carregar o arquivo .env
-        load_dotenv() # Carrega o arquivo .env
+class dictJSON(dict):
+    def __init__(self, path: str, **kwargs):
+        self.path = path
+        if kwargs:
+            data = kwargs
+        else:
+            with open(self.path, 'r', encoding='utf-8') as json_file:
+                data = load(json_file)
+        super().__init__(data)
+        self.__save__()
+    
+    def __save__(self) -> None:
+        with open(self.path, 'w', encoding='utf-8') as json_file:
+            dump(self, json_file)
+    
+    def __delitem__(self, __key) -> None:
+        val = super().__delitem__(__key)
+        self.__save__()
+        return val
+    
+    def __setitem__(self, __key, __value) -> None:
+        val = super().__setitem__(__key, __value)
+        self.__save__()
+        return val
+
+    def __getitem__(self, __key) -> any:
+        try:
+            return super().__getitem__(__key)
+        except:
+            return 0
+
+    def pop(self, __key, __default = None) -> any:
+        if __default is None:
+            val = super().pop(__key)
+        else:
+            val = super().pop(__key, __default)
+        self.__save__()
+        return val
+    
+    def popitem(self) -> tuple:
+        val = super().popitem()
+        self.__save__()
+        return val
+    
+    def clear(self) -> None:
+        val = super().clear()
+        self.__save__()
+        return val
+    
+    def update(self, __m: Optional[dict] = ..., **kwargs) -> None:
+        val = super().update(__m, **kwargs)
+        with open(self.path, 'w+', encoding='utf-8') as json_file:
+            dump(self, json_file)
+        return val
+    
+    def get(self, __key, __default) -> any:
+        try:
+            return super().get(__key, __default)
+        except:
+            return 0
         
-def update_env(key: str, value: str): # Função para atualizar o arquivo .env
-    if os.path.isfile(".env"): # Verifica se o arquivo .env existe
-        foundKey = False # Variavel para verificar se a chave já existe
-        with open(".env", "r") as file: # Abre o arquivo .env
-            lines = file.readlines() # Lê todas as linhas do arquivo
-        for line in lines: # Percorre todas as linhas do arquivo
-            if line.startswith(key): # Verifica se a linha começa com a chave
-                foundKey = True # Se sim, a chave já existe
-                lines[lines.index(line)] = f"{key}={value}" + os.linesep # Adiciona o valor a variavel
-                break # Para o loop
-        if not foundKey: # Se a chave não existir
-            lines.append(f"{key}={value}" + os.linesep) # Adiciona a chave e o valor
-        with open(".env", "w") as file: # Abre o arquivo .env
-            file.writelines(lines) # Escreve as linhas no arquivo
-    os.environ[key] = value # Adiciona a variavel de ambiente
+    def sort(self, key = None) -> None:
+        sorted_list = sorted(self.items(), key=key)
+        super().clear()
+        for key, value in sorted_list:
+            self[key] = value
+        self.__save__()
+        
+    def save(self) -> None:
+        self.__save__()
+    
+    def copy(self) -> dictJSON:
+        val = super().copy()
+        return dictJSON(self.path, **val)
+
+def loadModules(path: str):
+    for files in os.listdir(path):  # Para cada arquivo na pasta commands
+        if files.endswith(".py"):  # Se o arquivo terminar com .py
+            import_module(f"commands.{files[:-3]}")  # Importa o arquivo

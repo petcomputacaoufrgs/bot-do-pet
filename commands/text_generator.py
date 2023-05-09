@@ -2,12 +2,13 @@ import discord
 from discord import app_commands as apc
 import utils.shakespeare as shks
 
+from bot import Bot
 
+@Bot.addCommandGroup
 class Petshakespeare(apc.Group):
-    """Comando para gerar texto com Shakespeare"""
-    def __init__(self, bot): # Inicializa o comando
+    """Gera\u00e7\u00e3o de texto"""
+    def __init__(self):
         super().__init__() # Inicializa o comando
-        self.bot = bot # Adiciona o bot
 
     @apc.command(name="nome", description="Gera um nome shakespeariano!") # Adiciona o subcomando nome
     async def Nome(self, interaction: discord.Interaction, seunome: str):

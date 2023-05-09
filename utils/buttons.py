@@ -1,22 +1,21 @@
 import discord
-import os
-from utils.env import update_env
+
+from bot import Bot
 
 users = []
 
 class KeyMenu(discord.ui.View):
-    def __init__(self, bot: discord.Client):
+    def __init__(self):
         super().__init__(timeout=None)
         # Id da pessoa que está atualmente com a chave, 0 = com a tia
-        self.location = int(os.getenv("LAST_KEY", 0))
-        self.bot = bot  # Referencia para o proprio bot, caso necessario
+        self.location = Bot.ENV["LAST_KEY"]
         self.updateUsers()
 
     def updateUsers(self) -> None:
-        server = self.bot.get_guild(int(os.getenv("SERVER_ID", 0)))
+        server = Bot.get_guild(Bot.ENV["SERVER_ID"])
         users.clear()
         for user in server.members:
-            if user.get_role(int(os.getenv("PETIANES_ID", 0))) is not None:
+            if user.get_role(Bot.ENV["PETIANES_ID"]) is not None:
                 users.append(discord.SelectOption(
                     label=f"{user.display_name}", value=user.id, description=f"{user.name}#{user.discriminator}"))
 
@@ -36,7 +35,7 @@ class KeyMenu(discord.ui.View):
         
     def UpdateKey(self, id: int) -> None:
         self.location = id
-        update_env("LAST_KEY", str(id))
+        Bot.ENV["LAST_KEY"] = id
         
     @discord.ui.button(label="Peguei", style=discord.ButtonStyle.green, custom_id="peguei")
     async def peguei(self, interaction: discord.Interaction, button: discord.ui.Button):
