@@ -42,8 +42,6 @@ class Petbolsa(apc.Group):
                 'last_payment_value': '/html/body/div/section/div/div[2]/div[2]/div/table/tbody/tr[$$PAY_DAY$$]/td[4]',
             }
         }
-        self.last_payment_consult = None
-        self.lastcpf = None
 
     @apc.command(name="consulta", description="Consulta o pagamento da bolsa") # Adiciona o subcomando consulta
     async def Consulta(self, interaction: discord.Interaction, cpf: str):
@@ -57,7 +55,8 @@ class Petbolsa(apc.Group):
             error = True
             last_reference_month, last_payment_value = ('Error', "Erro ao consultar o pagamento da bolsa")
 
-        self.lastcpf = self.lastcpf if error else cpf
+        if not error:
+            Bot.ENV["LAST_CPF"] = cpf
 
         em=discord.Embed(title = "**Sua Bolsa**", 
                          description=f"**Valor:** {last_payment_value}\n**Mês de Referencia:** {last_reference_month}",
@@ -94,23 +93,11 @@ class Petbolsa(apc.Group):
     @tasks.loop(time=time(hour=11, minute=54, tzinfo = Bot.TZ))
     async def Check(self):
         channel = Bot.get_channel(Bot.ENV["WARNING_CHANNEL"])
-
-        if self.lastcpf == None:
-            em=discord.Embed(title = "**Erro ao consultar o pagamento da bolsa**", 
-                         description=f"**Atualize o CPF fazendo uma consulta**",
-                         color=0xFF0000
-                         )
-
-            await channel.send(embed=em)
-
-            await channel.send(f'<@&{Bot.ENV["PETIANES_ID"]}>')
-            await channel.last_message.delete()
-            return
-        
+        cpf = Bot.ENV["LAST_CPF"]
         self.navegador = Navegador()
 
         try:
-            last_reference_month, last_payment_value = self.search(self.lastcpf)
+            last_reference_month, last_payment_value = self.search(cpf)
         except:
             em=discord.Embed(title = "**Erro ao consultar o pagamento da bolsa**", 
                          description=f"**Atualize o CPF fazendo uma consulta**",
@@ -120,8 +107,6 @@ class Petbolsa(apc.Group):
 
             await channel.send(embed=em)
 
-            await channel.send(f'<@&{Bot.ENV["PETIANES_ID"]}>')
-            await channel.last_message.delete()
             return
         
         self.navegador.navegador.quit()
@@ -130,25 +115,19 @@ class Petbolsa(apc.Group):
 
         two_months_ago = last_month.replace(day=1) - timedelta(days=1)
 
-        if last_month.strftime("%m/%Y") == last_reference_month and self.last_payment_consult != last_reference_month:
+        if last_month.strftime("%m/%Y") == last_reference_month and Bot.ENV["LAST_PAYMENT"] != last_reference_month:
             em=discord.Embed(title = "**Bolsa Caiu!**", 
                          description=f"**Valor:** {last_payment_value}\n**Mês de Referencia:** {last_reference_month}",
                          color=0x00FF00
                          )
-            self.last_payment_consult = last_reference_month
+            Bot.ENV["LAST_PAYMENT"] = last_reference_month
 
             await channel.send(embed=em)
 
-            await channel.send(f'<@&{Bot.ENV["PETIANES_ID"]}>')
-            await channel.last_message.delete()
-
-        elif two_months_ago.strftime("%m/%Y") == last_reference_month and self.last_payment_consult != last_reference_month:
+        elif two_months_ago.strftime("%m/%Y") == last_reference_month and Bot.ENV["LAST_PAYMENT"] != last_reference_month:
             em=discord.Embed(title = "**Atualização**", 
                          description=f"**O CPF registrado pode estar desafado, por favor, atualize-o fazendo uma consulta**",
                          color=0x00FF00
                          )
             await channel.send(embed=em)
-
-            await channel.send(f'<@&{Bot.ENV["PETIANES_ID"]}>')
-            await channel.last_message.delete()
     
