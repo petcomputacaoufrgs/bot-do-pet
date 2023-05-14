@@ -15,7 +15,7 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
         self.synced = False
 
         # Variáveis adicionais
-        self.ENV: dictJSON = dictJSON(".env")  # Carrega as variaveis de ambiente
+        self.ENV: dictJSON = dictJSON("data/.env")  # Carrega as variaveis de ambiente
         self.TZ = timezone('America/Sao_Paulo')  # Carrega o timezone
         self.classes = [] # Lista de comandos
         self.tasks = (cls.startTasks for cls in self.classes if hasattr(cls, "startTasks"))
