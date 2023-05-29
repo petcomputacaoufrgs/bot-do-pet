@@ -10,13 +10,14 @@ class Projetos(apc.Group):
     """Comandos para os petianes"""
     def __init__(self):
         super().__init__()
-        self.data = dictJSON("data/projects.json")
+        
+        self.data: dictJSON = dictJSON("data/projects.json", dumper=lambda o: o.to_json(), loader=lambda k, v: (int(k), Project.from_json(v)))
         
     @apc.command(name="projetos", description="Lista os projetos")
     async def listProjects(self, interaction: discord.Interaction):
         embed = discord.Embed(title="Projetos", color=0xFFFFFF)
         for project in self.data.values():
-            embed.add_field(name=project.name, value=project.description if project != "" else "Sem descrição", inline=False)
+            embed.add_field(name=project.name, value=project.description if project.description is not None else "Sem descrição", inline=False)
         
         await interaction.response.send_message(embed=embed, ephemeral=True)
         
@@ -30,7 +31,7 @@ class Projetos(apc.Group):
         embed = discord.Embed(title=f"Projeto {Project.name}", color=project.color)
         embed.add_field(name="ID", value=f"<@&{project.id}>")
         embed.add_field(name="Descrição", value=project.description if project.description is not None else "Não definido")
-        embed.add_field(name="Lider", value=f"<@{project.leader}>" if project.leader != 0 else "Não definido")
+        embed.add_field(name="Lider", value=f"<@{project.leader}>" if project.leader is not None else "Não definido")
         
         members = ""
         for member in project.members:

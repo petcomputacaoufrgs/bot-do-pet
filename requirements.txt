@@ -1,6 +1,7 @@
 discord.py==2.2.3
 pytz==2023.3
 selenium==4.9.1
+dataclasses-json==0.5.7
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch==2.0.1+cpu
 torchaudio==2.0.2+cpu

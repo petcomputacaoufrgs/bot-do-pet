@@ -11,7 +11,7 @@ class Petiane(apc.Group):
     """Comandos para os petianes"""
     def __init__(self):
         super().__init__()
-        self.data = dictJSON("data/petianes.json")
+        self.data: dictJSON = dictJSON("data/petianes.json", dumper=lambda o: o.to_json(), loader=lambda k, v: (int(k), Member.from_json(v)))
     
     @apc.command(name="petianes", description="Lista os petianes")
     async def listPetianes(self, interaction: discord.Interaction):
@@ -39,7 +39,7 @@ class Petiane(apc.Group):
         projects = ""
         for project in petiane.projects:
             projects += f"{project}\n"
-        embed.add_field(name="Projetos", value=projects)
+        embed.add_field(name="Projetos", value=projects if projects != "" else "Nenhum projeto")
         embed.add_field(name="Canal", value=f"<#{petiane.retro}>" if petiane.retro != 0 else "Não definido")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         
