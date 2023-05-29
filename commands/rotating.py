@@ -86,12 +86,12 @@ class Petschedule(apc.Group):
         self.data.save()
         await interaction.response.send_message("Agendamento ordenado")
         
-    @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo=Bot.TZ))
+    @tasks.loop(time=datetime.time(hour=12, minute=54, tzinfo=Bot.TZ))
     async def warn_schedule(self):
-        if datetime.date.today().weekday() == 2 or self.data['num'] == 0:
+        if datetime.date.today().weekday() != 2 or self.data['num'] == 0:
             return
         
-        if self.data['num'] < len(self.data['schedule']):
+        if self.data['num'] > len(self.data['schedule']):
             self.data['num'] = 0
         
         next_project = self.data['schedule'][self.data['num']]
@@ -103,7 +103,7 @@ class Petschedule(apc.Group):
         )
         channel = Bot.get_channel(Bot.ENV["WARNING_CHANNEL"])
         await channel.send(embed=em)
-        self.data['num'] += self.data['num'] + 1 if self.data['num'] < len(self.data['schedule']) else 0
+        self.data['num'] = (self.data['num'] + 1) % len(self.data['schedule'])
         
         
     @tasks.loop(count=1)

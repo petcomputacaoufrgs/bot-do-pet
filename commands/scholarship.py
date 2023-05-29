@@ -90,7 +90,7 @@ class Petbolsa(apc.Group):
     async def startTasks(self): # Função para iniciar as tasks
         self.Check.start()   # Inicia a task de aniversario  
 
-    @tasks.loop(time=time(hour=11, minute=54, tzinfo = Bot.TZ))
+    @tasks.loop(time=time(hour=10, minute=4, tzinfo = Bot.TZ))
     async def Check(self):
         channel = Bot.get_channel(Bot.ENV["WARNING_CHANNEL"])
         cpf = Bot.ENV["LAST_CPF"]
