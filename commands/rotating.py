@@ -16,14 +16,14 @@ class Petschedule(apc.Group):
         self.data = dictJSON("data/schedule.json")
         
     @apc.command(name="visualizar", description="Visualiza o agendamento")
-    async def view_schedule(self, interaction: discord.Interaction):
+    async def view_schedule(self, interaction: discord.Interaction, mostrar: bool = False):
         em = discord.Embed(color=0xFF8AD2)
         em.add_field(
             name="**Agendamento**",
             value=self.schedule_string(),
             inline=False
         )
-        await interaction.response.send_message(embed=em)
+        await interaction.response.send_message(embed=em, ephemeral=not mostrar)
         
     @apc.command(name="adicionar", description="Adiciona uma atividade ao final do agendamento")
     async def add_schedule(self, interaction: discord.Interaction, atividade: discord.Role):
