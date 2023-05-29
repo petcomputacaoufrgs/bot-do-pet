@@ -17,7 +17,7 @@ class Petinter(apc.Group):
         
         
     @apc.command(name="interpet", description="Informa o dia do próximo interpet")
-    async def interpet(self, interaction: discord.Interaction): 
+    async def interpet(self, interaction: discord.Interaction, mostrar: bool = False): 
         em = discord.Embed(color=0x9370DB) # Cria um embed
         self.interpet_day = self.getNextInterpet().date() # Pega a data de hoje
         days_to_interpet = self.interpet_day - datetime.date.today() # Calcula a diferença entre a data de hoje e a data do interpet
@@ -46,7 +46,7 @@ class Petinter(apc.Group):
                 value=f'Faltam {days_to_interpet.days} dias até o próximo interpet, que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.' + \
                 f" Os grupos do interpet serão: {self.data[date]}."
             )
-        await interaction.response.send_message(embed=em) # Envia a mensagem
+        await interaction.response.send_message(embed=em, ephemeral=not mostrar) # Envia a mensagem
         
         
     @apc.command(name="adicionar", description="Adiciona um novo interpet")
@@ -88,7 +88,7 @@ class Petinter(apc.Group):
         await interaction.response.send_message(embed=em)
         
     @apc.command(name="datas", description="Mostra as datas de interpet")
-    async def show_dates(self, interaction: discord.Interaction):
+    async def show_dates(self, interaction: discord.Interaction, mostrar: bool = False):
         self.clearInterpetDates()
 
         printable_date_list = ''
@@ -100,7 +100,7 @@ class Petinter(apc.Group):
             name="**Datas dos próximos interpets:**",
             value=f'{printable_date_list}'
         )
-        await interaction.response.send_message(embed=em)
+        await interaction.response.send_message(embed=em, ephemeral=not mostrar)
         
     @tasks.loop(time=time(hour=19, minute=54, tzinfo=Bot.TZ))
     async def remember_interpet(self):

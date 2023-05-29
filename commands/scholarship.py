@@ -44,8 +44,8 @@ class Petbolsa(apc.Group):
         }
 
     @apc.command(name="consulta", description="Consulta o pagamento da bolsa") # Adiciona o subcomando consulta
-    async def Consulta(self, interaction: discord.Interaction, cpf: str):
-        await interaction.response.defer(thinking=True)
+    async def Consulta(self, interaction: discord.Interaction, cpf: str, mostrar: bool = False):
+        await interaction.response.defer(thinking=True, ephemeral=True)
         self.navegador = Navegador()
 
         error = False
@@ -62,7 +62,7 @@ class Petbolsa(apc.Group):
                          description=f"**Valor:** {last_payment_value}\n**Mês de Referencia:** {last_reference_month}",
                          color=0xFFFFFF)
         
-        await interaction.followup.send(embed=em)
+        await interaction.followup.send(embed=em, ephemeral=not mostrar)
         self.navegador.navegador.quit()
 
     def search(self, cpf: str) -> tuple:

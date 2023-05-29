@@ -11,7 +11,7 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
         super().__init__() # Inicializa a classe pai
         
     @apc.command(name="help", description="Mostra todos os commandos do BotPET")
-    async def help(self, interaction: discord.Interaction):
+    async def help(self, interaction: discord.Interaction, mostrar: bool = False):
         # Gera a mensagem de ajuda
         em=discord.Embed(title = "**Bem-vinde ao Bot do PET!**", 
                          url="https://github.com/petcomputacaoufrgs/botdopet", 
@@ -36,4 +36,4 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
             value=f'Escreva pra gente no chat <#{Bot.ENV["BOT_RECOMMENDATIONS_CHANNEL"]}>! Toda ajuda é sempre bem-vinda 🥰',
             inline=False
         )
-        await interaction.response.send_message(embed = em) # Envia a mensagem de ajuda
+        await interaction.response.send_message(embed = em, ephemeral=not mostrar) # Envia a mensagem de ajuda

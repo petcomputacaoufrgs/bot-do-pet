@@ -15,14 +15,14 @@ class Petlider(apc.Group):
         self.leadership = dictJSON("data/leadership.json")
         
     @apc.command(name="lideres", description="Mostra os líderes do mês")
-    async def month_leadership(self, interaction: discord.Interaction):
+    async def month_leadership(self, interaction: discord.Interaction, mostrar: bool = False):
         await interaction.response.defer()
         if self.leadership == {}:
-            await interaction.followup.send("Não há líderes cadastrados!")
+            await interaction.followup.send("Não há líderes cadastrados!", ephemeral=not mostrar)
             return
         current_month = datetime.date.today().month
         if str(current_month) not in self.leadership.keys():
-            await interaction.followup.send("Não há líderes cadastrados para este mês!")
+            await interaction.followup.send("Não há líderes cadastrados para este mês!", ephemeral=not mostrar)
             return
         
         current_leadership = self.leadership[f'{current_month}']
@@ -42,7 +42,7 @@ class Petlider(apc.Group):
                 )
             current_month += 1
             
-        await interaction.followup.send(embed=em)
+        await interaction.followup.send(embed=em, ephemeral=not mostrar)
         
     @apc.command(name="adicionar", description="Adiciona uma dupla à liderança")
     async def addLider(self, interaction: discord.Interaction, mes: int, lider: str, vice: str):
@@ -61,9 +61,9 @@ class Petlider(apc.Group):
             await interaction.response.send_message("Mês não existe!")
             
     @apc.command(name="clear", description="Limpa todas as duplas da liderança")
-    async def clearLider(self, interaction: discord.Interaction, confirmacao: bool):
+    async def clearLider(self, interaction: discord.Interaction, confirmacao: bool = False):
         if not confirmacao:
-            await interaction.response.send_message("Confirmação necessario para executar esse comando!")
+            await interaction.response.send_message("Confirmação necessaria para executar esse comando!")
         else:
             self.leadership.clear()
             await interaction.response.send_message("Lideres do ano deletados!")
