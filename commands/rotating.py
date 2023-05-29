@@ -86,7 +86,7 @@ class Petschedule(apc.Group):
         self.data.save()
         await interaction.response.send_message("Agendamento ordenado")
         
-    @tasks.loop(time=datetime.time(hour=12, minute=54, tzinfo=Bot.TZ))
+    @tasks.loop(time=datetime.time(hour=14, tzinfo=Bot.TZ))
     async def warn_schedule(self):
         if datetime.date.today().weekday() != 2 or self.data['num'] == 0:
             return
