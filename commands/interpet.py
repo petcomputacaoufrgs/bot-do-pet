@@ -3,7 +3,7 @@ from discord.ext import tasks
 from discord import app_commands as apc
 import datetime
 from datetime import time
-from utils.env import dictJSON
+from utils.dictjson import dictJSON
 
 from bot import Bot
 

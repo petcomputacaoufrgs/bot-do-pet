@@ -1,6 +1,4 @@
 from __future__ import annotations
-import os
-from importlib import import_module
 from json import load, dump
 from typing import Optional
 
@@ -78,8 +76,3 @@ class dictJSON(dict):
     def copy(self) -> dictJSON:
         val = super().copy()
         return dictJSON(self.path, **val)
-
-def loadModules(path: str):
-    for files in os.listdir(path):  # Para cada arquivo na pasta commands
-        if files.endswith(".py"):  # Se o arquivo terminar com .py
-            import_module(f"commands.{files[:-3]}")  # Importa o arquivo

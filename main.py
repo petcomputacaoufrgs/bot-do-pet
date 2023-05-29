@@ -1,5 +1,5 @@
 from bot import Bot
-from utils.env import loadModules
+from utils.modules import loadModules
 
 loadModules("commands") # Carrega os modulos
 

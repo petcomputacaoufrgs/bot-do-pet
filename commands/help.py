@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands as apc
-from utils.env import dictJSON
+from utils.dictjson import dictJSON
 
 from bot import Bot
 

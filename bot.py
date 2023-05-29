@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from pytz import timezone
-from utils.env import dictJSON
+from utils.dictjson import dictJSON
 
 # SETUP
 class MyClient(discord.Client):  # Cria o cliente que será usado
