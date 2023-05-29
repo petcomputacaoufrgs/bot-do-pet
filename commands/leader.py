@@ -68,7 +68,7 @@ class Petlider(apc.Group):
             self.leadership.clear()
             await interaction.response.send_message("Lideres do ano deletados!")
         
-    @tasks.loop(time=datetime.time(hour=12, minute=54, tzinfo=Bot.TZ))
+    @tasks.loop(time=datetime.time(hour=13, tzinfo=Bot.TZ))
     async def leadership_alert(self):
         if not datetime.date.today().day == 1:
             return

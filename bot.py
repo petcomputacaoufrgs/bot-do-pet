@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-from pytz import timezone
+from datetime import timezone, timedelta
 from utils.env import dictJSON
 
 # SETUP
@@ -16,7 +16,7 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
 
         # Variáveis adicionais
         self.ENV: dictJSON = dictJSON("data/.env")  # Carrega as variaveis de ambiente
-        self.TZ = timezone('America/Sao_Paulo')  # Carrega o timezone
+        self.TZ = timezone(timedelta(hours=-3))  # Carrega o timezone
         self.classes = [] # Lista de comandos
         self.tasks = (cls.startTasks for cls in self.classes if hasattr(cls, "startTasks"))
         self.voiceListeners: callable = [] # Listener de voz

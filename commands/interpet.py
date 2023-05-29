@@ -102,7 +102,7 @@ class Petinter(apc.Group):
         )
         await interaction.response.send_message(embed=em)
         
-    @tasks.loop(time=time(hour=19, minute=54, tzinfo=Bot.TZ))
+    @tasks.loop(time=time(hour=20, tzinfo=Bot.TZ))
     async def remember_interpet(self):
         self.interpet_day = self.getNextInterpet().date() # Pega a data atual
         # Se o aviso de interpet estiver ligado e for dia de interpet
@@ -111,7 +111,7 @@ class Petinter(apc.Group):
             await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
         
-    @tasks.loop(time=time(hour=7, minute=54, tzinfo=Bot.TZ))
+    @tasks.loop(time=time(hour=8, tzinfo=Bot.TZ))
     async def awake_interpet(self):
         self.interpet_day = self.getNextInterpet().date()  # Pega a data atual
         # Se o aviso de interpet estiver ligado e for dia de interpet

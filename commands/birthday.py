@@ -59,7 +59,7 @@ class Petaniver(apc.Group):
                 return # Sai da função
         await interaction.response.send_message(f"Aniversariante {nome} não encontrado!") # Envia a mensagem
         
-    @tasks.loop(time=datetime.time(hour=7, minute=54, tzinfo=Bot.TZ))
+    @tasks.loop(time=datetime.time(hour=8, tzinfo=Bot.TZ))
     async def test_birthday(self):
         today = datetime.date.today().strftime("%d/%m") # Pega a data de hoje
         if today not in self.data.keys(): # Se não tiver aniversario hoje

@@ -84,7 +84,7 @@ class Petretro(apc.Group):
         await interaction.response.send_message(embed=em)
 
     # Task: send the warning to every petiane
-    @tasks.loop(time=datetime.time(hour=11, minute=54, tzinfo = Bot.TZ))
+    @tasks.loop(time=datetime.time(hour=12, tzinfo = Bot.TZ))
     async def remember_retrospective(self):
         if (not self.flag) or datetime.date.today().weekday() != 4:  # 3 = Thursday
             return
