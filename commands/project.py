@@ -18,12 +18,12 @@ class Projetos(apc.Group):
         for project in self.data.values():
             embed.add_field(name=project.name, value=project.description if project != "" else "Sem descrição", inline=False)
         
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         
     @apc.command(name="projeto", description="Mostra o projeto")
     async def showProject(self, interaction: discord.Interaction, projeto: discord.Role):
         if projeto.id not in self.data:
-            await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!")
+            await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!", ephemeral=True)
             return
         
         project: Project = self.data[projeto.id]
@@ -42,28 +42,28 @@ class Projetos(apc.Group):
             channels += f"<#{channel}>\n"
         embed.add_field(name="Canais", value=channels)
         
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
         
     @apc.command(name="adicionar", description="Adiciona um projeto")
     async def addProject(self, interaction: discord.Interaction, nome: str, color: int, projeto: discord.Role):
         if projeto.id in self.data:
-            await interaction.response.send_message(f"Projeto {projeto.mention} já existe!")
+            await interaction.response.send_message(f"Projeto {projeto.mention} já existe!", ephemeral=True)
             return
         
         project = Project(id=projeto.id, name=nome, color=color)
         self.data[project.id] = project
         self.data.save()
-        await interaction.response.send_message(f"Projeto {project.mention} adicionado!")
+        await interaction.response.send_message(f"Projeto {project.mention} adicionado!", ephemeral=True)
         
     @apc.command(name="remover", description="Remove um projeto")
     async def removeProject(self, interaction: discord.Interaction, projeto: discord.Role):
         if projeto.id not in self.data:
-            await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!")
+            await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!", ephemeral=True)
             return
         
         del self.data[projeto.id]
         self.data.save()
-        await interaction.response.send_message(f"Projeto {projeto.mention} removido!")
+        await interaction.response.send_message(f"Projeto {projeto.mention} removido!", ephemeral=True)
         
     @apc.command(name="criar", description="Cria um projeto")
     async def createProject(self, interaction: discord.Interaction, nome: str, color: int):
@@ -72,28 +72,28 @@ class Projetos(apc.Group):
 
         self.data[project.id] = Project(id=project.id, name=nome, color=color)
         self.data.save()
-        await interaction.response.send_message(f"Projeto {project.mention} criado!")
+        await interaction.response.send_message(f"Projeto {project.mention} criado!", ephemeral=True)
         
     @apc.command(name="deletar", description="Deleta um projeto")
     async def deleteProject(self, interaction: discord.Interaction, projeto: discord.Role, confirm: bool):
         if projeto.id not in self.data:
-            await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!")
+            await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!", ephemeral=True)
             return
         if not confirm:
-            await interaction.response.send_message(f"Confirme a exclusão do projeto {projeto.mention}!")
+            await interaction.response.send_message(f"Confirme a exclusão do projeto {projeto.mention}!", ephemeral=True)
             return
 
         await projeto.delete()
         del self.data[projeto.id]
         self.data.save()
-        await interaction.response.send_message(f"Projeto {projeto.mention} deletado!")
+        await interaction.response.send_message(f"Projeto {projeto.mention} deletado!", ephemeral=True)
         
     @apc.command(name="modificar", description="Modifica um projeto")
     async def modifyProject(self, interaction: discord.Interaction, projeto: discord.Role, 
                             nome: str= None, color: int = None, description: str = None,
                             leader: discord.Member = None, channel: discord.TextChannel = None):
         if projeto.id not in self.data:
-            await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!")
+            await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!", ephemeral=True)
             return
         
         project: Project = self.data[projeto.id]
@@ -110,29 +110,29 @@ class Projetos(apc.Group):
         
         self.data[project.id] = project
         self.data.save()
-        await interaction.response.send_message(f"Projeto {project.mention} modificado!")
+        await interaction.response.send_message(f"Projeto {project.mention} modificado!", ephemeral=True)
         
     @apc.command(name="membro", description="Modifica um membro de projeto")
     async def modifyMember(self, interaction: discord.Interaction, projeto: discord.Role, membro: discord.Member, remover: bool = False):
         if projeto.id not in self.data:
-            await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!")
+            await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!", ephemeral=True)
             return
         
         project: Project = self.data[projeto.id]
         if remover:
             if membro.id not in project.members:
-                await interaction.response.send_message(f"Membro {membro.mention} não está no projeto!")
+                await interaction.response.send_message(f"Membro {membro.mention} não está no projeto!", ephemeral=True)
                 return
             project.members.remove(membro.id)
         else:
             if membro.id in project.members:
-                await interaction.response.send_message(f"Membro {membro.mention} já está no projeto!")
+                await interaction.response.send_message(f"Membro {membro.mention} já está no projeto!", ephemeral=True)
                 return
             project.members.append(membro.id)
         
         self.data[project.id] = project
         self.data.save()
-        await interaction.response.send_message(f"Membro {membro.mention} modificado no projeto {projeto.mention}!")
+        await interaction.response.send_message(f"Membro {membro.mention} modificado no projeto {projeto.mention}!", ephemeral=True)
         
         
         
