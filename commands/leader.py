@@ -48,6 +48,7 @@ class Petlider(apc.Group):
     async def addLider(self, interaction: discord.Interaction, mes: int, lider: str, vice: str):
         if f'{mes}' not in self.leadership:
             self.leadership[f'{mes}'] = [lider, vice]
+            self.leadership.save()
             await interaction.response.send_message("Adicionado com sucesso!")
         else:
             await interaction.response.send_message("Mês já existe!")
@@ -56,6 +57,7 @@ class Petlider(apc.Group):
     async def remLider(self, interaction: discord.Interaction, mes: int):
         if f'{mes}' in self.leadership:
             del self.leadership[f'{mes}']
+            self.leadership.save()
             await interaction.response.send_message("Removido com sucesso!")
         else:
             await interaction.response.send_message("Mês não existe!")
@@ -66,6 +68,7 @@ class Petlider(apc.Group):
             await interaction.response.send_message("Confirmação necessaria para executar esse comando!")
         else:
             self.leadership.clear()
+            self.leadership.save()
             await interaction.response.send_message("Lideres do ano deletados!")
         
     @tasks.loop(time=datetime.time(hour=13, tzinfo=Bot.TZ))

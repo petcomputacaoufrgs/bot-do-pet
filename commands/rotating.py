@@ -104,6 +104,7 @@ class Petschedule(apc.Group):
         channel = Bot.get_channel(Bot.ENV["WARNING_CHANNEL"])
         await channel.send(embed=em)
         self.data['num'] = (self.data['num'] + 1) % len(self.data['schedule'])
+        self.data.save()
         
         
     @tasks.loop(count=1)

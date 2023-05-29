@@ -27,7 +27,8 @@ class Petxingamento(apc.Group):
                 value="Esse xingamento já está na lista."
             )
         else:
-            self.data["offenses"] += [xingamento]
+            self.data["offenses"].append(xingamento)
+            self.data.save()
             em.color = 0xFF6347
             em.add_field(
                 name="**Adicionar xingamento**",
@@ -39,7 +40,8 @@ class Petxingamento(apc.Group):
     async def rem_offense(self, interaction: discord.Interaction, xingameto: str):
         em = discord.Embed()
         if xingameto in self.data["offenses"]:
-            self.data["offenses"] -= [xingameto]
+            self.data["offenses"].remove(xingameto)
+            self.data.save()
             em.color = 0xFF6347
             em.add_field(
                 name="**Remover xingamento**",

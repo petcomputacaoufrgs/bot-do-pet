@@ -55,6 +55,7 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
         # Pega o ID da ultima mensagem enviada
         self.keyMessageID = channel.last_message_id
         Bot.ENV["KEY_MESSAGE"] = self.keyMessageID  # Salva o ID da mensagem no arquivo .env
+        Bot.ENV.save()  # Salva o arquivo .env
         try:
             self.key.start()  # Inicia a task de atualização da chave
         except:
@@ -165,6 +166,7 @@ class KeyMenu(discord.ui.View):
     def UpdateKey(self, id: int) -> None:
         self.location = id
         Bot.ENV["LAST_KEY"] = id
+        Bot.ENV.save()
         
     @discord.ui.button(label="Peguei", style=discord.ButtonStyle.green, custom_id="peguei")
     async def peguei(self, interaction: discord.Interaction, button: discord.ui.Button):

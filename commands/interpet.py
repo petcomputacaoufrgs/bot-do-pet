@@ -57,6 +57,7 @@ class Petinter(apc.Group):
             if (new_date - datetime.date.today()).days > 0:
                 self.data[f'{dia:02d}/{mes:02d}/{ano}'] = grupos
                 self.data.sort(self.sortDates)
+                self.data.save()
                 em.add_field(
                     name="**Adicionar data de interpet**",
                     value=f'A data {dia:02d}/{mes:02d}/{ano} foi adicionada com sucesso!\nOs grupos do interpet serão: {grupos}.'
@@ -76,6 +77,7 @@ class Petinter(apc.Group):
         em = discord.Embed(color=0x9370DB)
         if f'{dia:02d}/{mes:02d}/{ano}' in self.data.keys():
             self.data.pop(f'{dia:02d}/{mes:02d}/{ano}')
+            self.data.save()
             em.add_field(
                 name="**Remover data de interpet**",
                 value=f'A data foi removida da lista!'
@@ -149,6 +151,7 @@ class Petinter(apc.Group):
                 
         for date in oldDates:
             self.data.pop(date)
+        self.data.save()
         
     def sortDates(self, x):
         day, month, year = x[0].split('/')

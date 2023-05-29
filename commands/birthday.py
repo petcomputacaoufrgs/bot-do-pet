@@ -43,9 +43,11 @@ class Petaniver(apc.Group):
             await interaction.response.send_message("Data inválida") # Envia a mensagem
             return # Sai da função
         if f'{dia:02d}/{mes:02d}' in self.data.keys(): # Verifica se a data já existe
-            self.data[f"{dia:02d}/{mes:02d}"] +=[nome] # Adiciona o nome a lista de nomes
+            self.data[f"{dia:02d}/{mes:02d}"].append(nome) # Adiciona o nome a lista de nomes
         else: # Se não existir
             self.data[f"{dia:02d}/{mes:02d}"] = [nome] # Cria a data com o nome
+            
+        self.data.save() # Salva o arquivo
         await interaction.response.send_message(f"Aniversariante {nome} adicionado com sucesso!") # Envia a mensagem
         
     @apc.command(name="remover", description="Remove um aniversariante") # Comando para remover um aniversariante
@@ -55,6 +57,7 @@ class Petaniver(apc.Group):
                 self.data[date].remove(nome) # Remove o nome da lista
                 if self.data[date] == []: # Se a lista ficar vazia
                     self.data.pop(date) # Remove a data
+                self.data.save() # Salva o arquivo
                 await interaction.response.send_message(f"Aniversariante {nome} removido com sucesso!") # Envia a mensagem
                 return # Sai da função
         await interaction.response.send_message(f"Aniversariante {nome} não encontrado!") # Envia a mensagem

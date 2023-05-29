@@ -57,6 +57,7 @@ class Petbolsa(apc.Group):
 
         if not error:
             Bot.ENV["LAST_CPF"] = cpf
+            Bot.ENV.save()
 
         em=discord.Embed(title = "**Sua Bolsa**", 
                          description=f"**Valor:** {last_payment_value}\n**Mês de Referencia:** {last_reference_month}",
@@ -121,6 +122,7 @@ class Petbolsa(apc.Group):
                          color=0x00FF00
                          )
             Bot.ENV["LAST_PAYMENT"] = last_reference_month
+            Bot.ENV.save()
 
             await channel.send(embed=em)
 

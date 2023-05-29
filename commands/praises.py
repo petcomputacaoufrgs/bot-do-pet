@@ -27,7 +27,8 @@ class Petelogio(apc.Group):
                 value="Esse elogio já está na lista."
             )
         else:
-            self.data["praises"] += [elogio]
+            self.data["praises"].append(elogio)
+            self.data.save()
             em.color = 0xFF6347
             em.add_field(
                 name="**Adicionar elogio**",
@@ -39,7 +40,8 @@ class Petelogio(apc.Group):
     async def rem_praise(self, interaction: discord.Interaction, elogio: str):
         em = discord.Embed()
         if elogio in self.data["praises"]:
-            self.data["praises"] -= [elogio]
+            self.data["praises"].remove(elogio)
+            self.data.save()
             em.color = 0xFF6347
             em.add_field(
                 name="**Remover elogio**",

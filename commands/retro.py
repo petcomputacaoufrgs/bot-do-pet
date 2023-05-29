@@ -45,6 +45,7 @@ class Petretro(apc.Group):
         
         self.petianes[nome] = id.id
         self.petianes.sort()
+        self.petianes.save()
         # Envia a mensagem
         await interaction.response.send_message(f"{nome} adicionado à lista com sucesso!")
 
@@ -58,6 +59,7 @@ class Petretro(apc.Group):
             if value == id.id:
                 del self.petianes[key]
                 break
+        self.petianes.save()
         # Envia a mensagem
         await interaction.response.send_message(f"{id.name} removido da lista com sucesso!")
 
