@@ -3,7 +3,6 @@ from discord.ext import tasks
 from discord import app_commands as apc
 import datetime
 from datetime import time
-from utils.dictjson import dictJSON
 
 from bot import Bot
 
@@ -12,7 +11,6 @@ class Petinter(apc.Group):
     """Interpet"""
     def __init__(self):
         super().__init__() # Inicializa a classe pai
-        self.data = dictJSON("data/interpet_dates.json")  # Lê o arquivo de datas
         self.interpet_day = self.getNextInterpet().date() # Pega a data de hoje
         
         
@@ -27,7 +25,7 @@ class Petinter(apc.Group):
                 em.add_field(
                     name="**Interpet**",
                     value=f'Falta {days_to_interpet.days} dia até o próximo interpet, que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.' + \
-                    f" Os grupos do interpet serão: {self.data[date]}."
+                    f" Os grupos do interpet serão: {Bot.Data.Interpet[date]}."
                 )
             elif days_to_interpet.days == 0: # Se a diferença for 0 dias
                 em.add_field(
@@ -44,7 +42,7 @@ class Petinter(apc.Group):
             em.add_field( # Se a diferença for maior que 2 dias
                 name="**Interpet**",
                 value=f'Faltam {days_to_interpet.days} dias até o próximo interpet, que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.' + \
-                f" Os grupos do interpet serão: {self.data[date]}."
+                f" Os grupos do interpet serão: {Bot.Data.Interpet[date]}."
             )
         await interaction.response.send_message(embed=em, ephemeral=not mostrar) # Envia a mensagem
         
@@ -55,9 +53,9 @@ class Petinter(apc.Group):
         try: # Tenta adicionar a data
             new_date = datetime.datetime(int(ano), int(mes), int(dia)).date()
             if (new_date - datetime.date.today()).days > 0:
-                self.data[f'{dia:02d}/{mes:02d}/{ano}'] = grupos
-                self.data.sort(self.sortDates)
-                self.data.save()
+                Bot.Data.Interpet[f'{dia:02d}/{mes:02d}/{ano}'] = grupos
+                Bot.Data.Interpet.sort(self.sortDates)
+                Bot.Data.Interpet.save()
                 em.add_field(
                     name="**Adicionar data de interpet**",
                     value=f'A data {dia:02d}/{mes:02d}/{ano} foi adicionada com sucesso!\nOs grupos do interpet serão: {grupos}.'
@@ -75,9 +73,9 @@ class Petinter(apc.Group):
     @apc.command(name="remover", description="Remove uma data de interpet")
     async def remove_interpet(self, interaction: discord.Interaction, dia: int, mes: int, ano: int):
         em = discord.Embed(color=0x9370DB)
-        if f'{dia:02d}/{mes:02d}/{ano}' in self.data.keys():
-            self.data.pop(f'{dia:02d}/{mes:02d}/{ano}')
-            self.data.save()
+        if f'{dia:02d}/{mes:02d}/{ano}' in Bot.Data.Interpet.keys():
+            del Bot.Data.Interpet[f'{dia:02d}/{mes:02d}/{ano}']
+            Bot.Data.Interpet.save()
             em.add_field(
                 name="**Remover data de interpet**",
                 value=f'A data foi removida da lista!'
@@ -94,8 +92,8 @@ class Petinter(apc.Group):
         self.clearInterpetDates()
 
         printable_date_list = ''
-        for date in self.data.keys():
-            printable_date_list += f'**{date}** - {self.data[date]}\n'
+        for date in Bot.Data.Interpet.keys():
+            printable_date_list += f'**{date}** - {Bot.Data.Interpet[date]}\n'
 
         em = discord.Embed(color=0x9370DB)
         em.add_field(
@@ -109,8 +107,8 @@ class Petinter(apc.Group):
         self.interpet_day = self.getNextInterpet().date() # Pega a data atual
         # Se o aviso de interpet estiver ligado e for dia de interpet
         if self.interpet_day == datetime.date.today() + datetime.timedelta(days=1):
-            channel = Bot.get_channel(Bot.ENV['INTERPET_CHANNEL'])
-            await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
+            channel = Bot.get_channel(Bot.Data.Channels['interpet'])
+            await channel.send(f'Atenção, <@&{Bot.Data.Roles["petiane"]}>!\nLembrando que amanhã é dia de interpet, estejam acordados às 9h.')
         
         
     @tasks.loop(time=time(hour=8, tzinfo=Bot.TZ))
@@ -118,8 +116,8 @@ class Petinter(apc.Group):
         self.interpet_day = self.getNextInterpet().date()  # Pega a data atual
         # Se o aviso de interpet estiver ligado e for dia de interpet
         if self.interpet_day == datetime.date.today():
-            channel = Bot.get_channel(Bot.ENV['INTERPET_CHANNEL'])
-            await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
+            channel = Bot.get_channel(Bot.Data.Channels["interpet"])
+            await channel.send(f'Atenção, <@&{Bot.Data.Roles["petiane"]}>!\nMenos de uma hora para começar o interpet, espero que todos já estejam acordados.')
         
         
     @tasks.loop(count=1)
@@ -130,7 +128,7 @@ class Petinter(apc.Group):
     def getNextInterpet(self):
         now = datetime.datetime.now()
         actual_date = datetime.datetime(2022, 4, 9)
-        for date in self.data.keys():
+        for date in Bot.Data.Interpet.keys():
             day, month, year = date.split('/')
             formated_date = datetime.datetime(int(year), int(month), int(day))
             difference = formated_date - now
@@ -142,7 +140,7 @@ class Petinter(apc.Group):
         
     def clearInterpetDates(self):
         oldDates = []
-        for date in self.data.keys():
+        for date in Bot.Data.Interpet.keys():
             day, month, year = date.split('/')
             difference = datetime.datetime(int(year), int(
                 month), int(day)).date() - datetime.date.today()
@@ -150,8 +148,8 @@ class Petinter(apc.Group):
                 oldDates.append(date)
                 
         for date in oldDates:
-            self.data.pop(date)
-        self.data.save()
+            del Bot.Data.Interpet[date]
+        Bot.Data.Interpet.save()
         
     def sortDates(self, x):
         day, month, year = x[0].split('/')

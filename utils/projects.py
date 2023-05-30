@@ -13,3 +13,4 @@ class Project():
     channels: list[int] = field(default_factory=list, compare=False)
     color: int = field(default=0xFFFFFF, compare=False)
     time: int = field(default=0, compare=False)
+    schedule: Optional[int] = field(default=None, compare=False)

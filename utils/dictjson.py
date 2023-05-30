@@ -34,4 +34,4 @@ class dictJSON(dict):
     
     def copy(self) -> dictJSON:
         val = super().copy()
-        return dictJSON(self.path, **val)
+        return dictJSON(self.path, **val, dumper=self.dumper, loader=self.loader)

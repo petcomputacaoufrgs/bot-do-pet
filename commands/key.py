@@ -11,13 +11,12 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
     def __init__(self):
         super().__init__()
         # ID da mensagem que contem a chave
-        self.keyMessageID = Bot.ENV["KEY_MESSAGE"]
 
     async def MessageExists(self) -> discord.Message | None:
-        channel = Bot.get_channel(Bot.ENV["KEY_CHANNEL"])  # Pega o canal da chave
+        channel = Bot.get_channel(Bot.Data.Key["channel"])  # Pega o canal da chave
         try:
             # Pega a mensagem da chave
-            message = await channel.fetch_message(self.keyMessageID)
+            message = await channel.fetch_message(Bot.Data.Key["messageID"])
         except:
             return None # Se não encontrar a mensagem, retorna
         
@@ -25,37 +24,36 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
 
     def check_rules(self, message):
         # Deleta todas as mensagens que não são a mais recente e não estão pinned
-        return not (message.id == self.keyMessageID) and (message.pinned == False)
+        return not (message.id == Bot.Data.Key["messageID"]) and (message.pinned == False)
 
     # Cria o comando /petkey clear
     @apc.command(name="clear", description="Limpa o canal da chave")
     async def clear(self, interaction: discord.Interaction):  # Cria a função do comando
         # Responde ao comando
         await interaction.response.send_message("Limpando o chat da chave...")
-        channel = Bot.get_channel(Bot.ENV["KEY_CHANNEL"])  # Pega o canal da chave
+        channel = Bot.get_channel(Bot.Data.Key["channel"])  # Pega o canal da chave
         await channel.purge(check=self.check_rules)  # Limpa o canal
 
     # Cria o comando /petkey chave
     @apc.command(name="chave", description="Gera a menssagem para o bot criar os botões")
     async def createKey(self, interaction: discord.Interaction):
         # Verifica se o comando foi executado no canal correto
-        if interaction.channel_id != Bot.ENV["KEY_CHANNEL"]:
+        if interaction.channel_id != Bot.Data.Key["channel"]:
             await interaction.response.send_message("Você precisa estar no canal da chave para executar esse comando!", ephemeral=True)
             return  # Sai da função
 
         # Responde ao comando
         await interaction.response.send_message("Gerando a mensagem da chave...")
         try:
-            await Bot.get_channel(Bot.ENV["KEY_CHANNEL"]).get_partial_message(self.keyMessageID).edit(content="Mensagem atualizada!", embed=None, view=None)
+            await Bot.get_channel(Bot.Data.Key["channel"]).get_partial_message(Bot.Data.Key["messageID"]).edit(content="Mensagem atualizada!", embed=None, view=None)
             await self.view.stop()  # Para a task de atualização da chave
         except:
             pass  # Se não conseguir editar a mensagem, ignora o erro
 
         channel = Bot.get_channel(interaction.channel_id)  # Pega o canal da chave
         # Pega o ID da ultima mensagem enviada
-        self.keyMessageID = channel.last_message_id
-        Bot.ENV["KEY_MESSAGE"] = self.keyMessageID  # Salva o ID da mensagem no arquivo .env
-        Bot.ENV.save()  # Salva o arquivo .env
+        Bot.Data.Key["messageID"] = channel.last_message_id
+        Bot.Data.Key.save()  # Salva o arquivo de dados
         try:
             self.key.start()  # Inicia a task de atualização da chave
         except:
@@ -115,7 +113,7 @@ class Petkey(apc.Group):  # Cria a classe do comando, que herda de Group, utiliz
     @tasks.loop(time=time(hour=19, tzinfo=Bot.TZ))
     async def avisa(self):
         if self.view.location != 0:  # Se a chave não estiver na tia
-            channel = Bot.get_channel(Bot.ENV["KEY_CHANNEL"])  # Pega o canal da chave
+            channel = Bot.get_channel(Bot.Data.Key["channel"])  # Pega o canal da chave
             # Manda a mensagem avisando que a chave está com alguem
             await channel.send(f"<@{self.view.location }> vai levar a chave para casa hoje?", delete_after=60*60*4)
 
@@ -138,14 +136,14 @@ class KeyMenu(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
         # Id da pessoa que está atualmente com a chave, 0 = com a tia
-        self.location = Bot.ENV["LAST_KEY"]
+        self.location = Bot.Data.Key["last"]
         self.updateUsers()
 
     def updateUsers(self) -> None:
-        server = Bot.get_guild(Bot.ENV["SERVER_ID"])
+        server = Bot.get_guild(Bot.Data.Secrets["serverID"])
         users.clear()
         for user in server.members:
-            if user.get_role(Bot.ENV["PETIANES_ID"]) is not None:
+            if user.get_role(Bot.Data.Roles["petiane"]) is not None:
                 users.append(discord.SelectOption(
                     label=f"{user.display_name}", value=user.id, description=f"{user.name}#{user.discriminator}"))
 
@@ -165,8 +163,8 @@ class KeyMenu(discord.ui.View):
         
     def UpdateKey(self, id: int) -> None:
         self.location = id
-        Bot.ENV["LAST_KEY"] = id
-        Bot.ENV.save()
+        Bot.Data.Key["last"] = id
+        Bot.Data.Key.save()
         
     @discord.ui.button(label="Peguei", style=discord.ButtonStyle.green, custom_id="peguei")
     async def peguei(self, interaction: discord.Interaction, button: discord.ui.Button):

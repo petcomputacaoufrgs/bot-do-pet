@@ -1,6 +1,5 @@
 import discord
 from discord import app_commands as apc
-from utils.dictjson import dictJSON
 
 from bot import Bot
 
@@ -18,7 +17,7 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
                          description="Aqui est\u00e1 a lista com todos os comandos dispon\u00edveis.\n",
                          color=0xFFFFFF)
         i = 0
-        for commands in Bot.CommandTree.get_commands(guild=discord.Object(id=Bot.ENV["SERVER_ID"])):
+        for commands in Bot.CommandTree.get_commands(guild=discord.Object(id=Bot.Data.Secrets["serverID"])):
             i += 1
             
             string: str = ""
@@ -33,7 +32,7 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
         em.set_thumbnail( url = "https://cdn.discordapp.com/attachments/938858934259822685/945718556732039219/LogoPET_oficial.png") # Adiciona a imagem do PET
         em.add_field(
             name="**Tem alguma outra sugestão para o bot?**",
-            value=f'Escreva pra gente no chat <#{Bot.ENV["BOT_RECOMMENDATIONS_CHANNEL"]}>! Toda ajuda é sempre bem-vinda 🥰',
+            value=f'Escreva pra gente no chat <#{Bot.Data.Channels["botRecomendations"]}>! Toda ajuda é sempre bem-vinda 🥰',
             inline=False
         )
         await interaction.response.send_message(embed = em, ephemeral=not mostrar) # Envia a mensagem de ajuda

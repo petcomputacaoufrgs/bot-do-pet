@@ -2,7 +2,6 @@ import discord
 from datetime import datetime
 from discord import app_commands as apc
 from utils.members import Member
-from utils.dictjson import dictJSON
 
 from bot import Bot
 
@@ -11,12 +10,11 @@ class Petiane(apc.Group):
     """Comandos para os petianes"""
     def __init__(self):
         super().__init__()
-        self.data: dictJSON = dictJSON("data/petianes.json", dumper=lambda o: o.to_json(), loader=lambda k, v: (int(k), Member.from_json(v)))
     
     @apc.command(name="petianes", description="Lista os petianes")
     async def listPetianes(self, interaction: discord.Interaction):
         embed = discord.Embed(title="Petianes", color=0xFFFFFF)
-        for petiane in self.data.values():
+        for petiane in Bot.Data.Members.values():
             embed.add_field(name=petiane.nickname, value=f"<@{petiane.id}>", inline=False)
         
         await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -26,11 +24,11 @@ class Petiane(apc.Group):
         if petiane is None:
             petiane = interaction.user
         
-        if petiane.id not in self.data:
+        if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
         
-        petiane: Member = self.data[petiane.id]
+        petiane: Member = Bot.Data.Members[petiane.id]
         embed = discord.Embed(title=f"Petiane {petiane.nickname}", color=0xFFFFFF)
         embed.add_field(name="ID", value=f"<@{petiane.id}>")
         embed.add_field(name="Cargo", value=f"<@&{petiane.role}>")
@@ -48,7 +46,7 @@ class Petiane(apc.Group):
         if petiane is None:
             petiane = interaction.user
            
-        if cargo.id not in Bot.ENV["PETIANES_ID"] and cargo.id not in Bot.ENV["EXPETIANE_ID"]:
+        if cargo.id not in Bot.Data.Roles['petiane'] and cargo.id not in Bot.Data.Roles['expetiane']:
             await interaction.response.send_message(f"Cargo {cargo.mention} não é um cargo de petiane!", ephemeral=True)
             return
         
@@ -56,18 +54,18 @@ class Petiane(apc.Group):
             await petiane.add_roles(cargo)
         
         new_petiane: Member = Member(id=petiane.id, nickname=apelido, role=cargo.id)
-        self.data[new_petiane.id] = new_petiane
-        self.data.save()
+        Bot.Data.Members[new_petiane.id] = new_petiane
+        Bot.Data.Members.save()
         await interaction.response.send_message(f"Petiane {petiane.mention} adicionado com sucesso!", ephemeral=True)
         
     @apc.command(name="remover", description="Remove um petiane")
     async def removePetiane(self, interaction: discord.Interaction, petiane: discord.Member):
-        if petiane.id not in self.data:
+        if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
         
-        del self.data[petiane.id]
-        self.data.save()
+        del Bot.Data.Members[petiane.id]
+        Bot.Data.Members.save()
         await interaction.response.send_message(f"Petiane {petiane.mention} removido com sucesso!", ephemeral=True)
         
     @apc.command(name="cargo", description="Coloca o cargo no usuario")
@@ -75,19 +73,19 @@ class Petiane(apc.Group):
         if petiane is None:
             petiane = interaction.user
             
-        if cargo.id not in Bot.ENV["PETIANES_ID"] and cargo.id not in Bot.ENV["EXPETIANE_ID"]:
+        if cargo.id not in Bot.Data.Roles['petiane'] and cargo.id not in Bot.Data.Roles['expetiane']:
             await interaction.response.send_message(f"Cargo {cargo.mention} não é um cargo de petiane!", ephemeral=True)
             return
         
-        if petiane.id not in self.data:
+        if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
         
-        if petiane.get_role(Bot.ENV["PETIANES_ID"]) is not None:
-            petiane.remove_roles(Bot.ENV["PETIANES_ID"])
+        if petiane.get_role(Bot.Data.Roles["petiane"]) is not None:
+            petiane.remove_roles(Bot.Data.Roles["petiane"])
             
-        if petiane.get_role(Bot.ENV["EXPETIANE_ID"]) is not None:
-            petiane.remove_roles(Bot.ENV["EXPETIANE_ID"])
+        if petiane.get_role(Bot.Data.Roles['expetiane']) is not None:
+            petiane.remove_roles(Bot.Data.Roles['expetiane'])
         
         if petiane.get_role(cargo.id) is None:
             await petiane.add_roles(cargo)
@@ -99,22 +97,24 @@ class Petiane(apc.Group):
         if petiane is None:
             petiane = interaction.user
             
-        if petiane.id not in self.data:
+        if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
         
         if not remover:
             if petiane.get_role(projeto.id) is None:
                 await petiane.add_roles(projeto)
-            self.data[petiane.id].projects.append(projeto.id)
-            # self.data[projeto.id].members.append(petiane.id)
+            Bot.Data.Members[petiane.id].projects.append(projeto.id)
+            if projeto.id in Bot.Data.Projects and petiane.id not in Bot.Data.Projects[projeto.id].members:
+                Bot.Data.Projects[projeto.id].members.append(petiane.id)
         else:
             if petiane.get_role(projeto.id) is not None:
                 await petiane.remove_roles(projeto)
-            self.data[petiane.id].projects.remove(projeto.id)
-            # self.data[projeto.id].members.remove(petiane.id)
+            Bot.Data.Members[petiane.id].projects.remove(projeto.id)
+            if projeto.id in Bot.Data.Projects and petiane.id in Bot.Data.Projects[projeto.id].members:
+                Bot.Data.Projects[projeto.id].members.remove(petiane.id)
         
-        self.data.save()
+        Bot.Data.Members.save()
         await interaction.response.send_message(f"Projeto de {petiane.mention} modificado com sucesso!", ephemeral=True)
         
     @apc.command(name="retro", description="Modifica o canal de retro do petiane")
@@ -122,16 +122,16 @@ class Petiane(apc.Group):
         if petiane is None:
             petiane = interaction.user
             
-        if petiane.id not in self.data:
+        if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
         
         if not remover:
-            self.data[petiane.id].retro = retro.id
+            Bot.Data.Members[petiane.id].retro = retro.id
         else:
-            self.data[petiane.id].retro = 0
+            Bot.Data.Members[petiane.id].retro = None
         
-        self.data.save()
+        Bot.Data.Members.save()
         await interaction.response.send_message(f"Retro de {petiane.mention} modificado com sucesso!", ephemeral=True)
         
     @apc.command(name="aniversario", description="Modifica o aniversario do petiane")
@@ -139,17 +139,17 @@ class Petiane(apc.Group):
         if petiane is None:
             petiane = interaction.user
             
-        if petiane.id not in self.data:
+        if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
         
         date = datetime(2000, mes, dia, tzinfo=Bot.TZ)
         if not remover:
-            self.data[petiane.id].birthday = date
+            Bot.Data.Members[petiane.id].birthday = date
         else:
-            self.data[petiane.id].birthday = None
+            Bot.Data.Members[petiane.id].birthday = None
         
-        self.data.save()
+        Bot.Data.Members.save()
         await interaction.response.send_message(f"Aniversario de {petiane.mention} modificado com sucesso!", ephemeral=True)
         
     @apc.command(name="nome", description="Modifica o nome completo do petiane")
@@ -157,15 +157,15 @@ class Petiane(apc.Group):
         if petiane is None:
             petiane = interaction.user
             
-        if petiane.id not in self.data:
+        if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
         
         if not remover:
-            self.data[petiane.id].name = nome
+            Bot.Data.Members[petiane.id].name = nome
         else:
-            self.data[petiane.id].name = None
+            Bot.Data.Members[petiane.id].name = None
             
-        self.data.save()
+        Bot.Data.Members.save()
         
         await interaction.response.send_message(f"Nome completo de {petiane.mention} modificado com sucesso!", ephemeral=True)
