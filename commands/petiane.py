@@ -33,21 +33,25 @@ class Petiane(apc.Group):
         petiane: Member = self.data[petiane.id]
         embed = discord.Embed(title=f"Petiane {petiane.nickname}", color=0xFFFFFF)
         embed.add_field(name="ID", value=f"<@{petiane.id}>")
-        embed.add_field(name="Cargo", value=petiane.role)
+        embed.add_field(name="Cargo", value=f"<@&{petiane.role}>")
         embed.add_field(name="Nome", value=petiane.name if petiane.name is not None else "Não definido")
         embed.add_field(name="Aniversário", value= "Não definido" if petiane.birthday is None else petiane.birthday.strftime("%d/%m"))
         projects = ""
         for project in petiane.projects:
-            projects += f"{project}\n"
+            projects += f"<@&{project}>\n"
         embed.add_field(name="Projetos", value=projects if projects != "" else "Nenhum projeto")
-        embed.add_field(name="Canal", value=f"<#{petiane.retro}>" if petiane.retro != 0 else "Não definido")
+        embed.add_field(name="Canal", value=f"<#{petiane.retro}>" if petiane.retro is not None else "Não definido")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         
     @apc.command(name="adicionar", description="Adiciona um petiane")
     async def addPetiane(self, interaction: discord.Interaction, apelido: str, cargo: discord.Role, petiane: discord.Member = None):
         if petiane is None:
             petiane = interaction.user
-            
+           
+        if cargo.id not in Bot.ENV["PETIANES_ID"] and cargo.id not in Bot.ENV["EXPETIANE_ID"]:
+            await interaction.response.send_message(f"Cargo {cargo.mention} não é um cargo de petiane!", ephemeral=True)
+            return
+        
         if petiane.get_role(cargo.id) is None:
             await petiane.add_roles(cargo)
         
@@ -62,7 +66,7 @@ class Petiane(apc.Group):
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
         
-        self.data.pop(petiane.id)
+        del self.data[petiane.id]
         self.data.save()
         await interaction.response.send_message(f"Petiane {petiane.mention} removido com sucesso!", ephemeral=True)
         
@@ -71,6 +75,10 @@ class Petiane(apc.Group):
         if petiane is None:
             petiane = interaction.user
             
+        if cargo.id not in Bot.ENV["PETIANES_ID"] and cargo.id not in Bot.ENV["EXPETIANE_ID"]:
+            await interaction.response.send_message(f"Cargo {cargo.mention} não é um cargo de petiane!", ephemeral=True)
+            return
+        
         if petiane.id not in self.data:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
@@ -99,10 +107,12 @@ class Petiane(apc.Group):
             if petiane.get_role(projeto.id) is None:
                 await petiane.add_roles(projeto)
             self.data[petiane.id].projects.append(projeto.id)
+            # self.data[projeto.id].members.append(petiane.id)
         else:
             if petiane.get_role(projeto.id) is not None:
                 await petiane.remove_roles(projeto)
             self.data[petiane.id].projects.remove(projeto.id)
+            # self.data[projeto.id].members.remove(petiane.id)
         
         self.data.save()
         await interaction.response.send_message(f"Projeto de {petiane.mention} modificado com sucesso!", ephemeral=True)
@@ -133,7 +143,7 @@ class Petiane(apc.Group):
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
         
-        date = datetime(1, mes, dia)
+        date = datetime(2000, mes, dia, tzinfo=Bot.TZ)
         if not remover:
             self.data[petiane.id].birthday = date
         else:
@@ -142,7 +152,7 @@ class Petiane(apc.Group):
         self.data.save()
         await interaction.response.send_message(f"Aniversario de {petiane.mention} modificado com sucesso!", ephemeral=True)
         
-    @apc.command(name="nomecompleto", description="Modifica o nome completo do petiane")
+    @apc.command(name="nome", description="Modifica o nome completo do petiane")
     async def FullName(self, interaction: discord.Interaction, nome: str, remover: bool = False, petiane: discord.Member = None):
         if petiane is None:
             petiane = interaction.user

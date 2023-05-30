@@ -10,7 +10,6 @@ class Projetos(apc.Group):
     """Comandos para os petianes"""
     def __init__(self):
         super().__init__()
-        
         self.data: dictJSON = dictJSON("data/projects.json", dumper=lambda o: o.to_json(), loader=lambda k, v: (int(k), Project.from_json(v)))
         
     @apc.command(name="projetos", description="Lista os projetos")
@@ -28,7 +27,7 @@ class Projetos(apc.Group):
             return
         
         project: Project = self.data[projeto.id]
-        embed = discord.Embed(title=f"Projeto {Project.name}", color=project.color)
+        embed = discord.Embed(title=f"Projeto {Project.name}", color=int(project.color))
         embed.add_field(name="ID", value=f"<@&{project.id}>")
         embed.add_field(name="Descrição", value=project.description if project.description is not None else "Não definido")
         embed.add_field(name="Lider", value=f"<@{project.leader}>" if project.leader is not None else "Não definido")
@@ -46,15 +45,15 @@ class Projetos(apc.Group):
         await interaction.response.send_message(embed=embed, ephemeral=True)
         
     @apc.command(name="adicionar", description="Adiciona um projeto")
-    async def addProject(self, interaction: discord.Interaction, nome: str, color: int, projeto: discord.Role):
+    async def addProject(self, interaction: discord.Interaction, nome: str, projeto: discord.Role):
         if projeto.id in self.data:
             await interaction.response.send_message(f"Projeto {projeto.mention} já existe!", ephemeral=True)
             return
         
-        project = Project(id=projeto.id, name=nome, color=color)
+        project = Project(id=projeto.id, name=nome, color=int(projeto.color))
         self.data[project.id] = project
         self.data.save()
-        await interaction.response.send_message(f"Projeto {project.mention} adicionado!", ephemeral=True)
+        await interaction.response.send_message(f"Projeto {projeto.mention} adicionado!", ephemeral=True)
         
     @apc.command(name="remover", description="Remove um projeto")
     async def removeProject(self, interaction: discord.Interaction, projeto: discord.Role):
@@ -64,14 +63,16 @@ class Projetos(apc.Group):
         
         del self.data[projeto.id]
         self.data.save()
-        await interaction.response.send_message(f"Projeto {projeto.mention} removido!", ephemeral=True)
+        await interaction.response.send_message(f"Projeto {projeto.name} removido!", ephemeral=True)
         
     @apc.command(name="criar", description="Cria um projeto")
-    async def createProject(self, interaction: discord.Interaction, nome: str, color: int):
+    async def createProject(self, interaction: discord.Interaction, nome: str, cor: int, apelido: str = None):
+        if apelido is None:
+            apelido = nome
         server = Bot.get_guild(Bot.ENV["SERVER_ID"])
-        project = await server.create_role(name=nome, colour=color, mentionable=True, hoist=False)
-
-        self.data[project.id] = Project(id=project.id, name=nome, color=color)
+        project = await server.create_role(name=apelido, colour=cor, mentionable=True, hoist=False)
+        
+        self.data[project.id] = Project(id=project.id, name=nome, color=cor)
         self.data.save()
         await interaction.response.send_message(f"Projeto {project.mention} criado!", ephemeral=True)
         
@@ -91,7 +92,7 @@ class Projetos(apc.Group):
         
     @apc.command(name="modificar", description="Modifica um projeto")
     async def modifyProject(self, interaction: discord.Interaction, projeto: discord.Role, 
-                            nome: str= None, color: int = None, description: str = None,
+                            nome: str = None, color: int = None, description: str = None,
                             leader: discord.Member = None, channel: discord.TextChannel = None):
         if projeto.id not in self.data:
             await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!", ephemeral=True)
@@ -111,7 +112,7 @@ class Projetos(apc.Group):
         
         self.data[project.id] = project
         self.data.save()
-        await interaction.response.send_message(f"Projeto {project.mention} modificado!", ephemeral=True)
+        await interaction.response.send_message(f"Projeto {projeto.mention} modificado!", ephemeral=True)
         
     @apc.command(name="membro", description="Modifica um membro de projeto")
     async def modifyMember(self, interaction: discord.Interaction, projeto: discord.Role, membro: discord.Member, remover: bool = False):
