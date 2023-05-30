@@ -7,7 +7,7 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class Petiane(apc.Group):
-    """Comandos para os petianes"""
+    """Petianes"""
     def __init__(self):
         super().__init__()
     

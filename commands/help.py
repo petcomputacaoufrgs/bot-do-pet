@@ -16,16 +16,15 @@ class Pethelp(apc.Group): # Cria a classe do comando, que herda de Group, utiliz
                          url="https://github.com/petcomputacaoufrgs/botdopet", 
                          description="Aqui est\u00e1 a lista com todos os comandos dispon\u00edveis.\n",
                          color=0xFFFFFF)
-        i = 0
-        for commands in Bot.CommandTree.get_commands(guild=discord.Object(id=Bot.Data.Secrets["serverID"])):
-            i += 1
+        
+        for count, commands in enumerate(Bot.CommandTree.get_commands(guild=discord.Object(id=Bot.Data.Secrets["serverID"])), 1):
             
             string: str = ""
             for command in commands.walk_commands():
                 string += f"{command.name}\n"
             em.add_field(
                 name=f"**{commands.description}:\n`/{commands.name} <opção>`**", value=string, inline=True)
-            if i % 3 == 0:
+            if count % 3 == 0:
                 em.add_field(name="\u2800", value="\u2800", inline=False)
         
         em.add_field(name="\u2800", value="\u2800", inline=False)

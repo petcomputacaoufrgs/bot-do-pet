@@ -2,7 +2,7 @@ import discord
 import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
-from utils.dictjson import dictJSON
+from utils.members import Member
 
 from bot import Bot
 
@@ -12,52 +12,63 @@ class Petlider(apc.Group):
     def __init__(self):
         super().__init__()
         self.months_names = { "1": "Janeiro", "2": "Fevereiro","3": "Março","4": "Abril","5": "Maio","6": "Junho","7": "Julho","8": "Agosto","9": "Setembro","10": "Outubro","11": "Novembro","12": "Dezembro",}
-        self.leadership = dictJSON("data/leadership.json")
         
     @apc.command(name="lideres", description="Mostra os líderes do mês")
     async def month_leadership(self, interaction: discord.Interaction, mostrar: bool = False):
-        await interaction.response.defer()
-        if self.leadership == {}:
-            await interaction.followup.send("Não há líderes cadastrados!", ephemeral=not mostrar)
-            return
-        current_month = datetime.date.today().month
-        if str(current_month) not in self.leadership.keys():
-            await interaction.followup.send("Não há líderes cadastrados para este mês!", ephemeral=not mostrar)
+        
+        if not Bot.Data.Leadership:
+            em = discord.Embed(0xFF0000)
+            em.add_field(
+                name="Erro!",
+                value="Não há líderes cadastrados!"
+            )
+            await interaction.response.send(embed=em, ephemeral=not mostrar)
             return
         
-        current_leadership = self.leadership[f'{current_month}']
-        em = discord.Embed(
+        current_month = datetime.date.today().month
+        if str(current_month) not in Bot.Data.Leadership.keys():
+            em = discord.Embed(0xFF0000)
+            em.add_field(
+                name="Erro!",
+                value="Não há líderes cadastrados!"
+            )
+            await interaction.response.send(embed=em, ephemeral=not mostrar)
+            return
+        
+        current_leadership = Bot.Data.Leadership[f'{current_month}']
+        em = discord.Embed(0xFDFD96)
+        em.add_field(
             title=f"**Liderança:**",
-            description=f"Neste mês de {self.months_names[f'{current_month}'].lower()}, o líder é **{current_leadership[0]}** e o vice é **{current_leadership[1]}**.\n\nPara os próximos meses:",
-            color=0xFDFD96
+            value=f"Neste mês de {self.months_names[f'{current_month}'].lower()}, o líder é <@{current_leadership[0]}> e o vice é <@{current_leadership[1]}>.\n\nPara os próximos meses:",
+            inline=False
         )
-        while current_month <= 12:
-            embed_month = str(current_month)
-            if embed_month in self.leadership.keys():
-                next_leadership = self.leadership[embed_month]
+        
+        for month in range(current_month + 1, 13):
+            embed_month = str(month)
+            if embed_month in Bot.Data.Leadership.keys():
+                next_leadership = Bot.Data.Leadership[embed_month]
                 em.add_field(
                     name=f"**{self.months_names[embed_month]}**",
-                    value=f"__Líder__: {next_leadership[0]}\n__Vice__: {next_leadership[1]}",
+                    value=f"__Líder__: <@{next_leadership[0]}>\n__Vice__: <@{next_leadership[1]}>",
                     inline=False
                 )
-            current_month += 1
-            
-        await interaction.followup.send(embed=em, ephemeral=not mostrar)
+                
+        await interaction.response.send(embed=em, ephemeral=not mostrar)
         
     @apc.command(name="adicionar", description="Adiciona uma dupla à liderança")
-    async def addLider(self, interaction: discord.Interaction, mes: int, lider: str, vice: str):
-        if f'{mes}' not in self.leadership:
-            self.leadership[f'{mes}'] = [lider, vice]
-            self.leadership.save()
+    async def addLider(self, interaction: discord.Interaction, mes: int, lider: discord.Member, vice: discord.Member):
+        if f'{mes}' not in Bot.Data.Leadership:
+            Bot.Data.Leadership[f'{mes}'] = [lider.id, vice.id]
+            Bot.Data.Leadership.save()
             await interaction.response.send_message("Adicionado com sucesso!")
         else:
             await interaction.response.send_message("Mês já existe!")
        
     @apc.command(name="remover", description="Remove uma dupla da liderança")
     async def remLider(self, interaction: discord.Interaction, mes: int):
-        if f'{mes}' in self.leadership:
-            del self.leadership[f'{mes}']
-            self.leadership.save()
+        if f'{mes}' in Bot.Data.Leadership:
+            del Bot.Data.Leadership[f'{mes}']
+            Bot.Data.Leadership.save()
             await interaction.response.send_message("Removido com sucesso!")
         else:
             await interaction.response.send_message("Mês não existe!")
@@ -67,8 +78,8 @@ class Petlider(apc.Group):
         if not confirmacao:
             await interaction.response.send_message("Confirmação necessaria para executar esse comando!")
         else:
-            self.leadership.clear()
-            self.leadership.save()
+            Bot.Data.Leadership.clear()
+            Bot.Data.Leadership.save()
             await interaction.response.send_message("Lideres do ano deletados!")
         
     @tasks.loop(time=datetime.time(hour=13, tzinfo=Bot.TZ))
@@ -76,9 +87,15 @@ class Petlider(apc.Group):
         if not datetime.date.today().day == 1:
             return
         
-        leadership = self.leadership[f'{datetime.date.today().month}']
-        channel = Bot.get_channel(Bot.ENV["LEADERSHIP_CHANNEL"])
-        await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>!\nNesse mês, nosso ditador passa a ser {leadership[0]} e nosso vice, {leadership[1]}.')
+        leadership = Bot.Data.Leadership[f'{datetime.date.today().month}']
+        em = discord.Embed(0xFDFD96)
+        em.add_field(
+            title=f"**Liderança:**",
+            value=f"Nesse mês, nosso ditador passa a ser <@{leadership[0]}> e nosso vice, <@{leadership[1]}>.",
+            inline=False
+        )
+        channel = Bot.get_channel(Bot.Data.Channels["leadership"])
+        await channel.send(f'Atenção, <@&{Bot.Data.Roles["petiane"]}>!', embed=em)
 
     @tasks.loop(count=1)
     async def startTasks(self):

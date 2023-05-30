@@ -6,7 +6,7 @@ from bot import Bot
 
 @Bot.addCommandGroup
 class Projetos(apc.Group):
-    """Comandos para os petianes"""
+    """Projetos"""
     def __init__(self):
         super().__init__()
         
