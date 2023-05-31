@@ -74,8 +74,8 @@ class Petiane(apc.Group):
         new_petiane: Member = Member(id=petiane.id, nickname=apelido, role=cargo.id)
         Bot.Data.Members[new_petiane.id] = new_petiane
         Bot.Data.Members.save()
-        #! Remover Ephemeral
-        await interaction.response.send_message(f"Petiane {petiane.mention} adicionado com sucesso!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Petiane {petiane.mention} adicionado com sucesso!")
         
     @apc.command(name="remover", description="Remove um petiane")
     async def removePetiane(self, interaction: discord.Interaction, petiane: discord.Member, confirmar: bool = False):
@@ -89,8 +89,8 @@ class Petiane(apc.Group):
         
         del Bot.Data.Members[petiane.id]
         Bot.Data.Members.save()
-        #! Remover Ephemeral
-        await interaction.response.send_message(f"Petiane {petiane.mention} removido com sucesso!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Petiane {petiane.mention} removido com sucesso!")
         
     @apc.command(name="cargo", description="Coloca o cargo no usuario")
     async def setRole(self, interaction: discord.Interaction, petiane: discord.Member, cargo: discord.Role, confirmar: bool = False):
@@ -116,8 +116,8 @@ class Petiane(apc.Group):
         
         Bot.Data.Members[petiane.id].role = cargo.id
         Bot.Data.Members.save()
-        #! Remover Ephemeral
-        await interaction.response.send_message(f"Petiane {petiane.mention} adicionado com sucesso!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Petiane {petiane.mention} adicionado com sucesso!")
     
     @apc.command(name="projeto", description="Modifica o projeto do petiane")
     async def Project(self, interaction: discord.Interaction, petiane: discord.Member, projeto: discord.Role, remover: bool = False, confirmar: bool = False):
@@ -156,8 +156,8 @@ class Petiane(apc.Group):
                 Bot.Data.Projects[projeto.id].members.remove(petiane.id)
                 Bot.Data.Projects.save()
         
-        #! Remover Ephemeral
-        await interaction.response.send_message(f"Projeto de {petiane.mention} modificado com sucesso!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Projeto de {petiane.mention} modificado com sucesso!")
         
     @apc.command(name="retro", description="Modifica o canal de retro do petiane")
     async def Retro(self, interaction: discord.Interaction, petiane: discord.Member, canal: discord.TextChannel, remover: bool = False, confirmar: bool = False):
@@ -175,8 +175,8 @@ class Petiane(apc.Group):
             Bot.Data.Members[petiane.id].retro = None
         
         Bot.Data.Members.save()
-        #! Remover Ephemeral
-        await interaction.response.send_message(f"Retro de {petiane.mention} modificado com sucesso!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Retro de {petiane.mention} modificado com sucesso!")
         
     @apc.command(name="aniversario", description="Modifica o aniversario do petiane")
     async def Birthday(self, interaction: discord.Interaction, petiane: discord.Member, dia: int, mes: int, remover: bool = False, confirmar: bool = False):
@@ -198,8 +198,8 @@ class Petiane(apc.Group):
             Bot.Data.Members[petiane.id].birthday = None
         
         Bot.Data.Members.save()
-        #! Remover Ephemeral
-        await interaction.response.send_message(f"Aniversario de {petiane.mention} modificado com sucesso!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Aniversario de {petiane.mention} modificado com sucesso!")
         
     @apc.command(name="nome", description="Modifica o nome completo do petiane")
     async def FullName(self, interaction: discord.Interaction, petiane: discord.Member, nome: str, remover: bool = False, confirmar: bool = False):
@@ -217,5 +217,5 @@ class Petiane(apc.Group):
             Bot.Data.Members[petiane.id].name = None
             
         Bot.Data.Members.save()
-        #! Remover Ephemeral
-        await interaction.response.send_message(f"Nome completo de {petiane.mention} modificado com sucesso!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Nome completo de {petiane.mention} modificado com sucesso!")

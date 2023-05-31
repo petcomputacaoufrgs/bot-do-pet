@@ -61,8 +61,8 @@ class Projetos(apc.Group):
         project = Project(id=projeto.id, name=nome, color=int(projeto.color))
         Bot.Data.Projects[project.id] = project
         Bot.Data.Projects.save()
-        #! Remover ephemeral
-        await interaction.response.send_message(f"Projeto {projeto.mention} adicionado!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Projeto {projeto.mention} adicionado!")
         
     @apc.command(name="remover", description="Remove um projeto")
     async def removeProject(self, interaction: discord.Interaction, projeto: discord.Role, confirmar: bool = False):
@@ -77,8 +77,8 @@ class Projetos(apc.Group):
         nome = Bot.Data.Projects[projeto.id].name
         del Bot.Data.Projects[projeto.id]
         Bot.Data.Projects.save()
-        #! Remover ephemeral
-        await interaction.response.send_message(f"Projeto {nome} removido!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Projeto {nome} removido!")
         
     @apc.command(name="criar", description="Cria um projeto")
     async def createProject(self, interaction: discord.Interaction, nome: str, cor: int, apelido: str = None, confirmar: bool = False):
@@ -94,8 +94,8 @@ class Projetos(apc.Group):
         
         Bot.Data.Projects[project.id] = Project(id=project.id, name=nome, color=cor)
         Bot.Data.Projects.save()
-        #! Remover ephemeral
-        await interaction.response.send_message(f"Projeto {project.mention} criado!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Projeto {project.mention} criado!")
         
     @apc.command(name="deletar", description="Deleta um projeto")
     async def deleteProject(self, interaction: discord.Interaction, projeto: discord.Role, confirm: bool = False):
@@ -114,8 +114,8 @@ class Projetos(apc.Group):
         del Bot.Data.Projects[projeto.id]
         Bot.Data.Projects.save()
         await projeto.delete()
-        #! Remover ephemeral
-        await interaction.response.send_message(f"Projeto {nome} deletado!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Projeto {nome} deletado!")
         
     @apc.command(name="modificar", description="Modifica um projeto")
     async def modifyProject(self, interaction: discord.Interaction, projeto: discord.Role, 
@@ -147,8 +147,8 @@ class Projetos(apc.Group):
         
         Bot.Data.Projects[project.id] = project
         Bot.Data.Projects.save()
-        #! Remover ephemeral
-        await interaction.response.send_message(f"Projeto {projeto.mention} modificado!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Projeto {projeto.mention} modificado!")
         
     @apc.command(name="membro", description="Modifica um membro de projeto")
     async def modifyMember(self, interaction: discord.Interaction, projeto: discord.Role, membro: discord.Member, remover: bool = False, confirmar: bool = False):   
@@ -189,8 +189,8 @@ class Projetos(apc.Group):
         
         Bot.Data.Projects[project.id] = project
         Bot.Data.Projects.save()
-        #! Remover ephemeral
-        await interaction.response.send_message(f"Membro {membro.mention} modificado no projeto {projeto.mention}!", ephemeral=True)
+        
+        await interaction.response.send_message(f"Membro {membro.mention} modificado no projeto {projeto.mention}!")
         
         
         

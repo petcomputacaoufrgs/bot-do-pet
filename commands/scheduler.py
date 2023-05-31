@@ -35,8 +35,8 @@ class Petagenda(apc.Group):
         
         Bot.Data.Schedule["projects"].append(atividade.id)
         Bot.Data.Schedule.save()
-        #! Remover ephemeral
-        await interaction.response.send_message("Atividade adicionada ao agendamento", ephemeral=True)
+        
+        await interaction.response.send_message("Atividade adicionada ao agendamento")
                 
     @apc.command(name="remover", description="Remove uma atividade do agendamento")
     async def rem_schedule(self, interaction: discord.Interaction, atividade: discord.Role):
@@ -50,8 +50,8 @@ class Petagenda(apc.Group):
         
         Bot.Data.Schedule["projects"].remove(atividade.id)
         Bot.Data.Schedule.save()
-        #! Remover ephemeral
-        await interaction.response.send_message("Atividade removida do agendamento", ephemeral=True)
+        
+        await interaction.response.send_message("Atividade removida do agendamento")
         
     @apc.command(name="atualizar", description="Atualiza o agendamento")
     async def update_schedule(self, interaction: discord.Interaction, atividade: discord.Role, local: int):
@@ -70,16 +70,16 @@ class Petagenda(apc.Group):
         Bot.Data.Schedule["projects"].remove(atividade.id)
         Bot.Data.Schedule["projects"].insert(local, atividade.id)
         Bot.Data.Schedule.save()
-        #! Remover ephemeral
-        await interaction.response.send_message("Agendamento atualizado", ephemeral=True)
+        
+        await interaction.response.send_message("Agendamento atualizado")
         
     @apc.command(name="limpar", description="Limpa o agendamento")
     async def clear_schedule(self, interaction: discord.Interaction):
         Bot.Data.Schedule["current"] = 0
         Bot.Data.Schedule["projects"] = []
         Bot.Data.Schedule.save()
-        #! Remover ephemeral
-        await interaction.response.send_message("Agendamento limpo", ephemeral=True)
+        
+        await interaction.response.send_message("Agendamento limpo")
         
     @apc.command(name="ordenar", description="Ordena o agendamento")
     async def sort_schedule(self, interaction: discord.Interaction, ordem: str):
