@@ -58,10 +58,7 @@ class Petiane(apc.Group):
         await interaction.response.send_message(embed=embed, ephemeral= not mostrar)
         
     @apc.command(name="adicionar", description="Adiciona um petiane")
-    async def addPetiane(self, interaction: discord.Interaction, apelido: str, cargo: discord.Role, petiane: discord.Member = None, confirmar: bool = False):
-        if petiane is None:
-            petiane = interaction.user
-           
+    async def addPetiane(self, interaction: discord.Interaction, petiane: discord.Member, apelido: str, cargo: discord.Role, confirmar: bool = False):
         if cargo.id not in [Bot.Data.Roles['petiane'], Bot.Data.Roles['expetiane']]:
             await interaction.response.send_message(f"Cargo {cargo.mention} não é um cargo de petiane!", ephemeral=True)
             return
@@ -99,7 +96,7 @@ class Petiane(apc.Group):
         await interaction.response.send_message(f"Petiane {petiane.mention} removido com sucesso!", ephemeral=True)
         
     @apc.command(name="cargo", description="Coloca o cargo no usuario")
-    async def setRole(self, interaction: discord.Interaction, cargo: discord.Role, petiane: discord.Member = None, confirmar: bool = False):
+    async def setRole(self, interaction: discord.Interaction, petiane: discord.Member, cargo: discord.Role, confirmar: bool = False):
         if petiane is None:
             petiane = interaction.user
             
@@ -126,10 +123,7 @@ class Petiane(apc.Group):
         await interaction.response.send_message(f"Petiane {petiane.mention} adicionado com sucesso!", ephemeral=True)
     
     @apc.command(name="projeto", description="Modifica o projeto do petiane")
-    async def Project(self, interaction: discord.Interaction, projeto: discord.Role, remover: bool = False, petiane: discord.Member = None, confirmar: bool = False):
-        if petiane is None:
-            petiane = interaction.user
-            
+    async def Project(self, interaction: discord.Interaction, petiane: discord.Member, projeto: discord.Role, remover: bool = False, confirmar: bool = False):
         if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
@@ -169,10 +163,7 @@ class Petiane(apc.Group):
         await interaction.response.send_message(f"Projeto de {petiane.mention} modificado com sucesso!", ephemeral=True)
         
     @apc.command(name="retro", description="Modifica o canal de retro do petiane")
-    async def Retro(self, interaction: discord.Interaction, retro: discord.TextChannel, remover: bool = False, petiane: discord.Member = None, confirmar: bool = False):
-        if petiane is None:
-            petiane = interaction.user
-            
+    async def Retro(self, interaction: discord.Interaction, petiane: discord.Member, canal: discord.TextChannel, remover: bool = False, confirmar: bool = False):
         if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return
@@ -182,7 +173,7 @@ class Petiane(apc.Group):
             return
         
         if not remover:
-            Bot.Data.Members[petiane.id].retro = retro.id
+            Bot.Data.Members[petiane.id].retro = canal.id
         else:
             Bot.Data.Members[petiane.id].retro = None
         
@@ -191,7 +182,7 @@ class Petiane(apc.Group):
         await interaction.response.send_message(f"Retro de {petiane.mention} modificado com sucesso!", ephemeral=True)
         
     @apc.command(name="aniversario", description="Modifica o aniversario do petiane")
-    async def Birthday(self, interaction: discord.Interaction, dia: int, mes: int, remover: bool = False, petiane: discord.Member = None, confirmar: bool = False):
+    async def Birthday(self, interaction: discord.Interaction, petiane: discord.Member, dia: int, mes: int, remover: bool = False, confirmar: bool = False):
         if petiane is None:
             petiane = interaction.user
             
@@ -214,10 +205,7 @@ class Petiane(apc.Group):
         await interaction.response.send_message(f"Aniversario de {petiane.mention} modificado com sucesso!", ephemeral=True)
         
     @apc.command(name="nome", description="Modifica o nome completo do petiane")
-    async def FullName(self, interaction: discord.Interaction, nome: str, remover: bool = False, petiane: discord.Member = None, confirmar: bool = False):
-        if petiane is None:
-            petiane = interaction.user
-            
+    async def FullName(self, interaction: discord.Interaction, petiane: discord.Member, nome: str, remover: bool = False, confirmar: bool = False):
         if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral=True)
             return

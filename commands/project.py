@@ -149,10 +149,7 @@ class Projetos(apc.Group):
         await interaction.response.send_message(f"Projeto {projeto.mention} modificado!", ephemeral=True)
         
     @apc.command(name="membro", description="Modifica um membro de projeto")
-    async def modifyMember(self, interaction: discord.Interaction, projeto: discord.Role, membro: discord.Member = None, remover: bool = False, confirmar: bool = False):
-        if membro is None:
-            membro = interaction.user
-            
+    async def modifyMember(self, interaction: discord.Interaction, projeto: discord.Role, membro: discord.Member, remover: bool = False, confirmar: bool = False):   
         if projeto.id not in Bot.Data.Projects:
             await interaction.response.send_message(f"Projeto {projeto.mention} não encontrado!", ephemeral=True)
             return
