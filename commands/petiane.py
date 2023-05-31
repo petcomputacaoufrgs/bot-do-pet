@@ -22,11 +22,8 @@ class Petiane(apc.Group):
         else:
             cargo = [cargo.id]
             
-        petianes: list[Member] = []
-        
-        for petiane in Bot.Data.Members.values():
-            if petiane.role in cargo:
-                petianes.append(petiane)
+        petianes: list[Member] = [petiane for petiane in Bot.Data.Members.values() if petiane.role in cargo]
+        petianes: list[Member] = sorted(petianes, key=lambda x: x.nickname)
 
         embed = discord.Embed(title="Membros", color=0xFFFFFF)
         for petiane in petianes:
@@ -47,7 +44,8 @@ class Petiane(apc.Group):
         embed.add_field(name="Nome", value=petiane.name if petiane.name is not None else "Não informado")
         embed.add_field(name="Aniversário", value= "Não informado" if petiane.birthday is None else petiane.birthday.strftime("%d/%m"))
         projects = ""
-        for project in petiane.projects:
+        projectsList = sorted(petiane.projects, key=lambda x: Bot.Data.Projects[x].name)
+        for project in projectsList:
             projects += f"<@&{project}>\n"
         embed.add_field(name="Projetos", value=projects if projects != "" else "Nenhum projeto")
         embed.add_field(name="Canal", value=f"<#{petiane.retro}>" if petiane.retro is not None else "Não informado")

@@ -33,7 +33,8 @@ class Projetos(apc.Group):
         embed.add_field(name="Lider", value=f"<@{project.leader}>" if project.leader is not None else "Não definido")
         
         members = ""
-        for member in project.members:
+        memberList = sorted(project.members, key=lambda x: Bot.Data.Members[x].nickname)
+        for member in memberList:
             members += f"<@{member}>\n"
         if not members:
             members = "Sem membros"
