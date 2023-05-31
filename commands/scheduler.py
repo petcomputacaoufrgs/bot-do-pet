@@ -7,7 +7,7 @@ from re import sub
 from bot import Bot
 
 @Bot.addCommandGroup
-class Petschedule(apc.Group):
+class Petagenda(apc.Group):
     """Agendamento de atividades"""
 
     def __init__(self):
