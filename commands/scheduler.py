@@ -105,7 +105,7 @@ class Petagenda(apc.Group):
         
     @tasks.loop(time=datetime.time(hour=14, tzinfo=Bot.TZ))
     async def warn_schedule(self):
-        if datetime.date.today().weekday() != 2:
+        if datetime.date.today().weekday() != 0:
             return
         
         if Bot.Data.Schedule["current"] >= len(Bot.Data.Schedule["projects"]):

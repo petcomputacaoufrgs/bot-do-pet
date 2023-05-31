@@ -10,11 +10,13 @@ class Projetos(apc.Group):
     def __init__(self):
         super().__init__()
         
-    @apc.command(name="projetos", description="Lista os projetos")
+    @apc.command(name="listar", description="Lista os projetos")
     async def listProjects(self, interaction: discord.Interaction, mostrar: bool = False):
         embed = discord.Embed(title="Projetos", color=0xFFFFFF)
-        for project in Bot.Data.Projects.values():
-            embed.add_field(name=project.name, value=f"<@&{project.id}>\n{project.description if project.description is not None else 'Sem descrição'}", inline=False)
+        projects: list[Project] = sorted(Bot.Data.Projects.values(), key=lambda x: x.name)
+        
+        for project in projects:
+            embed.add_field(name=project.name, value=f"<@&{project.id}>\n{project.description if project.description is not None else 'Sem descrição'}", inline=True)
         
         await interaction.response.send_message(embed=embed, ephemeral= not mostrar)
         

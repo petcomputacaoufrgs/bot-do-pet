@@ -35,10 +35,7 @@ class Petiane(apc.Group):
         await interaction.response.send_message(embed=embed, ephemeral= not mostrar)
             
     @apc.command(name="petiane", description="Mostra o petiane")
-    async def showPetiane(self, interaction: discord.Interaction, petiane: discord.Member = None, mostrar: bool = False):
-        if petiane is None:
-            petiane = interaction.user
-        
+    async def showPetiane(self, interaction: discord.Interaction, petiane: discord.Member, mostrar: bool = False):
         if petiane.id not in Bot.Data.Members:
             await interaction.response.send_message(f"Petiane {petiane.mention} não encontrado!", ephemeral= not mostrar)
             return
