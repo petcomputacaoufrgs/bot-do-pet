@@ -56,15 +56,15 @@ class Petelogio(apc.Group):
         await interaction.response.send_message(embed=em)
         
     @apc.command(name="listar", description="lista todos os elogios")
-    async def show_praises(self, interaction: discord.Interaction):
+    async def show_praises(self, interaction: discord.Interaction, mostrar: bool = False):
         em = discord.Embed()
         em.color = 0xFF6347
         em.add_field(
             name="**Lista de elogios**",
             value="\n".join(self.data["praises"])
         )
-        await interaction.response.send_message(embed=em)
+        await interaction.response.send_message(embed=em, ephemeral= not mostrar)
         
     @apc.command(name="hug", description="demonstre seu carinho por alguém")
-    async def show_praises(self, interaction: discord.Interaction, pessoa: discord.User):
+    async def hug(self, interaction: discord.Interaction, pessoa: discord.User):
         await interaction.response.send_message(f"<@{interaction.user.id}> abraçou beeeeem forte <@{pessoa.id}> <3")

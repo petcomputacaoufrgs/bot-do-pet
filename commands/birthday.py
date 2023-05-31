@@ -14,7 +14,7 @@ class Petaniver(apc.Group):
         super().__init__() # Inicializa a classe pai
 
     @apc.command(name="aniversario", description="Informa o dia do próximo aniversário")
-    async def nextbirthday(self, interaction: discord.Interaction):
+    async def nextbirthday(self, interaction: discord.Interaction, mostrar: bool = False):
         today = datetime(2000, date.today().month, date.today().day, tzinfo=Bot.TZ) # Cria uma data com o dia e mes de hoje no ano dos aniversario
         
         days: dict[timedelta, list[Member]] = {} # Cria uma lista de dias
@@ -24,13 +24,23 @@ class Petaniver(apc.Group):
             
             difference = member.birthday - today # Pega a diferença entre a data de hoje e o aniversario
             if (difference.days < 0): # Se a diferença for menor que 0
-                continue
+                difference += timedelta(days=365) # Adiciona 365 dias a diferença
             
             if difference not in days:
                 days[difference] = []
                 
             days[difference].append(member) # Adiciona a diferença na lista de dias
-                
+                  
+        if len(days) == 0: # Se não tiver nenhum aniversario
+            em = discord.Embed(color=0xFF8AD2) # Cria um embed
+            em.add_field( # Adiciona um campo ao embed
+                name=f"**Aniversário**",
+                value=f"Não há cadastrados.",
+                inline=False
+            )
+            await interaction.response.send_message(embed=em, ephemeral=not mostrar) # Envia a mensagem
+            return
+        
         smallest = min(days.keys()) # Pega a menor diferença
         birthday_person = self.birthday_string(days[smallest]) # Transforma a lista de pessoas em uma string
         
@@ -38,10 +48,10 @@ class Petaniver(apc.Group):
         em.add_field( # Adiciona um campo ao embed
             name=f"**Aniversário**",
             value=f"{'O próximo aniversariante é' if len(days[smallest]) == 1 else 'Os próximos aniversariantes são'} \
-                {birthday_person}, no dia {today.strftime('%d/%m')}.",
+                {birthday_person}, no dia {days[smallest][0].birthday.strftime('%d/%m')}.",
             inline=False
         )
-        await interaction.response.send_message(embed=em) # Envia a mensagem
+        await interaction.response.send_message(embed=em, ephemeral=not mostrar) # Envia a mensagem
         
     @tasks.loop(time=time(hour=8, tzinfo=Bot.TZ))
     async def test_birthday(self):

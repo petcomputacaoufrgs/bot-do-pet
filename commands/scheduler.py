@@ -25,56 +25,78 @@ class Petschedule(apc.Group):
         
     @apc.command(name="adicionar", description="Adiciona uma atividade ao final do agendamento")
     async def add_schedule(self, interaction: discord.Interaction, atividade: discord.Role):
+        if atividade.id not in Bot.Data.Projects:
+            await interaction.response.send_message("Essa atividade não existe", ephemeral=True)
+            return
+        
         if atividade.id in Bot.Data.Schedule["projects"]:
-            await interaction.response.send_message("Essa atividade já está no agendamento")
+            await interaction.response.send_message("Essa atividade já está no agendamento", ephemeral=True)
             return
         
         Bot.Data.Schedule["projects"].append(atividade.id)
         Bot.Data.Schedule.save()
-        await interaction.response.send_message("Atividade adicionada ao agendamento")
+        #! Remover ephemeral
+        await interaction.response.send_message("Atividade adicionada ao agendamento", ephemeral=True)
                 
     @apc.command(name="remover", description="Remove uma atividade do agendamento")
     async def rem_schedule(self, interaction: discord.Interaction, atividade: discord.Role):
+        if atividade.id not in Bot.Data.Projects:
+            await interaction.response.send_message("Essa atividade não existe", ephemeral=True)
+            return
+        
         if atividade.id not in Bot.Data.Schedule["projects"]:
-            await interaction.response.send_message("Essa atividade não está no agendamento")
+            await interaction.response.send_message("Essa atividade não está no agendamento", ephemeral=True)
             return
         
         Bot.Data.Schedule["projects"].remove(atividade.id)
         Bot.Data.Schedule.save()
-        await interaction.response.send_message("Atividade removida do agendamento")
+        #! Remover ephemeral
+        await interaction.response.send_message("Atividade removida do agendamento", ephemeral=True)
         
     @apc.command(name="atualizar", description="Atualiza o agendamento")
     async def update_schedule(self, interaction: discord.Interaction, atividade: discord.Role, local: int):
+        if atividade.id not in Bot.Data.Projects:
+            await interaction.response.send_message("Essa atividade não existe", ephemeral=True)
+            return
+        
         if atividade.id not in Bot.Data.Schedule["projects"]:
-            await interaction.response.send_message("Essa atividade não está no agendamento")
+            await interaction.response.send_message("Essa atividade não está no agendamento", ephemeral=True)
             return
         if local < 1 or local > len(Bot.Data.Schedule["projects"]):
-            await interaction.response.send_message("Local inválido")
+            await interaction.response.send_message("Local inválido", ephemeral=True)
             return
         
         local -= 1
         Bot.Data.Schedule["projects"].remove(atividade.id)
         Bot.Data.Schedule["projects"].insert(local, atividade.id)
         Bot.Data.Schedule.save()
-        await interaction.response.send_message("Agendamento atualizado")
+        #! Remover ephemeral
+        await interaction.response.send_message("Agendamento atualizado", ephemeral=True)
         
     @apc.command(name="limpar", description="Limpa o agendamento")
     async def clear_schedule(self, interaction: discord.Interaction):
+        Bot.Data.Schedule["current"] = 0
         Bot.Data.Schedule["projects"] = []
         Bot.Data.Schedule.save()
-        await interaction.response.send_message("Agendamento limpo")
+        #! Remover ephemeral
+        await interaction.response.send_message("Agendamento limpo", ephemeral=True)
         
     @apc.command(name="ordenar", description="Ordena o agendamento")
-    async def sort_schedule(self, interaction: discord.Interaction, ordem: str = "1 2 3 4 5 6 7"):
-        ordemlst: list = [int(i) for i in sub(r'[^0-9 ]', '', ordem).split()]
+    async def sort_schedule(self, interaction: discord.Interaction, ordem: str):
+        try:
+            ordemlst: list = [int(i) for i in sub(r'[^0-9 ]', '', ordem).split()]
+        except:
+            await interaction.response.send_message("Formato inválido, use \"1 2 3 4 5\"", ephemeral=True)
+            return
+        
         if len(ordemlst) != len(Bot.Data.Schedule["projects"]):
-            await interaction.response.send_message("Quantidade de atividades inválida")
+            await interaction.response.send_message("Quantidade de atividades inválida", ephemeral=True)
             return
         if len(set(ordemlst)) != len(ordemlst):
-            await interaction.response.send_message("Valores repetidos")
+            await interaction.response.send_message("Valores repetidos", ephemeral=True)
             return
         if min(ordemlst) < 1 or max(ordemlst) > len(ordemlst):
-            await interaction.response.send_message("Valores inválidos")
+            await interaction.response.send_message("Valores inválidos", ephemeral=True)
             return
         
         Bot.Data.Schedule["projects"] = [Bot.Data.Schedule["projects"][i - 1] for i in ordemlst]
@@ -85,6 +107,9 @@ class Petschedule(apc.Group):
     async def warn_schedule(self):
         if datetime.date.today().weekday() != 2:
             return
+        
+        if Bot.Data.Schedule["current"] >= len(Bot.Data.Schedule["projects"]):
+            Bot.Data.Schedule["current"] = 0
         
         next_project = Bot.Data.Projects[Bot.Data.Schedule["projects"][Bot.Data.Schedule["current"]]]
         

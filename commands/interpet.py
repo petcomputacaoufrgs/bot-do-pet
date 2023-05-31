@@ -11,18 +11,18 @@ class Petinter(apc.Group):
     """Interpet"""
     def __init__(self):
         super().__init__() # Inicializa a classe pai
-        self.interpet_day = self.getNextInterpet().date() # Pega a data de hoje
+        self.interpet_day = self.getNextInterpet() # Pega a data de hoje
         
         
     @apc.command(name="interpet", description="Informa o dia do próximo interpet")
     async def interpet(self, interaction: discord.Interaction, mostrar: bool = False): 
         em = discord.Embed(color=0x94FF26) # Cria um embed
         
-        self.interpet_day = self.getNextInterpet().date() # Pega a data de hoje
+        self.interpet_day = self.getNextInterpet() # Pega a data de hoje
         
         days_to_interpet = self.interpet_day - date.today() # Calcula a diferença entre a data de hoje e a data do interpet
         
-        if days_to_interpet.day == 0:
+        if days_to_interpet.days == 0:
             em.add_field(
                 name="**Interpet**",
                 value="Hoje é o dia do interpet! Corre pra não perder a reunião."
@@ -33,13 +33,13 @@ class Petinter(apc.Group):
                     value="Erro na data do interpet"
                 )
         else:
-            date = f'{self.interpet_day.day:02d}/{self.interpet_day.month:02d}/{self.interpet_day.year}'
+            interpet = f'{self.interpet_day.day:02d}/{self.interpet_day.month:02d}/{self.interpet_day.year}'
             em.add_field(
                 name="**Interpet**",
                 value=f'Falta {days_to_interpet.days} dia até o próximo interpet, \
-                    que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.' + \
-                        f" Os grupos do interpet serão: {Bot.Data.Interpet[date]}."
-                        )
+                    que será no dia {self.interpet_day.day:02d}/{self.interpet_day.month:02d}.\n \
+                    Os grupos do interpet serão: {Bot.Data.Interpet[interpet]}.'
+                    )
             
         await interaction.response.send_message(embed=em, ephemeral=not mostrar) # Envia a mensagem
         
@@ -132,7 +132,7 @@ class Petinter(apc.Group):
         self.remember_interpet.start() # Inicia a task de lembrar do interpet
         self.awake_interpet.start() # Inicia a task de acordar para o interpet
         
-    def getNextInterpet(self):
+    def getNextInterpet(self) -> date:
         dates: dict = {}
         for interpet in Bot.Data.Interpet.keys():
             day, month, year = interpet.split('/')

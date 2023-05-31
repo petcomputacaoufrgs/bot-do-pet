@@ -124,7 +124,7 @@ class Petbolsa(apc.Group):
             Bot.Data.Payments['date'] = last_reference_month
             Bot.Data.Payments.save()
 
-            await channel.send(embed=em)
+            await channel.send(f'Atenção, <@&{Bot.Data.Roles["petiane"]}>!',embed=em)
 
         elif two_months_ago.strftime("%m/%Y") == last_reference_month and Bot.Data.Payments['date'] != last_reference_month:
             em=discord.Embed(title = "**Atualização**", 

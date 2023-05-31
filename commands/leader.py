@@ -17,28 +17,28 @@ class Petlider(apc.Group):
     async def month_leadership(self, interaction: discord.Interaction, mostrar: bool = False):
         
         if not Bot.Data.Leadership:
-            em = discord.Embed(0xFF0000)
+            em = discord.Embed(color=0xFF0000)
             em.add_field(
                 name="Erro!",
                 value="Não há líderes cadastrados!"
             )
-            await interaction.response.send(embed=em, ephemeral=not mostrar)
+            await interaction.response.send_message(embed=em, ephemeral=not mostrar)
             return
         
         current_month = datetime.date.today().month
         if str(current_month) not in Bot.Data.Leadership.keys():
-            em = discord.Embed(0xFF0000)
+            em = discord.Embed(color=0xFF0000)
             em.add_field(
                 name="Erro!",
                 value="Não há líderes cadastrados!"
             )
-            await interaction.response.send(embed=em, ephemeral=not mostrar)
+            await interaction.response.send_message(embed=em, ephemeral=not mostrar)
             return
         
         current_leadership = Bot.Data.Leadership[f'{current_month}']
-        em = discord.Embed(0xFDFD96)
+        em = discord.Embed(color=0xFDFD96)
         em.add_field(
-            title=f"**Liderança:**",
+            name=f"**Liderança:**",
             value=f"Neste mês de {self.months_names[f'{current_month}'].lower()}, o líder é <@{current_leadership[0]}> e o vice é <@{current_leadership[1]}>.\n\nPara os próximos meses:",
             inline=False
         )
@@ -53,7 +53,7 @@ class Petlider(apc.Group):
                     inline=False
                 )
                 
-        await interaction.response.send(embed=em, ephemeral=not mostrar)
+        await interaction.response.send_message(embed=em, ephemeral=not mostrar)
         
     @apc.command(name="adicionar", description="Adiciona uma dupla à liderança")
     async def addLider(self, interaction: discord.Interaction, mes: int, lider: discord.Member, vice: discord.Member):
@@ -88,9 +88,9 @@ class Petlider(apc.Group):
             return
         
         leadership = Bot.Data.Leadership[f'{datetime.date.today().month}']
-        em = discord.Embed(0xFDFD96)
+        em = discord.Embed(color=0xFDFD96)
         em.add_field(
-            title=f"**Liderança:**",
+            name=f"**Liderança:**",
             value=f"Nesse mês, nosso ditador passa a ser <@{leadership[0]}> e nosso vice, <@{leadership[1]}>.",
             inline=False
         )
