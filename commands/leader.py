@@ -47,8 +47,8 @@ class Petlider(apc.Group):
             embed_month = str(month)
             if embed_month in Bot.Data.Leadership.keys():
                 next_leadership = Bot.Data.Leadership[embed_month]
-                nameLeader = Bot.Data.Members[next_leadership[0]].name if next_leadership[0] in Bot.Data.Members.keys() else "???"
-                nameVice = Bot.Data.Members[next_leadership[1]].name if next_leadership[1] in Bot.Data.Members.keys() else "???"
+                nameLeader = Bot.Data.Members[next_leadership[0]].nickname if next_leadership[0] in Bot.Data.Members.keys() else "???"
+                nameVice = Bot.Data.Members[next_leadership[1]].nickname if next_leadership[1] in Bot.Data.Members.keys() else "???"
                 em.add_field(
                     name=f"**{self.months_names[embed_month]}**",
                     value=f"__Líder__: {nameLeader}\n__Vice__: {nameVice}",
