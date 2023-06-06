@@ -103,6 +103,12 @@ class Petagenda(apc.Group):
         Bot.Data.Schedule.save()
         await interaction.response.send_message("Agendamento ordenado")
         
+    @apc.command(name="link", description="Define o link do formulário")
+    async def set_form(self, interaction: discord.Interaction, link: str):
+        Bot.Data.Projects["form_link"] = link
+        Bot.Data.Projects.save()
+        await interaction.response.send_message("Link do formulário atualizado")
+        
     @tasks.loop(time=datetime.time(hour=14, tzinfo=Bot.TZ))
     async def warn_schedule(self):
         if datetime.date.today().weekday() != 0:
@@ -112,12 +118,13 @@ class Petagenda(apc.Group):
             Bot.Data.Schedule["current"] = 0
         
         next_project = Bot.Data.Projects[Bot.Data.Schedule["projects"][Bot.Data.Schedule["current"]]]
+        form = Bot.Data.Projects["form_link"]
         
         em = discord.Embed(color=0xFF8AD2)
         
         em.add_field(
             name="**Post do Dragão!!**",
-            value=f"O próximo projeto é: <@&{next_project.id}>",
+            value=f"O próximo projeto é: <@&{next_project.id}>\nRespondam o Formulário: {form}",
             inline=False
         )
         
