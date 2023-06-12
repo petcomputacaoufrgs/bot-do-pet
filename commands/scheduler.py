@@ -105,8 +105,8 @@ class Petagenda(apc.Group):
         
     @apc.command(name="link", description="Define o link do formulário")
     async def set_form(self, interaction: discord.Interaction, link: str):
-        Bot.Data.Projects["form_link"] = link
-        Bot.Data.Projects.save()
+        Bot.Data.Schedule["form_link"] = link
+        Bot.Data.Schedule.save()
         await interaction.response.send_message("Link do formulário atualizado")
         
     @tasks.loop(time=datetime.time(hour=14, tzinfo=Bot.TZ))
@@ -118,7 +118,7 @@ class Petagenda(apc.Group):
             Bot.Data.Schedule["current"] = 0
         
         next_project = Bot.Data.Projects[Bot.Data.Schedule["projects"][Bot.Data.Schedule["current"]]]
-        form = Bot.Data.Projects["form_link"]
+        form = Bot.Data.Schedule["form_link"]
         
         em = discord.Embed(color=0xFF8AD2)
         

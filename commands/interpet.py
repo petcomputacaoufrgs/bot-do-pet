@@ -97,7 +97,7 @@ class Petinter(apc.Group):
         
     @tasks.loop(time=time(hour=20, tzinfo=Bot.TZ))
     async def remember_interpet(self):
-        self.interpet_day = self.getNextInterpet().date() # Pega a data atual
+        self.interpet_day = self.getNextInterpet() # Pega a data atual
         if date.today() + timedelta(days=1) != self.interpet_day:
             return
 
@@ -113,7 +113,7 @@ class Petinter(apc.Group):
         
     @tasks.loop(time=time(hour=8, tzinfo=Bot.TZ))
     async def awake_interpet(self):
-        self.interpet_day = self.getNextInterpet().date()  # Pega a data atual
+        self.interpet_day = self.getNextInterpet()  # Pega a data atual
         if date.today() != self.interpet_day:
             return
         
