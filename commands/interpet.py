@@ -134,15 +134,20 @@ class Petinter(apc.Group):
         
     def getNextInterpet(self) -> date:
         dates: dict = {}
+        pastDates: list = []
         for interpet in Bot.Data.Interpet.keys():
             day, month, year = interpet.split('/')
             day, month, year = int(day), int(month), int(year)
             difference = datetime(year, month, day).date() - date.today()
             if difference.days < 0:
-                del Bot.Data.Interpet[interpet]
+                pastDates += interpet
                 continue
             
             dates[difference] = datetime(year, month, day).date()
+
+        for pastDate in pastDates:
+            del Bot.Data.Interpet[pastDate]
+            
         Bot.Data.Interpet.save()
         return dates[min(dates.keys())]    
         
