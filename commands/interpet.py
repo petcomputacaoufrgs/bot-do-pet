@@ -108,7 +108,7 @@ class Petinter(apc.Group):
         )
         
         channel = Bot.get_channel(Bot.Data.Channels['interpet'])
-        await channel.send(f"Atenção, <@&{Bot.Data.Roles['petiane']}!", embed=em)
+        await channel.send(f"Atenção, <@&{Bot.Data.Roles['petiane']}>!", embed=em)
         
         
     @tasks.loop(time=time(hour=8, tzinfo=Bot.TZ))
