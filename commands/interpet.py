@@ -140,7 +140,7 @@ class Petinter(apc.Group):
             day, month, year = int(day), int(month), int(year)
             difference = datetime(year, month, day).date() - date.today()
             if difference.days < 0:
-                pastDates += interpet
+                pastDates.append(interpet)
                 continue
             
             dates[difference] = datetime(year, month, day).date()
