@@ -1,7 +1,8 @@
 import discord
 from discord import app_commands
 from datetime import timezone, timedelta
-from utils.env import dictJSON
+from utils.dictjson import dictJSON
+from utils.data import Data
 
 # SETUP
 class MyClient(discord.Client):  # Cria o cliente que será usado
@@ -15,7 +16,7 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
         self.synced = False
 
         # Variáveis adicionais
-        self.ENV: dictJSON = dictJSON("data/.env")  # Carrega as variaveis de ambiente
+        self.Data: Data = Data()  # Carrega os dados do bot
         self.TZ = timezone(timedelta(hours=-3))  # Carrega o timezone
         self.classes = [] # Lista de comandos
         self.tasks = (cls.startTasks for cls in self.classes if hasattr(cls, "startTasks"))
@@ -30,7 +31,7 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
         aClass = MyClass()
         self.classes.append(aClass)
         self.CommandTree.add_command(
-            aClass, guild=discord.Object(id=self.ENV["SERVER_ID"]))
+            aClass, guild=discord.Object(id=self.Data.Secrets["serverID"]))
     
     async def on_voice_state_update(self, member, before, after):    
         """Função chamada pelo cliente discord quando há atualização no estado de voz de um membro"""
@@ -39,7 +40,7 @@ class MyClient(discord.Client):  # Cria o cliente que será usado
 
     async def on_ready(self):  # Quando o bot estiver pronto e aceitando comando
         if not self.synced:  # Se a variavel for falso ele atuailiza a lista de comandos
-            await self.CommandTree.sync(guild=discord.Object(id=self.ENV["SERVER_ID"]))
+            await self.CommandTree.sync(guild=discord.Object(id=self.Data.Secrets["serverID"]))
             self.synced = True
         # Gera uma lista de comandos que tenham inicializador de tasks
         

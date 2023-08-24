@@ -1,8 +1,8 @@
 import discord
-import datetime
+from datetime import date, timedelta, datetime, time
 from discord.ext import tasks
 from discord import app_commands as apc
-from utils.env import dictJSON
+from utils.members import Member
 
 from bot import Bot
 
@@ -12,75 +12,79 @@ class Petaniver(apc.Group):
 
     def __init__(self):
         super().__init__() # Inicializa a classe pai
-        self.data = dictJSON("data/birthdays.json") # Carrega o arquivo de aniversarios
 
     @apc.command(name="aniversario", description="Informa o dia do próximo aniversário")
-    async def nextbirthday(self, interaction: discord.Interaction):
-        day = datetime.date.today() # Pega a data de hoje
-        while True: # Loop para encontrar o proximo aniversario
-            day += datetime.timedelta(days=1) # Adiciona um dia a data de hoje
-            # Se a data for igual a data de hoje
-            if day.strftime("%d/%m") in self.data.keys():
-                birthday_people = self.data[day.strftime("%d/%m")] # Pega a lista de pessoas que fazem aniversario nesse dia
-                break # Quebra o loop
+    async def nextbirthday(self, interaction: discord.Interaction, mostrar: bool = False):
+        today = datetime(2000, date.today().month, date.today().day, tzinfo=Bot.TZ) # Cria uma data com o dia e mes de hoje no ano dos aniversario
         
-        birthday_person = self.birthday_string(birthday_people) # Transforma a lista de pessoas em uma string
-        startofMsg = "O próximo aniversariante é"  # Define a primeira parte da mensagem
-        if len(birthday_people) != 1: # Se tiver mais de uma pessoa fazendo aniversario
-            startofMsg = "Os próximos aniversariantes são" # Muda a mensagem inicial
+        days: dict[timedelta, list[Member]] = {} # Cria uma lista de dias
+        for member in Bot.Data.Members.values():
+            if member.birthday is None: 
+                continue
+            
+            difference = member.birthday - today # Pega a diferença entre a data de hoje e o aniversario
+            if (difference.days < 0): # Se a diferença for menor que 0
+                difference += timedelta(days=365) # Adiciona 365 dias a diferença
+            
+            if difference not in days:
+                days[difference] = []
+                
+            days[difference].append(member) # Adiciona a diferença na lista de dias
+                  
+        if len(days) == 0: # Se não tiver nenhum aniversario
+            em = discord.Embed(color=0xFF8AD2) # Cria um embed
+            em.add_field( # Adiciona um campo ao embed
+                name=f"**Aniversário**",
+                value=f"Não há cadastrados.",
+                inline=False
+            )
+            await interaction.response.send_message(embed=em, ephemeral=not mostrar) # Envia a mensagem
+            return
+        
+        smallest = min(days.keys()) # Pega a menor diferença
+        birthday_person = self.birthday_string(days[smallest]) # Transforma a lista de pessoas em uma string
         
         em = discord.Embed(color=0xFF8AD2) # Cria um embed
         em.add_field( # Adiciona um campo ao embed
             name=f"**Aniversário**",
-            value=f"{startofMsg} {birthday_person}, no dia {day.strftime('%d/%m')}.",
+            value=f"{'O próximo aniversariante é' if len(days[smallest]) == 1 else 'Os próximos aniversariantes são'} \
+                {birthday_person}, no dia {days[smallest][0].birthday.strftime('%d/%m')}.",
             inline=False
         )
-        await interaction.response.send_message(embed=em) # Envia a mensagem
+        await interaction.response.send_message(embed=em, ephemeral=not mostrar) # Envia a mensagem
         
-    @apc.command(name="adicionar", description="Adiciona um aniversariante em uma data!")
-    async def add_ani(self, interaction: discord.Interaction, nome: str, dia: int, mes: int):
-        if dia > 31 or dia < 1 or mes > 12 or mes < 1: # Verifica se a data é valida
-            await interaction.response.send_message("Data inválida") # Envia a mensagem
-            return # Sai da função
-        if f'{dia:02d}/{mes:02d}' in self.data.keys(): # Verifica se a data já existe
-            self.data[f"{dia:02d}/{mes:02d}"] +=[nome] # Adiciona o nome a lista de nomes
-        else: # Se não existir
-            self.data[f"{dia:02d}/{mes:02d}"] = [nome] # Cria a data com o nome
-        await interaction.response.send_message(f"Aniversariante {nome} adicionado com sucesso!") # Envia a mensagem
-        
-    @apc.command(name="remover", description="Remove um aniversariante") # Comando para remover um aniversariante
-    async def rem_ani(self, interaction: discord.Interaction, nome: str): # Função para remover um aniversariante
-        for date in self.data.keys(): # Itera sobre as datas
-            if nome in self.data[date]: # Se o nome estiver na lista de nomes
-                self.data[date].remove(nome) # Remove o nome da lista
-                if self.data[date] == []: # Se a lista ficar vazia
-                    self.data.pop(date) # Remove a data
-                await interaction.response.send_message(f"Aniversariante {nome} removido com sucesso!") # Envia a mensagem
-                return # Sai da função
-        await interaction.response.send_message(f"Aniversariante {nome} não encontrado!") # Envia a mensagem
-        
-    @tasks.loop(time=datetime.time(hour=8, tzinfo=Bot.TZ))
+    @tasks.loop(time=time(hour=8, tzinfo=Bot.TZ))
     async def test_birthday(self):
-        today = datetime.date.today().strftime("%d/%m") # Pega a data de hoje
-        if today not in self.data.keys(): # Se não tiver aniversario hoje
+        today = datetime(2000, date.today().month, date.today().day, tzinfo=Bot.TZ) # Cria uma data com o dia e mes de hoje no ano dos aniversario
+        aniversaries: list[Member] = [] # Cria uma lista de aniversarios
+        for member in Bot.Data.Members.values():
+            if member.birthday is None: 
+                continue
+            
+            if member.birthday != today: # Se for o aniversario de alguem
+                continue
+            
+            aniversaries.append(member) # Adiciona a pessoa na lista de aniversarios
+        
+        if len(aniversaries) == 0: # Se não tiver aniversario hoje
             return # Sai da função
         
-        birthday_people = self.data[today]    # Pega a lista de pessoas que fazem aniversario hoje 
-        birthday_person = self.birthday_string(birthday_people) # Transforma a lista de pessoas em uma string
-        startofMsg = "O aniversariante de hoje é"  # Define a primeira parte da mensagem
-        if len(birthday_people) != 1: # Se tiver mais de uma pessoa fazendo aniversario
-            startofMsg = "Os aniversariantes de hoje são" # Muda a mensagem inicial
+        birthday_person = self.birthday_string(aniversaries) # Transforma a lista de pessoas em uma string
         
-        channel = Bot.get_channel(Bot.ENV["BIRTHDAY_CHANNEL"])  # Pega o canal de aniversarios
-        await channel.send(f'Atenção, <@&{Bot.ENV["PETIANES_ID"]}>, pois é dia de festa!\n{startofMsg} {birthday_person}, não se esqueçam de desejar tudo de bom e mais um pouco.')
+        channel = Bot.get_channel(Bot.Data.Channels['birthday'])  # Pega o canal de aniversarios
+        em = discord.Embed(color=0xFF8AD2) # Cria um embed
+        em.add_field(
+            name=f"**Aniversário**",
+            value=f'Atenção, hoje é dia de festa!\n\
+                {"O aniversariante de hoje é" if len(aniversaries) == 1 else "Os aniversariantes de hoje são"} \
+                {birthday_person}, não se esqueçam de desejar tudo de bom e mais um pouco.'
+        )
+        await channel.send(embed=em) # Envia a mensagem
         
-    def birthday_string(self, data):
-        birthday_string = "" # Inicializa a string
-        if len(data) != 1: # Se tiver mais de uma pessoa
-            for names in data: # Itera sobre as pessoas
-                if names != data[-1]: # Se não for a ultima pessoa
-                    birthday_string += f"{names}, e " # Adiciona a pessoa e uma virgula
-        birthday_string += f"{data[-1]}" # Adiciona a ultima pessoa
+    def birthday_string(self, data: list[Member]):
+        birthday_string = "".join(f'<@{person.id}>, e' for person in data) # Inicializa a string
+        
+        birthday_string = birthday_string[:-3] # Remove o ultimo "e"
         return birthday_string # Retorna a string
         
     @tasks.loop(count=1)

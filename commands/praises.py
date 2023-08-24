@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands as apc
 import random
-from utils.env import dictJSON
+from utils.dictjson import dictJSON
 
 from bot import Bot
 
@@ -27,7 +27,8 @@ class Petelogio(apc.Group):
                 value="Esse elogio já está na lista."
             )
         else:
-            self.data["praises"] += [elogio]
+            self.data["praises"].append(elogio)
+            self.data.save()
             em.color = 0xFF6347
             em.add_field(
                 name="**Adicionar elogio**",
@@ -39,7 +40,8 @@ class Petelogio(apc.Group):
     async def rem_praise(self, interaction: discord.Interaction, elogio: str):
         em = discord.Embed()
         if elogio in self.data["praises"]:
-            self.data["praises"] -= [elogio]
+            self.data["praises"].remove(elogio)
+            self.data.save()
             em.color = 0xFF6347
             em.add_field(
                 name="**Remover elogio**",
@@ -54,15 +56,15 @@ class Petelogio(apc.Group):
         await interaction.response.send_message(embed=em)
         
     @apc.command(name="listar", description="lista todos os elogios")
-    async def show_praises(self, interaction: discord.Interaction):
+    async def show_praises(self, interaction: discord.Interaction, mostrar: bool = False):
         em = discord.Embed()
         em.color = 0xFF6347
         em.add_field(
             name="**Lista de elogios**",
             value="\n".join(self.data["praises"])
         )
-        await interaction.response.send_message(embed=em)
+        await interaction.response.send_message(embed=em, ephemeral= not mostrar)
         
     @apc.command(name="hug", description="demonstre seu carinho por alguém")
-    async def show_praises(self, interaction: discord.Interaction, pessoa: discord.User):
+    async def hug(self, interaction: discord.Interaction, pessoa: discord.User):
         await interaction.response.send_message(f"<@{interaction.user.id}> abraçou beeeeem forte <@{pessoa.id}> <3")

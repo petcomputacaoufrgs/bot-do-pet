@@ -1,6 +1,6 @@
 from bot import Bot
-from utils.env import loadModules
+from utils.modules import loadModules
 
 loadModules("commands") # Carrega os modulos
 
-Bot.run(Bot.ENV["TOKEN"]) # Inicia o bot
+Bot.run(Bot.Data.Secrets["token"]) # Inicia o bot

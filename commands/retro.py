@@ -2,7 +2,6 @@ import discord
 import datetime
 from discord.ext import tasks
 from discord import app_commands as apc
-from utils.env import dictJSON
 from math import ceil
 
 from bot import Bot
@@ -12,57 +11,21 @@ class Petretro(apc.Group):
     """Retrospectiva"""
     def __init__(self):
         super().__init__()
-        self.flag = True
-        self.petianes: dictJSON = dictJSON("data/retro.json")
             
     def getNames(self, date: datetime.date, values: bool = False) -> str:
-        length = self.petianes.__len__()
-        petText = ""  # text to be sent
-        if values:
-            textStart = "<@"
-            textEnd = ">\n"
-            test = self.petianes.values()
-        else:
-            textStart = ""
-            textEnd = "\n"
-            test = self.petianes.keys()
-        # if the week is even
-        if date.isocalendar()[1] % 2 == 0:
-            # get the petianes of the week
-            for petiane in list(test)[ceil(length/2):]:
-                petText += f'{textStart}{petiane}{textEnd}'
-        else:
-            for petiane in list(test)[:ceil(length/2)]:
-                petText += f'{textStart}{petiane}{textEnd}'
-            
-        return petText
-    
-    @apc.command(name="adicionar", description="Adiciona um petiano a lista de retrospectiva")
-    async def adicionar(self, interaction: discord.Interaction, nome: str, id: discord.User):
-        if id.id in self.petianes.values():
-            await interaction.response.send_message("Petiano já está na lista!", ephemeral=True)
-            return
+        members: list[str] = []
         
-        self.petianes[nome] = id.id
-        self.petianes.sort()
-        # Envia a mensagem
-        await interaction.response.send_message(f"{nome} adicionado à lista com sucesso!")
-
-    @apc.command(name="remover", description="Remove um petiano da lista de retrospectiva")
-    async def remover(self, interaction: discord.Interaction, id: discord.User):
-        if id.id not in self.petianes.values():
-            await interaction.response.send_message("Petiane não está na lista!", ephemeral=True)
-            return
-        
-        for key, value in self.petianes.items():
-            if value == id.id:
-                del self.petianes[key]
-                break
-        # Envia a mensagem
-        await interaction.response.send_message(f"{id.name} removido da lista com sucesso!")
+        for petiane in Bot.Data.Members.values():
+            if petiane.role == Bot.Data.Roles["petiane"]:
+                members.append(f'<@{petiane.id}>\n' if values else f'{petiane.nickname}\n')
+                
+        size = ceil(len(members)/2)
+        week = date.isocalendar()[1] % 2 == 0
+        # if the week is even get the petianes of the week
+        return "".join(petiane for petiane in (members[size:] if week else members[:size]))
 
     @apc.command(name="retro", description="Informa a data da próxima retrospectiva")
-    async def retrospective(self, interaction: discord.Interaction):
+    async def retrospective(self, interaction: discord.Interaction, mostrar: bool = False):
         em = discord.Embed(color=0xF0E68C)
 
         today = datetime.date.today()
@@ -71,24 +34,25 @@ class Petretro(apc.Group):
         em.add_field(name=f"**Retrospectiva**\n\nA proxima retrospectiva será dia {friday.day:02d}/{friday.month:02d}/{friday.year:02d}.",
                      value="**Os Petianes dessa semana são:**\n" + self.getNames(friday, False)
                 )
-        await interaction.response.send_message(embed=em)
+        await interaction.response.send_message(embed=em, ephemeral=not mostrar)
 
-    @apc.command(name="ferias", description="Desliga os avisos de retrospectiva")
-    async def retroFerias(self, interaction: discord.Interaction):
+    @apc.command(name="ferias", description="Desliga/Liga os avisos de retrospectiva")
+    async def retroFerias(self, interaction: discord.Interaction, estado: bool):
         em = discord.Embed(color=0xF0E68C)
-        self.flag = not self.flag
+        Bot.Data.Secrets["flag"] = not estado
+        Bot.Data.Secrets.save()
         em.add_field(
             name="**Retrospectiva**",
-            value="Bot voltandas das férias das retrospectivas! Devolta com avisos." if self.flag else "Bot entrando de férias das retrospectivas! Sem mais avisos."
+            value="Bot voltandas das férias das retrospectivas! Devolta com avisos." if Bot.Data.Secrets["flag"] else "Bot entrando de férias das retrospectivas! Sem mais avisos."
         )
         await interaction.response.send_message(embed=em)
 
     # Task: send the warning to every petiane
     @tasks.loop(time=datetime.time(hour=12, tzinfo = Bot.TZ))
     async def remember_retrospective(self):
-        if (not self.flag) or datetime.date.today().weekday() != 4:  # 3 = Thursday
+        if (not Bot.Data.Secrets["flag"]) or datetime.date.today().weekday() != 4:  # 4 = friday
             return
-        channel = Bot.get_channel(Bot.ENV["WARNING_CHANNEL"])
+        channel = Bot.get_channel(Bot.Data.Channels["warning"])
         petText = f"**Retrospectiva**\n\nAtenção, hoje é dia de retrospectiva, deixem postado até segunda para a Erika ler.\n\n**Os Petianes dessa semana são:**\n" + \
             self.getNames(datetime.date.today(), True)
         await channel.send(petText)
