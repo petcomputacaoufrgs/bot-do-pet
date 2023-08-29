@@ -1,5 +1,5 @@
 [submodule "data"]
 	path = data
-	url = https://github.com/petcomputacaoufrgs/bot-do-pet-data.git
+	url = git@github.com:petcomputacaoufrgs/bot-do-pet-data.git
 	branch = main
     shallow = true
