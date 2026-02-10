@@ -1,3 +1,5 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 discord.py
 pytz
 selenium
@@ -5,6 +7,3 @@ dataclasses-json
 torch
 torchaudio
 torchvision
-discord
-dataclasses_json
-selenium
